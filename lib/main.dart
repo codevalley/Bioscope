@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'application/di/dependency_injection.dart' as di;
 import 'presentation/screens/onboarding_screen.dart';
+import 'presentation/state_management/onboarding_notifier.dart';
+import 'data/repositories/user_repository_impl.dart';
+import 'data/datasources/local_user_data_source_impl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
-  runApp(const ProviderScope(child: MyApp()));
+  final sharedPreferences = await SharedPreferences.getInstance();
+  runApp(ProviderScope(
+    overrides: [
+      userRepositoryProvider.overrideWithValue(
+        UserRepositoryImpl(
+          localDataSource: LocalUserDataSourceImpl(
+            sharedPreferences: sharedPreferences,
+          ),
+        ),
+      ),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

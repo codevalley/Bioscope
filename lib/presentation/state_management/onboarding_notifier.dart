@@ -1,8 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import '../../domain/entities/user.dart';
+import '../../domain/repositories/user_repository.dart';
 import 'onboarding_state.dart';
 
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
-  OnboardingNotifier() : super(const OnboardingState.initial());
+  final UserRepository userRepository;
+
+  OnboardingNotifier(this.userRepository)
+      : super(const OnboardingState.initial());
 
   void startOnboarding() {
     state = const OnboardingState.inProgress(currentPage: 0);
@@ -43,12 +49,29 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     );
   }
 
-  void completeOnboarding() {
-    state = const OnboardingState.complete();
+  Future<void> completeOnboarding() async {
+    state.maybeWhen(
+      inProgress:
+          (currentPage, name, dailyCalorieGoal, dietaryPreferences) async {
+        final user = User(
+          id: const Uuid().v4(),
+          name: name ?? '',
+          dailyCalorieGoal: dailyCalorieGoal ?? 2000,
+          dietaryPreferences: dietaryPreferences ?? [],
+        );
+        await userRepository.saveUser(user);
+        state = const OnboardingState.complete();
+      },
+      orElse: () {},
+    );
   }
 }
 
 final onboardingProvider =
     StateNotifierProvider<OnboardingNotifier, OnboardingState>(
-  (ref) => OnboardingNotifier(),
+  (ref) => OnboardingNotifier(ref.watch(userRepositoryProvider)),
+);
+
+final userRepositoryProvider = Provider<UserRepository>(
+  (ref) => throw UnimplementedError(),
 );

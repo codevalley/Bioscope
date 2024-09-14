@@ -127,29 +127,102 @@ class WelcomePage extends StatelessWidget {
   }
 }
 
-class GoalSettingPage extends StatelessWidget {
+class GoalSettingPage extends ConsumerWidget {
   const GoalSettingPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Set your health goals',
-        style: Theme.of(context).textTheme.headlineMedium,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Set your health goals',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            decoration: const InputDecoration(
+              labelText: 'Your Name',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) =>
+                ref.read(onboardingProvider.notifier).setName(value),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            decoration: const InputDecoration(
+              labelText: 'Daily Calorie Goal',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              final intValue = int.tryParse(value);
+              if (intValue != null) {
+                ref
+                    .read(onboardingProvider.notifier)
+                    .setDailyCalorieGoal(intValue);
+              }
+            },
+          ),
+        ],
       ),
     );
   }
 }
 
-class PreferencesPage extends StatelessWidget {
+class PreferencesPage extends ConsumerWidget {
   const PreferencesPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Choose your preferences',
-        style: Theme.of(context).textTheme.headlineMedium,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final onboardingState = ref.watch(onboardingProvider);
+    final dietaryPreferences = onboardingState.maybeMap(
+      inProgress: (s) => s.dietaryPreferences ?? [],
+      orElse: () => <String>[],
+    );
+
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Choose your preferences',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 8,
+            children: [
+              'Vegetarian',
+              'Vegan',
+              'Gluten-free',
+              'Dairy-free',
+              'Keto',
+              'Paleo',
+            ].map((preference) {
+              final isSelected = dietaryPreferences.contains(preference);
+              return FilterChip(
+                label: Text(preference),
+                selected: isSelected,
+                onSelected: (selected) {
+                  final updatedPreferences =
+                      List<String>.from(dietaryPreferences);
+                  if (selected) {
+                    updatedPreferences.add(preference);
+                  } else {
+                    updatedPreferences.remove(preference);
+                  }
+                  ref
+                      .read(onboardingProvider.notifier)
+                      .setDietaryPreferences(updatedPreferences);
+                },
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
