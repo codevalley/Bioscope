@@ -9,6 +9,7 @@ class FoodEntryRepositoryImpl implements FoodEntryRepository {
 
   FoodEntryRepositoryImpl(this._dataSource);
 
+  @override // Add this line
   Future<void> initialize() async {
     await _dataSource.initialize();
   }

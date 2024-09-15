@@ -1,4 +1,4 @@
-# Progress - Chunk 3: Dashboard Screen Development
+# Progress - Chunk 3: Dashboard Screen Development (Completed)
 
 ## Chunk Overview
 
@@ -24,17 +24,7 @@
 - [x] **Task 3.9**: Implement data persistence for food entries
 - [x] **Task 3.10**: Refactor to adhere to clean architecture principles
 - [x] **Task 3.11**: Fix SQLite implementation and dependency issues
-  - Notes: Added sqflite and path packages, fixed SQLite data source implementation, updated FoodEntryRepository interface
-
-### Pending Tasks
-
-- [ ] **Task 3.5**: Implement food entry functionality
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-
-## Issues and Blockers
-
-- No current blockers identified.
+- [x] **Task 3.12**: Address minor code issues
 
 ## Notes
 
@@ -46,7 +36,65 @@
 - Data persistence implemented using SQLite for food entries.
 - Refactored code to better adhere to clean architecture principles, improving maintainability and flexibility.
 - Fixed SQLite implementation and dependency issues.
-- Consider further refinements to animations and transitions in future iterations.
+- Addressed minor code issues to improve code quality.
+
+## References
+
+- [Pitch.md](./Pitch.md)
+- [Approach.md](./Approach.md)
+- [DesignLanguage.md](./DesignLanguage.md)
+- [ProjectPlan.md](./ProjectPlan.md)
+
+# Progress - Chunk 4: Food Entry Data Structure Revamp
+
+## Chunk Overview
+
+- **Description**: Revamp the food entry data structure to mimic a nutrition info label, providing more comprehensive nutritional information.
+- **Milestone**: Updated food entry system with detailed nutritional data and corresponding UI changes.
+
+## Tasks
+
+### Pending Tasks
+
+- [ ] **Task 4.1**: Redesign FoodEntry entity
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Update FoodEntry to include more nutritional information (e.g., protein, carbs, fat, vitamins, minerals)
+
+- [ ] **Task 4.2**: Update SQLiteFoodEntryDataSource
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Modify database schema and CRUD operations to accommodate new FoodEntry structure
+
+- [ ] **Task 4.3**: Update FoodEntryRepository and its implementation
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Adjust repository methods to work with the new FoodEntry structure
+
+- [ ] **Task 4.4**: Modify DashboardNotifier
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Update state management to handle and display more detailed nutritional information
+
+- [ ] **Task 4.5**: Redesign AddFoodEntryScreen
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Modify UI to allow input of more detailed nutritional information
+
+- [ ] **Task 4.6**: Update Dashboard UI
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Adjust dashboard to display more comprehensive nutritional information
+
+## Issues and Blockers
+
+- No current blockers identified.
+
+## Notes
+
+- Consider using a nutritional database API to assist users in entering food data.
+- Ensure backward compatibility with existing food entries in the database.
+- Update unit tests to cover new FoodEntry structure and related changes.
 
 ## References
 
