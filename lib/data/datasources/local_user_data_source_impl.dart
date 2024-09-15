@@ -1,33 +1,25 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/datasources/local_user_data_source.dart';
 import '../../domain/entities/user.dart';
+import 'user_profile_database.dart';
 
 class LocalUserDataSourceImpl implements LocalUserDataSource {
-  final SharedPreferences sharedPreferences;
+  final UserProfileDatabase database;
 
-  LocalUserDataSourceImpl({required this.sharedPreferences});
-
-  static const String _userKey = 'user';
-  static const String _onboardingCompletedKey = 'onboarding_completed';
+  LocalUserDataSourceImpl({required this.database});
 
   @override
   Future<void> saveUser(User user) async {
-    await sharedPreferences.setString(_userKey, json.encode(user.toJson()));
-    await sharedPreferences.setBool(_onboardingCompletedKey, true);
+    await database.insertUser(user);
   }
 
   @override
   Future<User?> getUser() async {
-    final userData = sharedPreferences.getString(_userKey);
-    if (userData != null) {
-      return User.fromJson(json.decode(userData));
-    }
-    return null;
+    return await database.getUser();
   }
 
   @override
   Future<bool> isOnboardingCompleted() async {
-    return sharedPreferences.getBool(_onboardingCompletedKey) ?? false;
+    final user = await getUser();
+    return user != null;
   }
 }
