@@ -11,6 +11,11 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   return getIt<UserRepository>();
 });
 
+final userProvider = FutureProvider<User?>((ref) async {
+  final userRepository = ref.watch(userRepositoryProvider);
+  return userRepository.getUser();
+});
+
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -26,7 +31,7 @@ class DashboardScreen extends ConsumerWidget {
           child: userAsyncValue.when(
             data: (user) => user != null
                 ? _buildDashboardContent(context, user)
-                : _buildOnboardingPrompt(context),
+                : _buildOnboardingPrompt(context, ref),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, __) =>
                 const Center(child: Text('Error loading user data')),
@@ -119,7 +124,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildOnboardingPrompt(BuildContext context) {
+  Widget _buildOnboardingPrompt(BuildContext context, WidgetRef ref) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -129,21 +134,24 @@ class DashboardScreen extends ConsumerWidget {
             style: Theme.of(context).textTheme.displayLarge,
           ),
           const SizedBox(height: 16),
+          Text(
+            'Let\'s get started by setting up your health goals.',
+            style: Theme.of(context).textTheme.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
           CustomButton(
-            onPressed: () {
-              Navigator.of(context).pushReplacement(
+            onPressed: () async {
+              await Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const OnboardingScreen()),
               );
+              // Refresh the user data after onboarding
+              ref.refresh(userProvider);
             },
-            child: const Text('Start Onboarding'),
+            child: const Text('Set Your Health Goals'),
           ),
         ],
       ),
     );
   }
 }
-
-final userProvider = FutureProvider<User?>((ref) async {
-  final userRepository = ref.watch(userRepositoryProvider);
-  return userRepository.getUser();
-});

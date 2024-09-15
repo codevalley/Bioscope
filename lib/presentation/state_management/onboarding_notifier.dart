@@ -14,7 +14,12 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final UserRepository userRepository;
 
   OnboardingNotifier(this.userRepository)
-      : super(const OnboardingState.initial());
+      : super(const OnboardingState.inProgress(
+          currentPage: 0,
+          name: null,
+          dailyCalorieGoal: null,
+          dietaryPreferences: null,
+        ));
 
   void startOnboarding() {
     state = const OnboardingState.inProgress(

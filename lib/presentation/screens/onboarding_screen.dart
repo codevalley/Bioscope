@@ -17,16 +17,15 @@ class OnboardingScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: onboardingState.when(
-            initial: () => _buildWelcomeScreen(context, notifier),
+            initial: () =>
+                _buildNameAndCalorieScreen(context, notifier, null, null),
             inProgress:
                 (currentPage, name, dailyCalorieGoal, dietaryPreferences) {
               switch (currentPage) {
                 case 0:
-                  return _buildNameInputScreen(context, notifier, name);
+                  return _buildNameAndCalorieScreen(
+                      context, notifier, name, dailyCalorieGoal);
                 case 1:
-                  return _buildCalorieGoalScreen(
-                      context, notifier, dailyCalorieGoal);
-                case 2:
                   return _buildDietaryPreferencesScreen(
                       context, notifier, dietaryPreferences);
                 default:
@@ -40,34 +39,8 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWelcomeScreen(
-      BuildContext context, OnboardingNotifier notifier) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Welcome to Bioscope',
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          CustomButton(
-            onPressed: () {
-              notifier.startOnboarding();
-            },
-            child: const Text('Get Started'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNameInputScreen(
-      BuildContext context, OnboardingNotifier notifier, String? name) {
+  Widget _buildNameAndCalorieScreen(BuildContext context,
+      OnboardingNotifier notifier, String? name, int? dailyCalorieGoal) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -104,47 +77,14 @@ class OnboardingScreen extends ConsumerWidget {
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildCalorieGoalScreen(BuildContext context,
-      OnboardingNotifier notifier, int? dailyCalorieGoal) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Set your health goals',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        const SizedBox(height: 24),
-        _InputCard(
-          icon: Icons.person,
-          label: 'Your Name',
-          child: TextField(
-            onChanged: notifier.setName,
-            decoration: const InputDecoration(
-              hintText: 'Enter your name',
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        _InputCard(
-          icon: Icons.local_fire_department,
-          label: 'Daily Calorie Goal',
-          child: TextField(
-            onChanged: (value) =>
-                notifier.setDailyCalorieGoal(int.tryParse(value) ?? 0),
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              hintText: 'Enter your daily calorie goal',
-              border: InputBorder.none,
-            ),
-          ),
+        const Spacer(),
+        CustomButton(
+          onPressed: () {
+            if (notifier.canMoveToNextPage()) {
+              notifier.nextPage();
+            }
+          },
+          child: const Text('Next'),
         ),
       ],
     );
@@ -196,7 +136,7 @@ class OnboardingScreen extends ConsumerWidget {
             );
           }).toList(),
         ),
-        const SizedBox(height: 24),
+        const Spacer(),
         CustomButton(
           onPressed: () async {
             await notifier.completeOnboarding();
