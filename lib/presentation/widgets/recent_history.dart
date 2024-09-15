@@ -20,7 +20,8 @@ class RecentHistory extends StatelessWidget {
         ...recentMeals.map((meal) => ListTile(
               title: Text(meal.name ?? 'Unknown'),
               subtitle: Text('${meal.calories ?? 0} calories'),
-              trailing: Text(getRelativeTime(meal.date ?? DateTime.now())),
+              trailing: Text(
+                  DateFormatter.getRelativeTime(meal.date ?? DateTime.now())),
             )),
       ],
     );
