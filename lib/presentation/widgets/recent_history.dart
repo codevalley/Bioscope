@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bioscope/domain/entities/food_entry.dart'; // Add this import
+import 'package:bioscope/utils/date_formatter.dart';
 
 class RecentHistory extends StatelessWidget {
   final List<FoodEntry> recentMeals;
@@ -19,7 +20,7 @@ class RecentHistory extends StatelessWidget {
         ...recentMeals.map((meal) => ListTile(
               title: Text(meal.name ?? 'Unknown'),
               subtitle: Text('${meal.calories ?? 0} calories'),
-              trailing: Text(meal.date?.toString() ?? 'No date'),
+              trailing: Text(getRelativeTime(meal.date ?? DateTime.now())),
             )),
       ],
     );

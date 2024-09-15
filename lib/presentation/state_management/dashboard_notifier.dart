@@ -60,10 +60,35 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    final now = DateTime.now();
+    final hour = now.hour;
+    final dayName = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ][now.weekday - 1];
+    final monthName = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ][now.month - 1];
+    final greeting = hour < 12
+        ? "Good Morning"
+        : (hour < 17 ? "Good Afternoon" : "Good Evening");
+    return "$greeting\n$dayName, ${now.day} $monthName";
   }
 
   Future<void> addFoodEntry(FoodEntry entry) async {
