@@ -1,47 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:bioscope/domain/entities/food_entry.dart'; // Add this import
 
 class RecentHistory extends StatelessWidget {
-  final List<String> recentMeals;
+  final List<FoodEntry> recentMeals;
 
-  const RecentHistory({
-    super.key,
-    required this.recentMeals,
-  });
+  const RecentHistory({Key? key, required this.recentMeals}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Recent History',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(color: Colors.black),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          height: 150,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black, width: 1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: ListView.builder(
-            itemCount: recentMeals.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(
-                  recentMeals[index],
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Colors.black),
-                ),
-              );
-            },
-          ),
-        ),
+        Text('Recent Meals',
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge), // Updated to titleLarge
+        const SizedBox(height: 8),
+        ...recentMeals.map((meal) => ListTile(
+              title: Text(meal.name ?? 'Unknown'),
+              subtitle: Text('${meal.calories ?? 0} calories'),
+              trailing: Text(meal.date?.toString() ?? 'No date'),
+            )),
       ],
     );
   }

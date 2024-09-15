@@ -45,60 +45,37 @@
 - [DesignLanguage.md](./DesignLanguage.md)
 - [ProjectPlan.md](./ProjectPlan.md)
 
-# Progress - Chunk 4: Food Entry Data Structure Revamp
+# Progress - Chunk 4: Data Layer Implementation
 
 ## Chunk Overview
 
-- **Description**: Revamp the food entry data structure to mimic a nutrition info label, providing more comprehensive nutritional information.
-- **Milestone**: Updated food entry system with detailed nutritional data and corresponding UI changes.
+- **Description**: Implement the data layer with local and remote data sources, and a repository to coordinate between them.
+- **Milestone**: Functional data layer with local storage and mock remote operations.
 
 ## Tasks
 
-### Pending Tasks
+### Completed Tasks
 
-- [ ] **Task 4.1**: Redesign FoodEntry entity
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-  - Notes: Update FoodEntry to include more nutritional information (e.g., protein, carbs, fat, vitamins, minerals)
+- [x] Implement `DataSource` interface
+- [x] Create `SQLiteFoodEntryDataSource` for local storage
+- [x] Implement `MockRemoteFoodEntryDataSource` for remote operations
+- [x] Develop `FoodEntryRepositoryImpl` to coordinate data sources
+- [x] Define `FoodEntry` entity with nullable properties
+- [x] Set up Riverpod providers for dependency injection
+- [x] Implement `DashboardNotifier` for state management
 
-- [ ] **Task 4.2**: Update SQLiteFoodEntryDataSource
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-  - Notes: Modify database schema and CRUD operations to accommodate new FoodEntry structure
+### In-Progress Tasks
 
-- [ ] **Task 4.3**: Update FoodEntryRepository and its implementation
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-  - Notes: Adjust repository methods to work with the new FoodEntry structure
-
-- [ ] **Task 4.4**: Modify DashboardNotifier
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-  - Notes: Update state management to handle and display more detailed nutritional information
-
-- [ ] **Task 4.5**: Redesign AddFoodEntryScreen
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-  - Notes: Modify UI to allow input of more detailed nutritional information
-
-- [ ] **Task 4.6**: Update Dashboard UI
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-  - Notes: Adjust dashboard to display more comprehensive nutritional information
-
-## Issues and Blockers
-
-- No current blockers identified.
+- [ ] Finalize UI integration with data layer
+- [ ] Implement error handling and edge cases
 
 ## Notes
 
-- Consider using a nutritional database API to assist users in entering food data.
-- Ensure backward compatibility with existing food entries in the database.
-- Update unit tests to cover new FoodEntry structure and related changes.
+- The basic data layer structure is in place, but we need to ensure proper error handling and edge case management.
+- Consider implementing a synchronization mechanism between local and remote data sources in the future.
 
 ## References
 
-- [Pitch.md](./Pitch.md)
 - [Approach.md](./Approach.md)
 - [DesignLanguage.md](./DesignLanguage.md)
 - [ProjectPlan.md](./ProjectPlan.md)

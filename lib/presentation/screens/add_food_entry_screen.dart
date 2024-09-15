@@ -63,12 +63,13 @@ class AddFoodEntryScreen extends ConsumerWidget {
                 final calories = int.tryParse(caloriesController.text) ?? 0;
                 if (name.isNotEmpty && calories > 0) {
                   final entry = FoodEntry(
-                    id: DateTime.now().toIso8601String(),
                     name: name,
                     calories: calories,
-                    timestamp: DateTime.now(),
+                    date: DateTime.now(),
                   );
-                  ref.read(dashboardProvider.notifier).addFoodEntry(entry);
+                  ref
+                      .read(dashboardNotifierProvider.notifier)
+                      .addFoodEntry(entry);
                   Navigator.of(context).pop();
                 }
               },

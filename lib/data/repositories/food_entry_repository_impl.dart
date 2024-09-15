@@ -1,38 +1,65 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entities/food_entry.dart';
-import '../../domain/repositories/food_entry_repository.dart';
-import '../../domain/datasources/food_entry_data_source.dart';
-import '../datasources/sqlite_food_entry_data_source.dart';
+import 'package:bioscope/domain/datasources/data_source.dart';
+import 'package:bioscope/domain/entities/food_entry.dart';
+import 'package:bioscope/domain/repositories/food_entry_repository.dart';
 
 class FoodEntryRepositoryImpl implements FoodEntryRepository {
-  final FoodEntryDataSource _dataSource;
+  final DataSource<FoodEntry> localDataSource;
+  final DataSource<FoodEntry> remoteDataSource;
 
-  FoodEntryRepositoryImpl(this._dataSource);
+  FoodEntryRepositoryImpl({
+    required this.localDataSource,
+    required this.remoteDataSource,
+  });
 
-  @override // Add this line
+  @override
   Future<void> initialize() async {
-    await _dataSource.initialize();
+    await localDataSource.initialize();
+    await remoteDataSource.initialize();
+  }
+
+  @override
+  Future<List<FoodEntry>> getAllFoodEntries() async {
+    try {
+      final remoteData = await remoteDataSource.getAll();
+      for (var item in remoteData) {
+        await localDataSource.create(item);
+      }
+      return remoteData;
+    } catch (e) {
+      return localDataSource.getAll();
+    }
   }
 
   @override
   Future<List<FoodEntry>> getRecentFoodEntries() async {
-    return await _dataSource.getRecentFoodEntries();
+    final allEntries = await getAllFoodEntries();
+    allEntries.sort((a, b) {
+      final aDate = a.date;
+      final bDate = b.date;
+      if (aDate == null || bDate == null) return 0;
+      return bDate.compareTo(aDate);
+    });
+    return allEntries.take(5).toList();
   }
 
   @override
   Future<void> addFoodEntry(FoodEntry entry) async {
-    await _dataSource.addFoodEntry(entry);
+    await localDataSource.create(entry);
+    try {
+      await remoteDataSource.create(entry);
+    } catch (e) {
+      // Handle error or queue for later sync
+    }
   }
 
   @override
   Future<int> getTotalCaloriesConsumed() async {
-    return await _dataSource.getTotalCaloriesConsumed();
+    final entries = await getAllFoodEntries();
+    return entries.fold<int>(0, (sum, entry) => sum + (entry.calories ?? 0));
+  }
+
+  @override
+  Stream<List<FoodEntry>> watchAllFoodEntries() {
+    return localDataSource.watchAll();
   }
 }
-
-final foodEntryRepositoryProvider = Provider<FoodEntryRepository>((ref) {
-  final dataSource = SQLiteFoodEntryDataSource();
-  final repository = FoodEntryRepositoryImpl(dataSource);
-  repository.initialize(); // Initialize the database
-  return repository;
-});

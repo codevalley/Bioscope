@@ -11,7 +11,7 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dashboardState = ref.watch(dashboardProvider);
+    final dashboardState = ref.watch(dashboardNotifierProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFE6F3EF), // Light mint green background

@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/repositories/food_entry_repository.dart';
-import '../../data/repositories/food_entry_repository_impl.dart'; // Add this import
-import '../../domain/entities/food_entry.dart';
+import 'package:bioscope/domain/entities/food_entry.dart';
+import 'package:bioscope/domain/repositories/food_entry_repository.dart';
+import 'package:bioscope/presentation/providers/providers.dart';
 
 class DashboardState {
   final String greeting;
   final int caloriesConsumed;
   final int caloriesRemaining;
-  final List<String> recentMeals;
+  final List<FoodEntry> recentMeals;
 
   DashboardState({
     required this.greeting,
@@ -15,68 +15,58 @@ class DashboardState {
     required this.caloriesRemaining,
     required this.recentMeals,
   });
-
-  DashboardState copyWith({
-    String? greeting,
-    int? caloriesConsumed,
-    int? caloriesRemaining,
-    List<String>? recentMeals,
-  }) {
-    return DashboardState(
-      greeting: greeting ?? this.greeting,
-      caloriesConsumed: caloriesConsumed ?? this.caloriesConsumed,
-      caloriesRemaining: caloriesRemaining ?? this.caloriesRemaining,
-      recentMeals: recentMeals ?? this.recentMeals,
-    );
-  }
 }
 
-class DashboardNotifier extends StateNotifier<DashboardState> {
-  final FoodEntryRepository _foodEntryRepository;
+final dashboardNotifierProvider =
+    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
+  final repository = ref.watch(foodEntryRepositoryProvider);
+  return DashboardNotifier(repository);
+});
 
-  DashboardNotifier(this._foodEntryRepository)
+class DashboardNotifier extends StateNotifier<DashboardState> {
+  final FoodEntryRepository _repository;
+
+  DashboardNotifier(this._repository)
       : super(DashboardState(
-          greeting: '',
+          greeting: "Hello",
           caloriesConsumed: 0,
-          caloriesRemaining: 0,
+          caloriesRemaining: 2000,
           recentMeals: [],
         )) {
-    _initializeDashboard();
+    _initialize();
   }
 
-  Future<void> _initializeDashboard() async {
-    final caloriesConsumed =
-        await _foodEntryRepository.getTotalCaloriesConsumed();
-    final recentEntries = await _foodEntryRepository.getRecentFoodEntries();
+  Future<void> _initialize() async {
+    await _repository.initialize();
+    await _loadFoodEntries();
+    _repository.watchAllFoodEntries().listen(_updateState);
+  }
 
-    state = state.copyWith(
+  Future<void> _loadFoodEntries() async {
+    final entries = await _repository.getAllFoodEntries();
+    _updateState(entries);
+  }
+
+  void _updateState(List<FoodEntry> entries) {
+    final caloriesConsumed =
+        entries.fold(0, (sum, entry) => sum + (entry.calories ?? 0));
+    state = DashboardState(
       greeting: _getGreeting(),
       caloriesConsumed: caloriesConsumed,
       caloriesRemaining:
-          2000 - caloriesConsumed, // Assuming a 2000 calorie goal
-      recentMeals: recentEntries.map((e) => e.name).toList(),
+          2000 - caloriesConsumed, // Assuming 2000 is the daily goal
+      recentMeals: entries.take(5).toList(),
     );
   }
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return 'Good Morning';
-    } else if (hour < 17) {
-      return 'Good Afternoon';
-    } else {
-      return 'Good Evening';
-    }
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
   }
 
   Future<void> addFoodEntry(FoodEntry entry) async {
-    await _foodEntryRepository.addFoodEntry(entry);
-    await _initializeDashboard(); // Refresh the dashboard data
+    await _repository.addFoodEntry(entry);
   }
 }
-
-final dashboardProvider =
-    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
-  final foodEntryRepository = ref.watch(foodEntryRepositoryProvider);
-  return DashboardNotifier(foodEntryRepository);
-});

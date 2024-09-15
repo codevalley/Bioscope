@@ -1,27 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'presentation/screens/dashboard_screen.dart';
-import 'data/repositories/food_entry_repository_impl.dart';
+import 'package:bioscope/presentation/screens/dashboard_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final container = ProviderContainer();
-  await container.read(foodEntryRepositoryProvider).initialize();
-  runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const MyApp(),
-    ),
-  );
+void main() {
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key}); // Changed this line
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Food Tracker',
+      title: 'Bioscope',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
