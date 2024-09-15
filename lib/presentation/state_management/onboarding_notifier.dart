@@ -35,11 +35,27 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     );
   }
 
-  void nextPage() {
-    state = state.maybeMap(
-      inProgress: (s) => s.copyWith(currentPage: s.currentPage + 1),
-      orElse: () => state,
+  bool canMoveToNextPage() {
+    return state.maybeMap(
+      inProgress: (s) {
+        if (s.currentPage == 0) {
+          return s.name != null &&
+              s.name!.isNotEmpty &&
+              s.dailyCalorieGoal != null;
+        }
+        return true;
+      },
+      orElse: () => false,
     );
+  }
+
+  void nextPage() {
+    if (canMoveToNextPage()) {
+      state = state.maybeMap(
+        inProgress: (s) => s.copyWith(currentPage: s.currentPage + 1),
+        orElse: () => state,
+      );
+    }
   }
 
   void previousPage() {
@@ -53,14 +69,16 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     state.maybeWhen(
       inProgress:
           (currentPage, name, dailyCalorieGoal, dietaryPreferences) async {
-        final user = User(
-          id: const Uuid().v4(),
-          name: name ?? '',
-          dailyCalorieGoal: dailyCalorieGoal ?? 2000,
-          dietaryPreferences: dietaryPreferences ?? [],
-        );
-        await userRepository.saveUser(user);
-        state = const OnboardingState.complete();
+        if (name != null && name.isNotEmpty && dailyCalorieGoal != null) {
+          final user = User(
+            id: const Uuid().v4(),
+            name: name,
+            dailyCalorieGoal: dailyCalorieGoal,
+            dietaryPreferences: dietaryPreferences ?? [],
+          );
+          await userRepository.saveUser(user);
+          state = const OnboardingState.complete();
+        }
       },
       orElse: () {},
     );

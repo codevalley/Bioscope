@@ -3,225 +3,308 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/custom_button.dart';
 import '../state_management/onboarding_notifier.dart';
 
-class OnboardingScreen extends ConsumerStatefulWidget {
+class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
   @override
-  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final PageController _pageController = PageController();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(onboardingProvider.notifier).startOnboarding();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final onboardingState = ref.watch(onboardingProvider);
+    final notifier = ref.read(onboardingProvider.notifier);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5), // Off-white background
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (int page) {
-                  ref.read(onboardingProvider.notifier).nextPage();
-                },
-                children: const [
-                  WelcomePage(),
-                  GoalSettingPage(),
-                  PreferencesPage(),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LinearProgressIndicator(
+                value: onboardingState.maybeMap(
+                  inProgress: (s) => (s.currentPage + 1) / 3,
+                  orElse: () => 0,
+                ),
+                backgroundColor: Colors.grey[300],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.purple),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (onboardingState.maybeMap(
-                    inProgress: (s) => s.currentPage > 0,
-                    orElse: () => false,
-                  ))
-                    CustomButton(
-                      text: 'Back',
-                      onPressed: () {
-                        _pageController.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
+              const SizedBox(height: 32),
+              Expanded(
+                child: onboardingState.maybeMap(
+                  initial: (_) => const _WelcomeScreen(),
+                  inProgress: (s) {
+                    switch (s.currentPage) {
+                      case 0:
+                        return _GoalScreen(
+                          name: s.name,
+                          dailyCalorieGoal: s.dailyCalorieGoal,
+                          onNameChanged: notifier.setName,
+                          onCalorieGoalChanged: notifier.setDailyCalorieGoal,
                         );
-                        ref.read(onboardingProvider.notifier).previousPage();
-                      },
-                      isSecondary: true,
-                    )
-                  else
-                    const SizedBox(width: 100),
-                  CustomButton(
-                    text: onboardingState.maybeMap(
-                      inProgress: (s) => s.currentPage == 2 ? 'Finish' : 'Next',
-                      orElse: () => 'Next',
-                    ),
-                    onPressed: () {
-                      onboardingState.maybeMap(
-                        inProgress: (s) {
-                          if (s.currentPage < 2) {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          } else {
-                            ref
-                                .read(onboardingProvider.notifier)
-                                .completeOnboarding();
-                            // TODO: Navigate to the main app screen
-                          }
-                        },
-                        orElse: () {},
-                      );
-                    },
-                  ),
-                ],
+                      case 1:
+                        return _PreferencesScreen(
+                          preferences: s.dietaryPreferences ?? [],
+                          onPreferencesChanged: notifier.setDietaryPreferences,
+                        );
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  },
+                  complete: (_) => const _CompletionScreen(),
+                  orElse: () => const SizedBox.shrink(),
+                ),
               ),
-            ),
-          ],
+              if (onboardingState.maybeMap(
+                complete: (_) => false,
+                orElse: () => true,
+              ))
+                const SizedBox(height: 16),
+              if (onboardingState.maybeMap(
+                complete: (_) => false,
+                orElse: () => true,
+              ))
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (onboardingState.maybeMap(
+                      inProgress: (s) => s.currentPage > 0,
+                      orElse: () => false,
+                    ))
+                      CustomButton(
+                        onPressed: notifier.previousPage,
+                        child: const Text('Back'),
+                      )
+                    else
+                      const SizedBox.shrink(),
+                    CustomButton(
+                      onPressed: onboardingState.maybeMap(
+                        initial: (_) => notifier.startOnboarding,
+                        inProgress: (s) {
+                          return s.currentPage == 1 &&
+                                  notifier.canMoveToNextPage()
+                              ? notifier.completeOnboarding
+                              : notifier.canMoveToNextPage()
+                                  ? notifier.nextPage
+                                  : null;
+                        },
+                        orElse: () => null,
+                      ),
+                      child: Text(
+                        onboardingState.maybeMap(
+                          initial: (_) => 'Get Started',
+                          inProgress: (s) =>
+                              s.currentPage == 1 ? 'Finish' : 'Next',
+                          orElse: () => '',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
+class _WelcomeScreen extends StatelessWidget {
+  const _WelcomeScreen();
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Welcome to Bioscope',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Your personal health oracle',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
-          ),
-        ],
+      child: Text(
+        'Welcome to Bioscope',
+        style: Theme.of(context).textTheme.displayMedium?.copyWith(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+        textAlign: TextAlign.center,
       ),
     );
   }
 }
 
-class GoalSettingPage extends ConsumerWidget {
-  const GoalSettingPage({super.key});
+class _GoalScreen extends StatelessWidget {
+  final String? name;
+  final int? dailyCalorieGoal;
+  final Function(String) onNameChanged;
+  final Function(int) onCalorieGoalChanged;
+
+  const _GoalScreen({
+    required this.name,
+    required this.dailyCalorieGoal,
+    required this.onNameChanged,
+    required this.onCalorieGoalChanged,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Set your health goals',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 24),
-          TextField(
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Set your health goals',
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 24),
+        _InputCard(
+          icon: Icons.person,
+          label: 'Your Name',
+          child: TextField(
+            onChanged: onNameChanged,
             decoration: const InputDecoration(
-              labelText: 'Your Name',
-              border: OutlineInputBorder(),
+              hintText: 'Enter your name',
+              border: InputBorder.none,
             ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        _InputCard(
+          icon: Icons.local_fire_department,
+          label: 'Daily Calorie Goal',
+          child: TextField(
             onChanged: (value) =>
-                ref.read(onboardingProvider.notifier).setName(value),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: 'Daily Calorie Goal',
-              border: OutlineInputBorder(),
-            ),
+                onCalorieGoalChanged(int.tryParse(value) ?? 0),
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              final intValue = int.tryParse(value);
-              if (intValue != null) {
-                ref
-                    .read(onboardingProvider.notifier)
-                    .setDailyCalorieGoal(intValue);
-              }
-            },
+            decoration: const InputDecoration(
+              hintText: 'Enter your daily calorie goal',
+              border: InputBorder.none,
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-class PreferencesPage extends ConsumerWidget {
-  const PreferencesPage({super.key});
+class _PreferencesScreen extends StatelessWidget {
+  final List<String> preferences;
+  final Function(List<String>) onPreferencesChanged;
+
+  const _PreferencesScreen({
+    required this.preferences,
+    required this.onPreferencesChanged,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final onboardingState = ref.watch(onboardingProvider);
-    final dietaryPreferences = onboardingState.maybeMap(
-      inProgress: (s) => s.dietaryPreferences ?? [],
-      orElse: () => <String>[],
-    );
+  Widget build(BuildContext context) {
+    final allPreferences = [
+      'Vegetarian',
+      'Vegan',
+      'Gluten-free',
+      'Dairy-free',
+      'Keto',
+      'Paleo'
+    ];
 
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Choose your preferences',
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 24),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: allPreferences.map((pref) {
+            final isSelected = preferences.contains(pref);
+            return FilterChip(
+              label: Text(pref),
+              selected: isSelected,
+              onSelected: (selected) {
+                final newPreferences = List<String>.from(preferences);
+                if (selected) {
+                  newPreferences.add(pref);
+                } else {
+                  newPreferences.remove(pref);
+                }
+                onPreferencesChanged(newPreferences);
+              },
+              backgroundColor: Colors.grey[200],
+              selectedColor: Colors.purple[100],
+              checkmarkColor: Colors.purple,
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
+class _CompletionScreen extends StatelessWidget {
+  const _CompletionScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Onboarding Complete!',
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 32),
+        CustomButton(
+          onPressed: () {
+            // TODO: Navigate to the main app screen
+          },
+          child: const Text('Start Your Journey'),
+        ),
+      ],
+    );
+  }
+}
+
+class _InputCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Widget child;
+
+  const _InputCard({
+    required this.icon,
+    required this.label,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Choose your preferences',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 24),
-          Wrap(
-            spacing: 8,
+          Row(
             children: [
-              'Vegetarian',
-              'Vegan',
-              'Gluten-free',
-              'Dairy-free',
-              'Keto',
-              'Paleo',
-            ].map((preference) {
-              final isSelected = dietaryPreferences.contains(preference);
-              return FilterChip(
-                label: Text(preference),
-                selected: isSelected,
-                onSelected: (selected) {
-                  final updatedPreferences =
-                      List<String>.from(dietaryPreferences);
-                  if (selected) {
-                    updatedPreferences.add(preference);
-                  } else {
-                    updatedPreferences.remove(preference);
-                  }
-                  ref
-                      .read(onboardingProvider.notifier)
-                      .setDietaryPreferences(updatedPreferences);
-                },
-              );
-            }).toList(),
+              Icon(icon, color: Colors.purple, size: 28),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
           ),
+          const SizedBox(height: 12),
+          child,
         ],
       ),
     );

@@ -15,10 +15,10 @@
 ### Task 2.4: Integrate Bloc with UI
 - [x] Connect the OnboardingBloc to the OnboardingScreen
 - [x] Ensure user inputs are captured, processed, and stored correctly
+- [x] Improve UI to better align with design language
 - [ ] Handle navigation from onboarding to the dashboard upon completion
 
 ## Next Steps
 - Implement navigation to the dashboard upon completion of onboarding
 - Create a basic dashboard screen
 - Update the app to check for existing user data and skip onboarding if present
-- Resolve any remaining linter warnings or errors
