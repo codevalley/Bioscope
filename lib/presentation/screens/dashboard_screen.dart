@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../application/di/dependency_injection.dart';
 import '../widgets/custom_button.dart';
 import '../screens/onboarding_screen.dart';
 import '../../domain/entities/user.dart';
@@ -7,7 +8,7 @@ import '../../domain/repositories/user_repository.dart';
 
 // Add this provider
 final userRepositoryProvider = Provider<UserRepository>((ref) {
-  throw UnimplementedError();
+  return getIt<UserRepository>();
 });
 
 class DashboardScreen extends ConsumerWidget {
@@ -18,10 +19,10 @@ class DashboardScreen extends ConsumerWidget {
     final userAsyncValue = ref.watch(userProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Off-white background
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(20.0),
           child: userAsyncValue.when(
             data: (user) => user != null
                 ? _buildDashboardContent(context, user)
@@ -35,19 +36,86 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDashboardContent(BuildContext context, User? user) {
+  Widget _buildDashboardContent(BuildContext context, User user) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildGreeting(user?.name ?? 'User'),
-        _buildCalorieGoal(user?.dailyCalorieGoal),
-        const SizedBox(height: 24),
-        _buildNutritionMeter(),
-        const SizedBox(height: 24),
-        _buildRecentHistory(),
+        _buildHeader(context, user.name),
+        const SizedBox(height: 32),
+        _buildProgressChart(user.dailyCalorieGoal),
+        const SizedBox(height: 32),
+        _buildTaskList(context),
         const Spacer(),
-        _buildAddMealButton(),
+        CustomButton(
+          onPressed: () {
+            // TODO: Navigate to food capture screen
+          },
+          child: const Text('Add Meal'),
+        ),
       ],
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, String name) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const CircleAvatar(
+          radius: 24,
+          backgroundColor: Colors.grey, // Placeholder color
+          child: Icon(Icons.person, color: Colors.white), // Placeholder icon
+        ),
+        Text(
+          name,
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProgressChart(int dailyCalorieGoal) {
+    // TODO: Implement actual progress chart
+    return Container(
+      height: 200,
+      color: Colors.yellow, // Placeholder
+      child: Center(child: Text('Progress Chart: $dailyCalorieGoal calories')),
+    );
+  }
+
+  Widget _buildTaskList(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Recent Meals',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 16),
+        // Placeholder meals
+        _buildTaskItem(context, 'Breakfast'),
+        _buildTaskItem(context, 'Lunch'),
+        _buildTaskItem(context, 'Snack'),
+      ],
+    );
+  }
+
+  Widget _buildTaskItem(BuildContext context, String meal) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(meal, style: Theme.of(context).textTheme.bodyLarge),
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.black, width: 2),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -56,9 +124,9 @@ class DashboardScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Welcome to Bioscope!',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.displayLarge,
           ),
           const SizedBox(height: 16),
           CustomButton(
@@ -71,52 +139,6 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildGreeting(String name) {
-    return Text(
-      'Good morning, $name!',
-      style: const TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-    );
-  }
-
-  Widget _buildCalorieGoal(int? dailyCalorieGoal) {
-    return Text(
-      'Today\'s goal: ${dailyCalorieGoal ?? 0} calories',
-      style: const TextStyle(
-        fontSize: 18,
-        color: Colors.grey,
-      ),
-    );
-  }
-
-  Widget _buildNutritionMeter() {
-    // TODO: Implement circular progress indicator for nutrition meter
-    return const Placeholder(
-      fallbackHeight: 200,
-      child: Center(child: Text('Nutrition Meter Placeholder')),
-    );
-  }
-
-  Widget _buildRecentHistory() {
-    // TODO: Implement list of recent meals
-    return const Placeholder(
-      fallbackHeight: 200,
-      child: Center(child: Text('Recent History Placeholder')),
-    );
-  }
-
-  Widget _buildAddMealButton() {
-    return CustomButton(
-      onPressed: () {
-        // TODO: Navigate to food capture screen
-      },
-      child: const Text('Add Meal'),
     );
   }
 }

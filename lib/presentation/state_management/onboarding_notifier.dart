@@ -1,12 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import '../../application/di/dependency_injection.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
 import 'onboarding_state.dart';
 
 // Add this provider
 final userRepositoryProvider = Provider<UserRepository>((ref) {
-  throw UnimplementedError();
+  return getIt<UserRepository>();
 });
 
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
@@ -16,7 +17,12 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       : super(const OnboardingState.initial());
 
   void startOnboarding() {
-    state = const OnboardingState.inProgress(currentPage: 0);
+    state = const OnboardingState.inProgress(
+      currentPage: 0,
+      name: null,
+      dailyCalorieGoal: null,
+      dietaryPreferences: null,
+    );
   }
 
   void setName(String name) {

@@ -49,6 +49,12 @@
 - [x] Fix UserModel constructor and toJson method
 - [x] Restructure code to adhere to clean architecture principles
 
+### Task 3.9: Improve Onboarding Flow
+- [x] Add "Get Started" button to welcome screen
+- [x] Implement navigation between onboarding steps
+- [x] Add "Finish" button to complete onboarding process
+- [x] Ensure proper navigation to Dashboard after onboarding completion
+
 ## Next Steps
 - Implement FoodEntryRepository
 - Complete the nutrition meter and recent history UI components
@@ -62,6 +68,7 @@
 - Compiler errors have been addressed
 - SharedPreferences initialization has been added to main.dart
 - Restructured code to maintain clean architecture principles and allow for easy switching of implementations
+- Onboarding flow has been improved with proper navigation and completion handling
 
 ## References
 - [Approach.md](./Approach.md): See section on User Flow for context on the dashboard layout
