@@ -1,7 +1,7 @@
 import '../../domain/entities/user.dart';
 
 class UserModel extends User {
-  const UserModel({
+  UserModel({
     required super.id,
     required super.name,
     required super.dailyCalorieGoal,
@@ -17,6 +17,16 @@ class UserModel extends User {
     );
   }
 
+  factory UserModel.fromEntity(User user) {
+    return UserModel(
+      id: user.id,
+      name: user.name,
+      dailyCalorieGoal: user.dailyCalorieGoal,
+      dietaryPreferences: user.dietaryPreferences,
+    );
+  }
+
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../data/datasources/local_user_data_source.dart';
+import '../../domain/datasources/local_user_data_source.dart';
 import '../../data/datasources/local_user_data_source_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../domain/repositories/user_repository.dart';

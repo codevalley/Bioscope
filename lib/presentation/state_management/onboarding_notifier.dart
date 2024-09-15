@@ -4,6 +4,11 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
 import 'onboarding_state.dart';
 
+// Add this provider
+final userRepositoryProvider = Provider<UserRepository>((ref) {
+  throw UnimplementedError();
+});
+
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final UserRepository userRepository;
 
@@ -90,6 +95,5 @@ final onboardingProvider =
   (ref) => OnboardingNotifier(ref.watch(userRepositoryProvider)),
 );
 
-final userRepositoryProvider = Provider<UserRepository>(
-  (ref) => throw UnimplementedError(),
-);
+// Remove this line as it's now defined in user_repository_impl.dart
+// final userRepositoryProvider = Provider<UserRepository>((ref) => throw UnimplementedError());

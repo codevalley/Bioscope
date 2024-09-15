@@ -4,10 +4,28 @@ class User {
   final int dailyCalorieGoal;
   final List<String> dietaryPreferences;
 
-  const User({
+  User({
     required this.id,
     required this.name,
     required this.dailyCalorieGoal,
     required this.dietaryPreferences,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'dailyCalorieGoal': dailyCalorieGoal,
+      'dietaryPreferences': dietaryPreferences,
+    };
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'],
+      name: json['name'],
+      dailyCalorieGoal: json['dailyCalorieGoal'],
+      dietaryPreferences: List<String>.from(json['dietaryPreferences']),
+    );
+  }
 }

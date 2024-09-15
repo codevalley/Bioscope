@@ -35,3 +35,31 @@
 ### Task 2.1: Design Onboarding UI
 - [x] Create the UI for the OnboardingScreen following the design language
 - [x] Include screens for welcome message, goal setting, and preferences
+
+### Task 2.2: Implement OnboardingBloc
+- [x] Define states (OnboardingInitial, OnboardingInProgress, OnboardingComplete)
+- [x] Define events (SubmitGoals, SubmitPreferences, CompleteOnboarding)
+- [x] Implement logic to handle user input and state transitions
+
+### Task 2.3: Implement UserGoalRepository and Local Storage
+- [x] Create UserGoalRepository interface
+- [x] Implement LocalUserDataSource
+- [x] Implement methods to save and retrieve user goals from local storage
+
+### Task 2.4: Integrate Bloc with UI
+- [x] Connect the OnboardingBloc to the OnboardingScreen
+- [x] Ensure user inputs are captured, processed, and stored correctly
+- [x] Improve UI to better align with design language
+- [x] Handle navigation from onboarding to the dashboard upon completion
+
+## Chunk 3: Dashboard Screen Development
+
+### Task 3.1: Design Dashboard UI
+- [x] Implement the basic DashboardScreen UI according to the design language
+
+### Task 3.5: Implement Onboarding Check
+- [x] Modify DashboardScreen to check if onboarding is needed
+- [x] Implement navigation to OnboardingScreen if onboarding is required
+
+### Task 3.6: Update Main App Entry Point
+- [x] Modify main.dart to set DashboardScreen as the initial route

@@ -1,7 +1,6 @@
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
-import '../datasources/local_user_data_source.dart';
-import '../models/user_model.dart';
+import '../../domain/datasources/local_user_data_source.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final LocalUserDataSource localDataSource;
@@ -10,18 +9,16 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> saveUser(User user) async {
-    final userModel = UserModel(
-      id: user.id,
-      name: user.name,
-      dailyCalorieGoal: user.dailyCalorieGoal,
-      dietaryPreferences: user.dietaryPreferences,
-    );
-    await localDataSource.cacheUser(userModel);
+    await localDataSource.saveUser(user);
   }
 
   @override
   Future<User?> getUser() async {
-    final userModel = await localDataSource.getLastCachedUser();
-    return userModel;
+    return await localDataSource.getUser();
+  }
+
+  @override
+  Future<bool> isOnboardingCompleted() async {
+    return await localDataSource.isOnboardingCompleted();
   }
 }
