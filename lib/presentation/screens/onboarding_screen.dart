@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../state_management/onboarding_notifier.dart';
 import '../widgets/custom_button.dart';
-import 'dashboard_screen.dart';
+import 'package:bioscope/presentation/screens/dashboard_screen.dart';
+import '../providers/providers.dart'; // Add this import
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
@@ -32,7 +33,8 @@ class OnboardingScreen extends ConsumerWidget {
                   return const SizedBox.shrink();
               }
             },
-            complete: () => _buildCompletionScreen(context, notifier),
+            complete: () =>
+                _buildCompletionScreen(context, notifier, ref), // Pass ref here
           ),
         ),
       ),
@@ -153,7 +155,7 @@ class OnboardingScreen extends ConsumerWidget {
   }
 
   Widget _buildCompletionScreen(
-      BuildContext context, OnboardingNotifier notifier) {
+      BuildContext context, OnboardingNotifier notifier, WidgetRef ref) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -164,15 +166,27 @@ class OnboardingScreen extends ConsumerWidget {
         const SizedBox(height: 24),
         CustomButton(
           onPressed: () {
-            // Navigate to the DashboardScreen
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const DashboardScreen()),
-            );
+            _completeOnboardingAndNavigate(context, notifier, ref);
           },
           child: const Text('Start your journey'),
         ),
       ],
     );
+  }
+
+  Future<void> _completeOnboardingAndNavigate(
+      BuildContext context, OnboardingNotifier notifier, WidgetRef ref) async {
+    await notifier.completeOnboarding();
+    if (!context.mounted) return;
+
+    final user = await ref.refresh(userProvider.future);
+    if (!context.mounted) return;
+
+    if (user != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      );
+    }
   }
 }
 

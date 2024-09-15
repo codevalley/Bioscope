@@ -1,55 +1,48 @@
-# Progress - Chunk 4: Data Layer Implementation (Completed)
+# Progress - User Onboarding and Dashboard Integration
 
 ## Chunk Overview
 
-- **Description**: Implement the data layer with local and remote data sources, and a repository to coordinate between them.
-- **Milestone**: Functional data layer with local storage and mock remote operations.
+- **Description**: Implement user onboarding flow and integrate it with the dashboard
+- **Milestone**: Users can complete onboarding and see their personalized dashboard
 
 ## Tasks
 
 ### Completed Tasks
 
-- [x] Implement `DataSource` interface
-- [x] Create `SQLiteFoodEntryDataSource` for local storage
-- [x] Implement `MockRemoteFoodEntryDataSource` for remote operations
-- [x] Develop `FoodEntryRepositoryImpl` to coordinate data sources
-- [x] Define `FoodEntry` entity with nullable properties
-- [x] Set up Riverpod providers for dependency injection
-- [x] Implement `DashboardNotifier` for state management
-
-## Notes
-
-- The basic data layer structure is in place and functional.
-- Consider implementing a synchronization mechanism between local and remote data sources in the future.
-
-## References
-
-- [Approach.md](./Approach.md)
-- [DesignLanguage.md](./DesignLanguage.md)
-- [ProjectPlan.md](./ProjectPlan.md)
-
-# Progress - Chunk 5: Refinement and Error Handling
-
-## Chunk Overview
-
-- **Description**: Finalize UI integration with the data layer and implement comprehensive error handling.
-- **Milestone**: Robust application with seamless data flow and graceful error management.
-
-## Tasks
+- [x] **Task 1**: Implement OnboardingScreen with name and calorie goal input
+  - Notes: Used CustomButton and _InputCard for consistent UI
+- [x] **Task 2**: Add dietary preferences selection to OnboardingScreen
+- [x] **Task 3**: Implement onboarding completion and navigation to DashboardScreen
+- [x] **Task 4**: Update DashboardScreen to handle new user state
+- [x] **Task 5**: Integrate user data with DashboardNotifier
+- [x] **Task 6**: Refactor code to use proper state management and avoid BuildContext issues
 
 ### In-Progress Tasks
 
-- [ ] Finalize UI integration with data layer
-- [ ] Implement error handling and edge cases
-- [ ] Improve timestamp display in Dashboard and Recent History
+- [ ] **Task 7**: Implement proper storage for user data (name and calorie goal)
+  - Status: In Progress
+  - Assigned to: [Your Name]
+  - Notes: Need to decide on storage method (SQLite vs SharedPreferences)
+
+### Pending Tasks
+
+- [ ] **Task 8**: Add unit tests for new functionality
+- [ ] **Task 9**: Perform UI/UX review of onboarding flow
+
+## Issues and Blockers
+
+- **Issue 1**: Determine the best storage method for user data
+  - Action Items: Research SQLite vs SharedPreferences for user data storage
+  - References: See `Approach.md` for data persistence strategies
 
 ## Notes
 
-- Focus on creating a smooth user experience with proper error messages and fallback mechanisms.
-- Ensure all edge cases are handled gracefully.
+- **General Observations**: The integration of onboarding with the dashboard is working well, but we need to ensure data persistence
+- **Adjustments**: We may need to update our data layer to accommodate user preferences
 
 ## References
 
+- [Pitch.md](./Pitch.md)
 - [Approach.md](./Approach.md)
 - [DesignLanguage.md](./DesignLanguage.md)
 - [ProjectPlan.md](./ProjectPlan.md)

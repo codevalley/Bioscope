@@ -13,7 +13,7 @@ class NutritionMeter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final totalCalories = caloriesConsumed + caloriesRemaining;
-    final progress = caloriesConsumed / totalCalories;
+    final progress = totalCalories > 0 ? caloriesConsumed / totalCalories : 0.0;
 
     return Container(
       padding: const EdgeInsets.all(16),

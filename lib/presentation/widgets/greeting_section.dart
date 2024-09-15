@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 
 class GreetingSection extends StatelessWidget {
   final String greeting;
+  final String dateInfo;
   final int caloriesConsumed;
   final int caloriesRemaining;
+  final int dailyCalorieGoal;
 
   const GreetingSection({
     super.key,
     required this.greeting,
+    required this.dateInfo,
     required this.caloriesConsumed,
     required this.caloriesRemaining,
+    required this.dailyCalorieGoal,
   });
 
   @override
@@ -27,10 +31,18 @@ class GreetingSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '${DateTime.now().toString().split(' ')[0]} • $caloriesConsumed kcal consumed, $caloriesRemaining kcal remaining',
+          '$dateInfo • $caloriesConsumed kcal consumed, $caloriesRemaining kcal remaining',
           style: const TextStyle(
             fontSize: 16,
-            color: Color(0xFF333333), // Dark gray for less emphasis
+            color: Color(0xFF333333),
+          ),
+        ),
+        Text(
+          'Daily Goal: $dailyCalorieGoal kcal',
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color(0xFF333333),
+            fontWeight: FontWeight.bold,
           ),
         ),
       ],
