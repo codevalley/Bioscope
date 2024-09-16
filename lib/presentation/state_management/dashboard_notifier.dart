@@ -64,14 +64,13 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   String _getGreeting(String name) {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return 'Good Morning, $name';
+      return 'Good Morning,';
     } else if (hour < 17) {
-      return 'Good Afternoon, $name';
+      return 'Good Afternoon,';
     } else {
-      return 'Good Evening, $name';
+      return 'Good Evening,';
     }
   }
-
 
   Future<void> addFoodEntry(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);

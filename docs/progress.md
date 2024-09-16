@@ -1,44 +1,40 @@
-# Progress - Data Layer Restructuring and Dashboard Integration
+# Progress - Dashboard UI Improvements
 
 ## Chunk Overview
 
-- **Description**: Restructure data layer to follow clean architecture principles and integrate with dashboard
-- **Milestone**: Consistent data layer structure across entities and functional dashboard with real data
+- **Description**: Improve the visual design of dashboard components
+- **Milestone**: Enhanced user interface for better user experience
 
 ## Tasks
 
 ### Completed Tasks
 
-- [x] **Task 1**: Refactor data layer to follow clean architecture principles
-  - Notes: Created consistent structure for FoodEntry and UserProfile entities
-- [x] **Task 2**: Implement SQLite data sources for FoodEntry and UserProfile
-- [x] **Task 3**: Update repository implementations to use new data sources
-- [x] **Task 4**: Integrate real data with DashboardScreen
-- [x] **Task 5**: Implement error handling in DashboardNotifier
+- [x] **Task 1**: Update GreetingSection widget
+  - Notes: Simplified layout with greeting (including name) on first row, date and divider on second row
+- [x] **Task 2**: Update NutritionMeter widget
+  - Notes: Improved styling and added exceeded limit indicator
+- [x] **Task 3**: Update RecentHistory widget
+  - Notes: Removed card backgrounds for meal entries, added styled divider below title
+- [x] **Task 4**: Update DashboardScreen
+  - Notes: Integrated updated widgets and simplified GreetingSection usage
 
 ### In-Progress Tasks
 
-- [ ] **Task 6**: Implement remote data sources for FoodEntry and UserProfile
-  - Status: In Progress
+- [ ] **Task 5**: Refine DashboardNotifier
+  - Status: To Do
   - Assigned to: [Your Name]
-  - Notes: Currently using mock implementations, need to integrate with actual API
-
-### Pending Tasks
-
-- [ ] **Task 7**: Implement data synchronization between local and remote data sources
-- [ ] **Task 8**: Add unit tests for new data layer implementations
-- [ ] **Task 9**: Optimize database queries for better performance
+  - Notes: Ensure DashboardNotifier provides correct greeting format including the user's name
 
 ## Issues and Blockers
 
-- **Issue 1**: Need to decide on the best approach for data synchronization
-  - Action Items: Research offline-first strategies and real-time sync options
-  - References: See `Approach.md` for potential sync strategies
+- **Issue 1**: Ensure greeting in DashboardNotifier includes user's name
+  - Action Items: Update DashboardNotifier to format greeting correctly
+  - References: See `lib/presentation/state_management/dashboard_notifier.dart`
 
 ## Notes
 
-- **General Observations**: The new data layer structure is more consistent and maintainable
-- **Adjustments**: May need to update some UI components to handle potential loading states
+- **General Observations**: The updated UI components now correctly align with the specified design requirements, with a simplified GreetingSection
+- **Adjustments**: Removed redundant name parameter from GreetingSection, ensuring greeting text includes the name
 
 ## References
 

@@ -11,7 +11,7 @@ class AddFoodEntryScreen extends ConsumerWidget {
     final TextEditingController caloriesController = TextEditingController();
 
     return Scaffold(
-      backgroundColor: Colors.white, // Clean white background
+      backgroundColor: const Color(0xFFE6F3EF),
       appBar: AppBar(
         title: const Text('Add Food Entry'),
         backgroundColor: Colors.transparent,
@@ -19,28 +19,38 @@ class AddFoodEntryScreen extends ConsumerWidget {
         foregroundColor: Colors.black,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Food Name',
-                labelStyle: TextStyle(color: Colors.black),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
+                labelStyle: const TextStyle(color: Colors.black54),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.black, width: 2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.black54),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
             const SizedBox(height: 24),
             TextField(
               controller: caloriesController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Calories',
-                labelStyle: TextStyle(color: Colors.black),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
+                labelStyle: const TextStyle(color: Colors.black54),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.black, width: 2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.black54),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
               keyboardType: TextInputType.number,
@@ -51,11 +61,11 @@ class AddFoodEntryScreen extends ConsumerWidget {
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                minimumSize: const Size(double.infinity, 48),
+                minimumSize: const Size(double.infinity, 56),
               ),
               onPressed: () {
                 final name = nameController.text;
@@ -71,7 +81,7 @@ class AddFoodEntryScreen extends ConsumerWidget {
               },
               child: const Text(
                 'Add Entry',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],

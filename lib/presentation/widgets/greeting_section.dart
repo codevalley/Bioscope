@@ -3,11 +3,13 @@ import '../../utils/date_formatter.dart';
 
 class GreetingSection extends StatelessWidget {
   final String greeting;
+  final String name;
   final DateTime date;
 
   const GreetingSection({
     Key? key,
     required this.greeting,
+    required this.name,
     required this.date,
   }) : super(key: key);
 
@@ -18,17 +20,44 @@ class GreetingSection extends StatelessWidget {
       children: [
         Text(
           greeting,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          DateFormatter.formatGreetingDate(date),
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 2,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormatter.formatGreetingDate(date),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              name,
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
+          ],
         ),
       ],
     );

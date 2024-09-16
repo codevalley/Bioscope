@@ -116,4 +116,10 @@
 - Bottom tab bar with simple icons and labels
 - Active state indicated by filled icons or underline
 
+## Suggestions
+
+1. Consider adding a consistent style for dividers across the app. Currently, we're using a gradient-like effect for section dividers in the GreetingSection and RecentHistory widgets. We should document this style and potentially create a reusable widget for it.
+
+2. The color scheme for the NutritionMeter when exceeding the calorie limit (currently red) should be added to the official color palette in this document.
+
 This updated design language aligns closely with the minimalist, high-contrast style shown in the screenshot while maintaining the core structure of the original design document.

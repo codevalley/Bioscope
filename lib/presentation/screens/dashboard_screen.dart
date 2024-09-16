@@ -52,10 +52,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     final userProfileAsyncValue = ref.watch(userProfileProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white, // Clean white background
+      backgroundColor: const Color(0xFFE6F3EF),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0), // Consistent padding
+          padding: const EdgeInsets.all(24.0),
           child: userProfileAsyncValue.when(
             data: (userProfile) => userProfile != null
                 ? _buildDashboardContent(context, ref)
@@ -81,22 +81,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               children: [
                 GreetingSection(
                   greeting: dashboardState.greeting,
+                  name: dashboardState.userName,
                   date: DateTime.now(),
                 ),
-                const SizedBox(
-                    height: 16), // Reduce spacing to match minimal design
+                const SizedBox(height: 32),
                 NutritionMeter(
                   caloriesConsumed: dashboardState.caloriesConsumed,
                   caloriesRemaining: dashboardState.caloriesRemaining,
                   dailyCalorieGoal: dashboardState.dailyCalorieGoal,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
                 RecentHistory(recentMeals: dashboardState.recentMeals),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         AddMealButton(
           onPressed: () => _navigateToAddFoodEntry(context, ref),
         ),
@@ -105,53 +105,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   Widget _buildOnboardingPrompt(BuildContext context) {
-    return Container(
-      color: Colors.white, // Clean white background
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Welcome to Bioscope',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                textAlign: TextAlign.center,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Welcome to Bioscope',
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Your personal health coach',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black54,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16), // Rounded buttons
-                  ),
-                ),
-                child: const Text('Get Started'),
-              ),
-            ],
-          ),
+          textAlign: TextAlign.center,
         ),
-      ),
+        Text(
+          'Your personal health coach',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.black54,
+              ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 48),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            textStyle: const TextStyle(fontSize: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: const Text('Get Started'),
+        ),
+      ],
     );
   }
 
