@@ -1,3 +1,4 @@
+![CI](https://github.com/codevalley/bioscope/workflows/CI/badge.svg)
 # Personal Coach App
 
 A Flutter-based personal coach app that helps users track their nutrition and wellness goals.
