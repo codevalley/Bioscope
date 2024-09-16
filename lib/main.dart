@@ -17,8 +17,44 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bioscope',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFE6F3EF),
+        primaryColor: const Color(0xFFFDBA21), // Yellow primary color
+        scaffoldBackgroundColor: Colors.white,
+        fontFamily:
+            'Poppins', // You can replace this with a clean sans-serif font
+        textTheme: const TextTheme(
+          headlineMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+          headlineLarge: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: Colors.black54,
+          ),
+          titleMedium: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: const Color(0xFFFDBA21), // Yellow accent color
+          secondary: Colors.black, // Black text and icons
+          onPrimary: Colors.white, // White on primary elements
+        ),
+        buttonTheme: ButtonThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          buttonColor: Colors.black,
+          textTheme: ButtonTextTheme.primary,
+        ),
       ),
       home: const DashboardScreen(),
     );

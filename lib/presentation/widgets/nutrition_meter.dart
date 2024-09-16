@@ -20,8 +20,9 @@ class NutritionMeter extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 1),
-        borderRadius: BorderRadius.circular(8),
+        border:
+            Border.all(color: Colors.black, width: 1), // Simple sharp borders
+        borderRadius: BorderRadius.circular(8), // Slightly rounded
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,14 +31,15 @@ class NutritionMeter extends StatelessWidget {
             'Calories',
             style: Theme.of(context)
                 .textTheme
-                .titleLarge
+                .titleMedium
                 ?.copyWith(color: Colors.black),
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
             value: progress,
             backgroundColor: const Color(0xFFE6F3EF),
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFD700)),
+            valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFFFDBA21)), // Yellow progress
           ),
           const SizedBox(height: 8),
           Text(

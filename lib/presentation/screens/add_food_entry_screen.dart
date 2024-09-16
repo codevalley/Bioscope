@@ -11,7 +11,7 @@ class AddFoodEntryScreen extends ConsumerWidget {
     final TextEditingController caloriesController = TextEditingController();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE6F3EF),
+      backgroundColor: Colors.white, // Clean white background
       appBar: AppBar(
         title: const Text('Add Food Entry'),
         backgroundColor: Colors.transparent,
@@ -19,7 +19,7 @@ class AddFoodEntryScreen extends ConsumerWidget {
         foregroundColor: Colors.black,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,7 +51,7 @@ class AddFoodEntryScreen extends ConsumerWidget {
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 16),

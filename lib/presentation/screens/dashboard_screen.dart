@@ -52,10 +52,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     final userProfileAsyncValue = ref.watch(userProfileProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE6F3EF),
+      backgroundColor: Colors.white, // Clean white background
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(16.0), // Consistent padding
           child: userProfileAsyncValue.when(
             data: (userProfile) => userProfile != null
                 ? _buildDashboardContent(context, ref)
@@ -83,13 +83,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                   greeting: dashboardState.greeting,
                   date: DateTime.now(),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(
+                    height: 16), // Reduce spacing to match minimal design
                 NutritionMeter(
                   caloriesConsumed: dashboardState.caloriesConsumed,
                   caloriesRemaining: dashboardState.caloriesRemaining,
                   dailyCalorieGoal: dashboardState.dailyCalorieGoal,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 RecentHistory(recentMeals: dashboardState.recentMeals),
               ],
             ),
@@ -105,7 +106,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
   Widget _buildOnboardingPrompt(BuildContext context) {
     return Container(
-      color: const Color(0xFFE6F3EF),
+      color: Colors.white, // Clean white background
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -124,7 +125,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               const SizedBox(height: 24),
               Text(
                 'Your personal health coach',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.black54,
                     ),
                 textAlign: TextAlign.center,
@@ -142,7 +143,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   textStyle: const TextStyle(fontSize: 18),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16), // Rounded buttons
                   ),
                 ),
                 child: const Text('Get Started'),

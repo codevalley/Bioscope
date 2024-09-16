@@ -20,12 +20,13 @@ class GreetingSection extends StatelessWidget {
           greeting,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Text(
           DateFormatter.formatGreetingDate(date),
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey[600],
               ),
         ),
