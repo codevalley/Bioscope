@@ -16,8 +16,9 @@ jobs:
       with:
         flutter-version: '3.19.3'
         channel: 'stable'
+    - run: flutter --version
     - run: flutter pub get
     - run: flutter analyze
-    - run: flutter format --set-exit-if-changed .
+    - run: dart format --output=none --set-exit-if-changed .
     # Uncomment the following line when you add tests
     # - run: flutter test
