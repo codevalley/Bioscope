@@ -1,15 +1,44 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../domain/entities/food_entry.dart';
+import '../../data/services/nutrition_service.dart';
 
-class AddFoodEntryScreen extends ConsumerWidget {
-  const AddFoodEntryScreen({super.key});
+class AddFoodEntryScreen extends ConsumerStatefulWidget {
+  const AddFoodEntryScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController caloriesController = TextEditingController();
+  ConsumerState<AddFoodEntryScreen> createState() => _AddFoodEntryScreenState();
+}
 
+class _AddFoodEntryScreenState extends ConsumerState<AddFoodEntryScreen> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController caloriesController = TextEditingController();
+  XFile? _image;
+
+  final NutritionService _nutritionService = NutritionService();
+
+  Future<void> _takePicture() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      setState(() {
+        _image = image;
+      });
+      // Process the image and extract nutrition data
+      final analyzedEntry =
+          await _nutritionService.analyzeImage(File(image.path));
+
+      setState(() {
+        nameController.text = analyzedEntry.name;
+        caloriesController.text = analyzedEntry.calories.toString();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE6F3EF),
       appBar: AppBar(
@@ -29,7 +58,7 @@ class AddFoodEntryScreen extends ConsumerWidget {
                 labelText: 'Food Name',
                 labelStyle: const TextStyle(color: Colors.black54),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.black, width: 2),
+                  borderSide: const BorderSide(color: Colors.black),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 enabledBorder: OutlineInputBorder(
@@ -38,14 +67,14 @@ class AddFoodEntryScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             TextField(
               controller: caloriesController,
               decoration: InputDecoration(
                 labelText: 'Calories',
                 labelStyle: const TextStyle(color: Colors.black54),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.black, width: 2),
+                  borderSide: const BorderSide(color: Colors.black),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 enabledBorder: OutlineInputBorder(
@@ -55,33 +84,45 @@ class AddFoodEntryScreen extends ConsumerWidget {
               ),
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             ElevatedButton(
+              onPressed: _takePicture,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                minimumSize: const Size(double.infinity, 56),
               ),
-              onPressed: () {
-                final name = nameController.text;
-                final calories = int.tryParse(caloriesController.text) ?? 0;
-                if (name.isNotEmpty && calories > 0) {
-                  final entry = FoodEntry(
-                    name: name,
-                    calories: calories,
-                    date: DateTime.now(),
-                  );
-                  Navigator.of(context).pop(entry);
-                }
-              },
-              child: const Text(
-                'Add Entry',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              child: const Text('Take Picture'),
+            ),
+            if (_image != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Text('Image captured: ${_image!.path}'),
+              ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (nameController.text.isNotEmpty &&
+                      caloriesController.text.isNotEmpty) {
+                    final newEntry = FoodEntry(
+                      name: nameController.text,
+                      calories: int.parse(caloriesController.text),
+                      date: DateTime.now(),
+                      imagePath: _image?.path,
+                    );
+                    Navigator.of(context).pop(newEntry);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Add Entry'),
               ),
             ),
           ],
