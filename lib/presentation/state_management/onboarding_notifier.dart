@@ -1,19 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../application/di/dependency_injection.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/repositories/user_repository.dart';
+import '../../domain/entities/user_profile.dart';
+import '../../domain/repositories/user_profile_repository.dart';
 import 'onboarding_state.dart';
 
-// Add this provider
-final userRepositoryProvider = Provider<UserRepository>((ref) {
-  return getIt<UserRepository>();
+final userProfileRepositoryProvider = Provider<IUserProfileRepository>((ref) {
+  return getIt<IUserProfileRepository>();
 });
 
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
-  final UserRepository userRepository;
+  final IUserProfileRepository userProfileRepository;
 
-  OnboardingNotifier(this.userRepository)
+  OnboardingNotifier(this.userProfileRepository)
       : super(const OnboardingState.inProgress(
           currentPage: 0,
           name: null,
@@ -86,13 +85,16 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       inProgress:
           (currentPage, name, dailyCalorieGoal, dietaryPreferences) async {
         if (name != null && name.isNotEmpty && dailyCalorieGoal != null) {
-          final user = User(
+          final userProfile = UserProfile(
             id: const Uuid().v4(),
             name: name,
+            age: 0, // You might want to add age to onboarding
+            height: 0, // You might want to add height to onboarding
+            weight: 0, // You might want to add weight to onboarding
+            gender: '', // You might want to add gender to onboarding
             dailyCalorieGoal: dailyCalorieGoal,
-            dietaryPreferences: dietaryPreferences ?? [],
           );
-          await userRepository.saveUser(user);
+          await userProfileRepository.saveUserProfile(userProfile);
           state = const OnboardingState.complete();
         }
       },
@@ -103,7 +105,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
 final onboardingProvider =
     StateNotifierProvider<OnboardingNotifier, OnboardingState>(
-  (ref) => OnboardingNotifier(ref.watch(userRepositoryProvider)),
+  (ref) => OnboardingNotifier(ref.watch(userProfileRepositoryProvider)),
 );
 
 // Remove this line as it's now defined in user_repository_impl.dart

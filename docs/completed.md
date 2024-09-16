@@ -99,3 +99,40 @@ Implemented the main dashboard screen, including UI components and state managem
 - Consider adding more detailed nutritional information to food entries.
 - Explore possibilities for data visualization of nutritional trends over time.
 - Investigate potential for integrating with external nutritional databases or APIs.
+
+## Chunk 4: Local Data Storage Implementation
+
+### Overview
+Implemented local data storage for FoodEntry and UserProfile entities using SQLite.
+
+### Key Accomplishments
+- Designed and implemented SQLite data sources for FoodEntry and UserProfile.
+- Updated repository implementations to use the new SQLite data sources.
+- Ensured data persistence across app sessions.
+- Refactored data layer to follow clean architecture principles consistently.
+
+### Lessons Learned
+- Importance of consistent naming conventions and structure across different entities.
+- Value of abstracting data source implementations behind interfaces for flexibility.
+
+### Future Considerations
+- Consider implementing caching mechanisms for frequently accessed data.
+- Explore options for encrypting sensitive user data in local storage.
+
+## Chunk 5: Food Capture Interface Development (Partial)
+
+### Overview
+Implemented basic food entry capture functionality and integrated it with the dashboard.
+
+### Key Accomplishments
+- Created AddFoodEntryScreen for manual food entry input.
+- Integrated food entry addition with DashboardScreen and DashboardNotifier.
+- Implemented real-time updates of dashboard data when new entries are added.
+
+### Lessons Learned
+- Importance of state management for real-time UI updates.
+- Need for proper error handling in data input scenarios.
+
+### Future Considerations
+- Implement image capture and processing for food entries.
+- Integrate with nutrition analysis backend for automatic data population.

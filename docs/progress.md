@@ -1,44 +1,44 @@
-# Progress - User Onboarding and Dashboard Integration
+# Progress - Data Layer Restructuring and Dashboard Integration
 
 ## Chunk Overview
 
-- **Description**: Implement user onboarding flow and integrate it with the dashboard
-- **Milestone**: Users can complete onboarding and see their personalized dashboard
+- **Description**: Restructure data layer to follow clean architecture principles and integrate with dashboard
+- **Milestone**: Consistent data layer structure across entities and functional dashboard with real data
 
 ## Tasks
 
 ### Completed Tasks
 
-- [x] **Task 1**: Implement OnboardingScreen with name and calorie goal input
-  - Notes: Used CustomButton and _InputCard for consistent UI
-- [x] **Task 2**: Add dietary preferences selection to OnboardingScreen
-- [x] **Task 3**: Implement onboarding completion and navigation to DashboardScreen
-- [x] **Task 4**: Update DashboardScreen to handle new user state
-- [x] **Task 5**: Integrate user data with DashboardNotifier
-- [x] **Task 6**: Refactor code to use proper state management and avoid BuildContext issues
+- [x] **Task 1**: Refactor data layer to follow clean architecture principles
+  - Notes: Created consistent structure for FoodEntry and UserProfile entities
+- [x] **Task 2**: Implement SQLite data sources for FoodEntry and UserProfile
+- [x] **Task 3**: Update repository implementations to use new data sources
+- [x] **Task 4**: Integrate real data with DashboardScreen
+- [x] **Task 5**: Implement error handling in DashboardNotifier
 
 ### In-Progress Tasks
 
-- [ ] **Task 7**: Implement proper storage for user data (name and calorie goal)
+- [ ] **Task 6**: Implement remote data sources for FoodEntry and UserProfile
   - Status: In Progress
   - Assigned to: [Your Name]
-  - Notes: Need to decide on storage method (SQLite vs SharedPreferences)
+  - Notes: Currently using mock implementations, need to integrate with actual API
 
 ### Pending Tasks
 
-- [ ] **Task 8**: Add unit tests for new functionality
-- [ ] **Task 9**: Perform UI/UX review of onboarding flow
+- [ ] **Task 7**: Implement data synchronization between local and remote data sources
+- [ ] **Task 8**: Add unit tests for new data layer implementations
+- [ ] **Task 9**: Optimize database queries for better performance
 
 ## Issues and Blockers
 
-- **Issue 1**: Determine the best storage method for user data
-  - Action Items: Research SQLite vs SharedPreferences for user data storage
-  - References: See `Approach.md` for data persistence strategies
+- **Issue 1**: Need to decide on the best approach for data synchronization
+  - Action Items: Research offline-first strategies and real-time sync options
+  - References: See `Approach.md` for potential sync strategies
 
 ## Notes
 
-- **General Observations**: The integration of onboarding with the dashboard is working well, but we need to ensure data persistence
-- **Adjustments**: We may need to update our data layer to accommodate user preferences
+- **General Observations**: The new data layer structure is more consistent and maintainable
+- **Adjustments**: May need to update some UI components to handle potential loading states
 
 ## References
 

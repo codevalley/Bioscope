@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../utils/date_formatter.dart';
 
 class GreetingSection extends StatelessWidget {
   final String greeting;
-  final String dateInfo;
-  final int caloriesConsumed;
-  final int caloriesRemaining;
-  final int dailyCalorieGoal;
+  final DateTime date;
 
   const GreetingSection({
-    super.key,
+    Key? key,
     required this.greeting,
-    required this.dateInfo,
-    required this.caloriesConsumed,
-    required this.caloriesRemaining,
-    required this.dailyCalorieGoal,
-  });
+    required this.date,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,27 +18,16 @@ class GreetingSection extends StatelessWidget {
       children: [
         Text(
           greeting,
-          style: const TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 8),
         Text(
-          '$dateInfo • $caloriesConsumed kcal consumed, $caloriesRemaining kcal remaining',
-          style: const TextStyle(
-            fontSize: 16,
-            color: Color(0xFF333333),
-          ),
-        ),
-        Text(
-          'Daily Goal: $dailyCalorieGoal kcal',
-          style: const TextStyle(
-            fontSize: 16,
-            color: Color(0xFF333333),
-            fontWeight: FontWeight.bold,
-          ),
+          DateFormatter.formatGreetingDate(date),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.grey[600],
+              ),
         ),
       ],
     );

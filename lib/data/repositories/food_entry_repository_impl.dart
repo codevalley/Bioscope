@@ -1,65 +1,62 @@
-import 'package:bioscope/domain/datasources/data_source.dart';
-import 'package:bioscope/domain/entities/food_entry.dart';
-import 'package:bioscope/domain/repositories/food_entry_repository.dart';
+import '../../domain/entities/food_entry.dart';
+import '../../domain/repositories/food_entry_repository.dart';
+import '../datasources/food_entry_sqlite_ds.dart';
+import '../models/food_entry_model.dart';
 
-class FoodEntryRepositoryImpl implements FoodEntryRepository {
-  final DataSource<FoodEntry> localDataSource;
-  final DataSource<FoodEntry> remoteDataSource;
+class FoodEntryRepositoryImpl implements IFoodEntryRepository {
+  final FoodEntrySqliteDs _dataSource;
 
-  FoodEntryRepositoryImpl({
-    required this.localDataSource,
-    required this.remoteDataSource,
-  });
-
-  @override
-  Future<void> initialize() async {
-    await localDataSource.initialize();
-    await remoteDataSource.initialize();
-  }
+  FoodEntryRepositoryImpl(this._dataSource);
 
   @override
   Future<List<FoodEntry>> getAllFoodEntries() async {
-    try {
-      final remoteData = await remoteDataSource.getAll();
-      for (var item in remoteData) {
-        await localDataSource.create(item);
-      }
-      return remoteData;
-    } catch (e) {
-      return localDataSource.getAll();
-    }
+    final foodEntryModels = await _dataSource.getAll();
+    return foodEntryModels.map((model) => model as FoodEntry).toList();
   }
 
   @override
   Future<List<FoodEntry>> getRecentFoodEntries() async {
     final allEntries = await getAllFoodEntries();
-    allEntries.sort((a, b) {
-      final aDate = a.date;
-      final bDate = b.date;
-      if (aDate == null || bDate == null) return 0;
-      return bDate.compareTo(aDate);
-    });
+    allEntries.sort((a, b) => b.date.compareTo(a.date));
     return allEntries.take(5).toList();
   }
 
   @override
   Future<void> addFoodEntry(FoodEntry entry) async {
-    await localDataSource.create(entry);
-    try {
-      await remoteDataSource.create(entry);
-    } catch (e) {
-      // Handle error or queue for later sync
-    }
+    await _dataSource.create(FoodEntryModel(
+      id: entry.id,
+      name: entry.name,
+      calories: entry.calories,
+      date: entry.date,
+    ));
+  }
+
+  @override
+  Future<void> updateFoodEntry(FoodEntry entry) async {
+    await _dataSource.update(FoodEntryModel(
+      id: entry.id,
+      name: entry.name,
+      calories: entry.calories,
+      date: entry.date,
+    ));
+  }
+
+  @override
+  Future<void> deleteFoodEntry(String id) async {
+    await _dataSource.delete(id);
   }
 
   @override
   Future<int> getTotalCaloriesConsumed() async {
     final entries = await getAllFoodEntries();
-    return entries.fold<int>(0, (sum, entry) => sum + (entry.calories ?? 0));
+    return entries.fold<int>(0, (sum, entry) => sum + entry.calories);
   }
 
   @override
   Stream<List<FoodEntry>> watchAllFoodEntries() {
-    return localDataSource.watchAll();
+    return _dataSource.watchAll().map(
+          (foodEntryModels) =>
+              foodEntryModels.map((model) => model as FoodEntry).toList(),
+        );
   }
 }

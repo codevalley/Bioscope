@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/providers.dart';
+import 'add_food_entry_screen.dart';
+import 'onboarding_screen.dart';
+import '../../domain/entities/food_entry.dart';
 import '../widgets/greeting_section.dart';
 import '../widgets/nutrition_meter.dart';
 import '../widgets/recent_history.dart';
 import '../widgets/add_meal_button.dart';
-import '../state_management/dashboard_notifier.dart';
-import '../providers/providers.dart';
-import 'onboarding_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<DashboardScreen> createState() => DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class DashboardScreenState extends ConsumerState<DashboardScreen>
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
     with WidgetsBindingObserver {
   @override
   void initState() {
@@ -40,24 +41,23 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   Future<void> _refreshData() async {
-    // Use the result of refresh
-    final user = await ref.refresh(userProvider.future);
-    if (user != null) {
-      await ref.read(dashboardNotifierProvider.notifier).refreshUserData();
+    final userProfile = await ref.refresh(userProfileProvider.future);
+    if (userProfile != null) {
+      await ref.read(dashboardNotifierProvider.notifier).refreshDashboard();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final userAsyncValue = ref.watch(userProvider);
+    final userProfileAsyncValue = ref.watch(userProfileProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFE6F3EF),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: userAsyncValue.when(
-            data: (user) => user != null
+          child: userProfileAsyncValue.when(
+            data: (userProfile) => userProfile != null
                 ? _buildDashboardContent(context, ref)
                 : _buildOnboardingPrompt(context),
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -72,28 +72,34 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
   Widget _buildDashboardContent(BuildContext context, WidgetRef ref) {
     final dashboardState = ref.watch(dashboardNotifierProvider);
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GreetingSection(
-            greeting: dashboardState.greeting,
-            dateInfo: dashboardState.dateInfo,
-            caloriesConsumed: dashboardState.caloriesConsumed,
-            caloriesRemaining: dashboardState.caloriesRemaining,
-            dailyCalorieGoal: dashboardState.dailyCalorieGoal,
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GreetingSection(
+                  greeting: dashboardState.greeting,
+                  date: DateTime.now(),
+                ),
+                const SizedBox(height: 32),
+                NutritionMeter(
+                  caloriesConsumed: dashboardState.caloriesConsumed,
+                  caloriesRemaining: dashboardState.caloriesRemaining,
+                  dailyCalorieGoal: dashboardState.dailyCalorieGoal,
+                ),
+                const SizedBox(height: 32),
+                RecentHistory(recentMeals: dashboardState.recentMeals),
+              ],
+            ),
           ),
-          const SizedBox(height: 32),
-          NutritionMeter(
-            caloriesConsumed: dashboardState.caloriesConsumed,
-            caloriesRemaining: dashboardState.caloriesRemaining,
-          ),
-          const SizedBox(height: 32),
-          RecentHistory(recentMeals: dashboardState.recentMeals),
-          const SizedBox(height: 32),
-          const AddMealButton(),
-        ],
-      ),
+        ),
+        const SizedBox(height: 16),
+        AddMealButton(
+          onPressed: () => _navigateToAddFoodEntry(context, ref),
+        ),
+      ],
     );
   }
 
@@ -146,5 +152,16 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
         ),
       ),
     );
+  }
+
+  void _navigateToAddFoodEntry(BuildContext context, WidgetRef ref) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddFoodEntryScreen()),
+    );
+
+    if (result != null && result is FoodEntry) {
+      await ref.read(dashboardNotifierProvider.notifier).addFoodEntry(result);
+    }
   }
 }

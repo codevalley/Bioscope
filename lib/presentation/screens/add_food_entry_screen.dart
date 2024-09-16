@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/food_entry.dart';
-import '../state_management/dashboard_notifier.dart';
 
 class AddFoodEntryScreen extends ConsumerWidget {
   const AddFoodEntryScreen({super.key});
@@ -67,10 +66,7 @@ class AddFoodEntryScreen extends ConsumerWidget {
                     calories: calories,
                     date: DateTime.now(),
                   );
-                  ref
-                      .read(dashboardNotifierProvider.notifier)
-                      .addFoodEntry(entry);
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(entry);
                 }
               },
               child: const Text(

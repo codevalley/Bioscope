@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class NutritionMeter extends StatelessWidget {
   final int caloriesConsumed;
   final int caloriesRemaining;
+  final int dailyCalorieGoal;
 
   const NutritionMeter({
-    super.key,
+    Key? key,
     required this.caloriesConsumed,
     required this.caloriesRemaining,
-  });
+    required this.dailyCalorieGoal,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

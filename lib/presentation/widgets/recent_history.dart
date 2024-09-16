@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:bioscope/domain/entities/food_entry.dart'; // Add this import
-import 'package:bioscope/utils/date_formatter.dart';
+import '../../domain/entities/food_entry.dart';
+import '../../utils/date_formatter.dart';
 
 class RecentHistory extends StatelessWidget {
   final List<FoodEntry> recentMeals;
@@ -12,16 +12,12 @@ class RecentHistory extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Recent Meals',
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge), // Updated to titleLarge
+        Text('Recent Meals', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         ...recentMeals.map((meal) => ListTile(
-              title: Text(meal.name ?? 'Unknown'),
-              subtitle: Text('${meal.calories ?? 0} calories'),
-              trailing: Text(
-                  DateFormatter.getRelativeTime(meal.date ?? DateTime.now())),
+              title: Text(meal.name),
+              subtitle: Text('${meal.calories} calories'),
+              trailing: Text(DateFormatter.getRelativeTime(meal.date)),
             )),
       ],
     );
