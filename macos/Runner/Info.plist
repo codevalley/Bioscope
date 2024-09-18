@@ -28,5 +28,13 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	
+	<!-- Added permissions -->
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to capture food images for nutrition analysis.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>We use your location to provide personalized nutrition recommendations.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select food images for nutrition analysis.</string>
 </dict>
 </plist>

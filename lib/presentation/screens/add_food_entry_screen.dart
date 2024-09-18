@@ -1,133 +1,132 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bioscope/presentation/blocs/food_capture_bloc.dart';
+import 'package:bioscope/data/services/nutrition_service.dart';
+import 'package:bioscope/domain/entities/nutrition_info.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../domain/entities/food_entry.dart';
-import '../../data/services/nutrition_service.dart';
+import 'dart:io';
 
-class AddFoodEntryScreen extends ConsumerStatefulWidget {
+class AddFoodEntryScreen extends StatelessWidget {
   const AddFoodEntryScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<AddFoodEntryScreen> createState() => _AddFoodEntryScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => FoodCaptureBloc(NutritionService()),
+      child: const AddFoodEntryView(),
+    );
+  }
 }
 
-class _AddFoodEntryScreenState extends ConsumerState<AddFoodEntryScreen> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController caloriesController = TextEditingController();
-  XFile? _image;
+class AddFoodEntryView extends StatefulWidget {
+  const AddFoodEntryView({Key? key}) : super(key: key);
 
-  final NutritionService _nutritionService = NutritionService();
+  @override
+  AddFoodEntryViewState createState() => AddFoodEntryViewState();
+}
 
-  Future<void> _takePicture() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      setState(() {
-        _image = image;
-      });
-      // Process the image and extract nutrition data
-      final analyzedEntry =
-          await _nutritionService.analyzeImage(File(image.path));
-
-      setState(() {
-        nameController.text = analyzedEntry.name;
-        caloriesController.text = analyzedEntry.calories.toString();
-      });
-    }
-  }
+class AddFoodEntryViewState extends State<AddFoodEntryView> {
+  final TextEditingController _descriptionController = TextEditingController();
+  String? _imagePath;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE6F3EF),
-      appBar: AppBar(
-        title: const Text('Add Food Entry'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: Colors.black,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Food Name',
-                labelStyle: const TextStyle(color: Colors.black54),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.black),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.black54),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: caloriesController,
-              decoration: InputDecoration(
-                labelText: 'Calories',
-                labelStyle: const TextStyle(color: Colors.black54),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.black),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.black54),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _takePicture,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Take Picture'),
-            ),
-            if (_image != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Text('Image captured: ${_image!.path}'),
-              ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (nameController.text.isNotEmpty &&
-                      caloriesController.text.isNotEmpty) {
-                    final newEntry = FoodEntry(
-                      name: nameController.text,
-                      calories: int.parse(caloriesController.text),
-                      date: DateTime.now(),
-                      imagePath: _image?.path,
-                    );
-                    Navigator.of(context).pop(newEntry);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+      appBar: AppBar(title: const Text('Add Food Entry')),
+      body: BlocBuilder<FoodCaptureBloc, FoodCaptureState>(
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Food Description',
+                    border: OutlineInputBorder(),
                   ),
                 ),
-                child: const Text('Add Entry'),
-              ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _captureImage,
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text('Take Picture'),
+                ),
+                if (_imagePath != null) ...[
+                  const SizedBox(height: 16),
+                  Image.file(File(_imagePath!), height: 200),
+                ],
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _submitEntry,
+                  child: const Text('Submit'),
+                ),
+                if (state is FoodCaptureLoading) ...[
+                  const SizedBox(height: 16),
+                  const LinearProgressIndicator(),
+                  const SizedBox(height: 8),
+                  const Text('Analyzing image...', textAlign: TextAlign.center),
+                ] else if (state is FoodCaptureSuccess) ...[
+                  const SizedBox(height: 16),
+                  NutritionInfoDisplay(state.nutritionInfo),
+                ] else if (state is FoodCaptureFailure) ...[
+                  const SizedBox(height: 16),
+                  Text('Error: ${state.error}',
+                      style: const TextStyle(color: Colors.red)),
+                ],
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
+    );
+  }
+
+  Future<void> _captureImage() async {
+    final imagePicker = ImagePicker();
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _imagePath = pickedFile.path;
+      });
+    }
+  }
+
+  void _submitEntry() {
+    if (_imagePath != null) {
+      context.read<FoodCaptureBloc>().add(AnalyzeImage(_imagePath!));
+    }
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
+  }
+}
+
+class NutritionInfoDisplay extends StatelessWidget {
+  final NutritionInfo nutritionInfo;
+
+  const NutritionInfoDisplay(this.nutritionInfo, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Analysis Results', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Text(nutritionInfo.summary),
+        const SizedBox(height: 16),
+        ...nutritionInfo.nutrition.map((component) => ListTile(
+              title: Text(component.component),
+              subtitle: Text('${component.value} ${component.unit}'),
+              trailing: Text(
+                  'Confidence: ${(component.confidence * 100).toStringAsFixed(0)}%'),
+            )),
+      ],
     );
   }
 }
