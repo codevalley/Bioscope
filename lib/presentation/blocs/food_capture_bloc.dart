@@ -7,7 +7,8 @@ abstract class FoodCaptureEvent {}
 
 class AnalyzeImage extends FoodCaptureEvent {
   final String imagePath;
-  AnalyzeImage(this.imagePath);
+  final String context;
+  AnalyzeImage(this.imagePath, this.context);
 }
 
 // States
@@ -39,7 +40,7 @@ class FoodCaptureBloc extends Bloc<FoodCaptureEvent, FoodCaptureState> {
     emit(FoodCaptureLoading());
     try {
       final nutritionInfo =
-          await _nutritionService.analyzeImage(event.imagePath);
+          await _nutritionService.analyzeImage(event.imagePath, event.context);
       emit(FoodCaptureSuccess(nutritionInfo));
     } catch (e) {
       emit(FoodCaptureFailure(e.toString()));

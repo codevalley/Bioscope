@@ -48,10 +48,20 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _captureImage,
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Take Picture'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => _getImage(ImageSource.camera),
+                      icon: const Icon(Icons.camera_alt),
+                      label: const Text('Take Picture'),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => _getImage(ImageSource.gallery),
+                      icon: const Icon(Icons.photo_library),
+                      label: const Text('Choose from Gallery'),
+                    ),
+                  ],
                 ),
                 if (_imagePath != null) ...[
                   const SizedBox(height: 16),
@@ -83,9 +93,9 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
     );
   }
 
-  Future<void> _captureImage() async {
+  Future<void> _getImage(ImageSource source) async {
     final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
+    final pickedFile = await imagePicker.pickImage(source: source);
     if (pickedFile != null) {
       setState(() {
         _imagePath = pickedFile.path;
@@ -95,7 +105,9 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
 
   void _submitEntry() {
     if (_imagePath != null) {
-      context.read<FoodCaptureBloc>().add(AnalyzeImage(_imagePath!));
+      context
+          .read<FoodCaptureBloc>()
+          .add(AnalyzeImage(_imagePath!, _descriptionController.text));
     }
   }
 

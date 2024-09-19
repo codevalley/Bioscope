@@ -19,6 +19,10 @@
   - Notes: Added fromJson factory method and updated structure to match API response
 - [x] **Task 1.2.3: Improve NutritionComponent Parsing**
   - Notes: Added robust parsing for confidence and value fields to handle int and double types
+- [x] **Task 1.2.4: Add Gallery Image Selection**
+  - Notes: Updated AddFoodEntryScreen to allow selecting images from gallery
+- [x] **Task 1.2.5: Update API Request Structure**
+  - Notes: Modified NutritionService, FoodCaptureBloc, and AddFoodEntryScreen to include context in API requests
 
 ### In-Progress Tasks
 
@@ -35,14 +39,17 @@
 - ~~"Invalid file upload" error in NutritionService~~ (Resolved)
 - ~~Missing fromJson method in NutritionInfo~~ (Resolved)
 - ~~Potential parsing errors for int/double values~~ (Resolved)
+- ~~Missing context in API requests~~ (Resolved)
 
 ## Notes
 
 - **Permissions Update**: Added necessary permissions for internet access, camera usage, location services, and photo library access in Android, iOS, and macOS configuration files.
-- **NutritionService Update**: Implemented correct parsing of API response using updated NutritionInfo structure.
+- **NutritionService Update**: Implemented correct parsing of API response using updated NutritionInfo structure. Now includes context and service in API requests.
 - **NutritionInfo Update**: Added fromJson factory method and updated structure to correctly parse and store API response data.
 - **NutritionComponent Update**: Improved parsing to handle both int and double types for confidence and value fields.
 - **ApiConfig Update**: Added a placeholder for the API key (TODO: implement secure storage).
+- **AddFoodEntryScreen Update**: Added functionality to select images from gallery in addition to taking photos with the camera. Now passes context to FoodCaptureBloc.
+- **FoodCaptureBloc Update**: Modified to include context in AnalyzeImage event and pass it to NutritionService.
 
 ## References
 
