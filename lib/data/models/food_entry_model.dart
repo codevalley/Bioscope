@@ -1,3 +1,4 @@
+import 'dart:convert';
 import '../../domain/entities/food_entry.dart';
 import '../../domain/entities/nutrition_info.dart';
 
@@ -16,33 +17,39 @@ class FoodEntryModel extends FoodEntry {
           imagePath: imagePath,
         );
 
-  factory FoodEntryModel.empty() {
-    return FoodEntryModel(
-      id: '',
-      name: '',
-      nutritionInfo: NutritionInfo(nutrition: [], summary: ''),
-      date: DateTime.now(),
-    );
-  }
-
   factory FoodEntryModel.fromJson(Map<String, dynamic> json) {
-    return FoodEntryModel(
-      id: json['id'],
-      name: json['name'],
-      nutritionInfo: NutritionInfo.fromJson(json['nutritionInfo']),
-      date: DateTime.parse(json['date']),
-      imagePath: json['imagePath'],
-    );
+    try {
+      return FoodEntryModel(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        nutritionInfo:
+            NutritionInfo.fromJson(jsonDecode(json['nutritionInfo'] as String)),
+        date: DateTime.parse(json['date'] as String),
+        imagePath: json['imagePath'] as String?,
+      );
+    } catch (e) {
+      print('Error in FoodEntryModel.fromJson: $e');
+      print('Problematic JSON: $json');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
-      'nutritionInfo':
-          nutritionInfo.toJson(), // Assuming NutritionInfo has a toJson method
+      'nutritionInfo': jsonEncode(nutritionInfo.toJson()),
       'date': date.toIso8601String(),
       'imagePath': imagePath,
     };
+  }
+
+  factory FoodEntryModel.empty() {
+    return FoodEntryModel(
+      id: '',
+      name: '',
+      nutritionInfo: NutritionInfo.empty(),
+      date: DateTime.now(),
+    );
   }
 }

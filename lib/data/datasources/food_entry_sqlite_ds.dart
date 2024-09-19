@@ -2,6 +2,7 @@ import 'package:bioscope/core/interfaces/data_source.dart';
 import 'package:bioscope/data/models/food_entry_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
+import 'dart:convert';
 
 class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
   final Database _database;
@@ -11,16 +12,26 @@ class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
 
   @override
   Future<void> initialize() async {
-    await _database.execute(
-      'CREATE TABLE IF NOT EXISTS food_entries(id TEXT PRIMARY KEY, name TEXT, calories INTEGER, date TEXT)',
-    );
+    await _database.execute('''
+      CREATE TABLE IF NOT EXISTS food_entries(
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        date TEXT,
+        imagePath TEXT,
+        nutritionInfo TEXT
+      )
+    ''');
     _startWatching();
   }
 
   void _startWatching() {
     Timer.periodic(const Duration(seconds: 1), (_) async {
-      final entries = await getAll();
-      _controller.add(entries);
+      try {
+        final entries = await getAll();
+        _controller.add(entries);
+      } catch (e) {
+        print('Error in _startWatching: $e');
+      }
     });
   }
 
@@ -28,7 +39,16 @@ class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
   Future<List<FoodEntryModel>> getAll() async {
     final List<Map<String, dynamic>> maps =
         await _database.query('food_entries');
-    return List.generate(maps.length, (i) => FoodEntryModel.fromJson(maps[i]));
+    return List.generate(maps.length, (i) {
+      try {
+        return FoodEntryModel.fromJson(maps[i]);
+      } catch (e) {
+        print('Error parsing FoodEntryModel: $e');
+        print('Problematic data: ${maps[i]}');
+        return FoodEntryModel
+            .empty(); // Return an empty model or handle the error as appropriate
+      }
+    });
   }
 
   @override
@@ -39,25 +59,48 @@ class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
       whereArgs: [id],
     );
     if (maps.isNotEmpty) {
-      return FoodEntryModel.fromJson(maps.first);
+      try {
+        return FoodEntryModel.fromJson(maps.first);
+      } catch (e) {
+        print('Error parsing FoodEntryModel: $e');
+        print('Problematic data: ${maps.first}');
+        return null;
+      }
     }
     return null;
   }
 
   @override
   Future<void> create(FoodEntryModel item) async {
-    await _database.insert(
-      'food_entries',
-      item.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    try {
+      await _database.insert(
+        'food_entries',
+        {
+          'id': item.id,
+          'name': item.name,
+          'date': item.date.toIso8601String(),
+          'imagePath': item.imagePath,
+          'nutritionInfo': jsonEncode(item.nutritionInfo.toJson()),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      print('Error creating FoodEntryModel: $e');
+      print('Problematic item: $item');
+      rethrow;
+    }
   }
 
   @override
   Future<void> update(FoodEntryModel item) async {
     await _database.update(
       'food_entries',
-      item.toJson(),
+      {
+        'name': item.name,
+        'date': item.date.toIso8601String(),
+        'imagePath': item.imagePath,
+        'nutritionInfo': jsonEncode(item.nutritionInfo.toJson()),
+      },
       where: 'id = ?',
       whereArgs: [item.id],
     );
@@ -83,5 +126,14 @@ class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
           (entry) => entry.id == id,
           orElse: () => FoodEntryModel.empty(),
         ));
+  }
+
+  Future<void> debugPrintAllEntries() async {
+    final List<Map<String, dynamic>> maps =
+        await _database.query('food_entries');
+    print('All entries in food_entries table:');
+    for (var map in maps) {
+      print(map);
+    }
   }
 }

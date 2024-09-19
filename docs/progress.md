@@ -1,74 +1,58 @@
-# Progress - Project Setup and Architecture Initialization
+# Progress - Food Capture Interface Development
 
 ## Chunk Overview
 
-- **Description**: Setting up the project and initializing the architecture
-- **Milestone**: Project initialized with clean architecture, ready for feature development
+- **Description**: Implementing the food capture interface and integrating it with the nutrition analysis backend
+- **Milestone**: Users can capture food entries via text input or image capture, review nutrition information, and save entries
 
 ## Tasks
 
 ### Completed Tasks
 
-- [x] **Task 1.1: Project Initialization**
-  - Notes: Flutter project set up with desired package name and configurations
-- [x] **Task 1.1.1: Configure App Permissions**
-  - Notes: Added necessary permissions for Android (AndroidManifest.xml), iOS (Info.plist), and macOS (Info.plist)
-- [x] **Task 1.2.1: Update NutritionService**
-  - Notes: Implemented correct parsing of API response
-- [x] **Task 1.2.2: Update NutritionInfo Entity**
-  - Notes: Added fromJson factory method and updated structure to match API response
-- [x] **Task 1.2.3: Improve NutritionComponent Parsing**
-  - Notes: Added robust parsing for confidence and value fields to handle int and double types
-- [x] **Task 1.2.4: Add Gallery Image Selection**
-  - Notes: Updated AddFoodEntryScreen to allow selecting images from gallery
-- [x] **Task 1.2.5: Update API Request Structure**
-  - Notes: Modified NutritionService, FoodCaptureBloc, and AddFoodEntryScreen to include context in API requests
-- [x] **Task 1.2.6: Update FoodEntry Entity**
-  - Notes: Modified FoodEntry to include full NutritionInfo instead of just calories
-- [x] **Task 1.2.7: Make Image Optional in Food Analysis**
-  - Notes: Updated AddFoodEntryScreen, FoodCaptureBloc, and NutritionService to handle food analysis without an image
-- [x] **Task 1.2.8: Add Save to Log Functionality**
-  - Notes: Added a "Save to Log" button in AddFoodEntryScreen to save analyzed food entries
-- [x] **Task 1.2.9: Update Dependent Files for FoodEntry Changes**
-  - Notes: Updated FoodEntryModel and FoodEntryRepositoryImpl to reflect changes in FoodEntry entity
-- [x] **Task 1.2.10: Fix NutritionInfo Serialization**
-  - Notes: Added toJson method to NutritionInfo and NutritionComponent classes
-- [x] **Task 1.2.11: Fix getTotalCaloriesConsumed Return Type**
-  - Notes: Updated FoodEntryRepositoryImpl to return int instead of double for total calories
+- [x] **Task 5.1: Design Food Capture UI**
+  - Notes: Implemented AddFoodEntryScreen with camera interface and text input mode
+- [x] **Task 5.2: Implement FoodCaptureBloc**
+  - Notes: Defined states and events, implemented logic for handling user input and state transitions
+- [x] **Task 5.3: Integrate Image Capture Functionality**
+  - Notes: Implemented image capture and gallery selection using image_picker package
+- [x] **Task 5.4: Integrate Text Input Functionality**
+  - Notes: Implemented text input field for manual food entry
+- [x] **Task 5.5: Implement Placeholder RemoteNutritionService**
+  - Notes: Created NutritionService with API integration for food analysis
 
 ### In-Progress Tasks
 
-- [ ] **Task 1.2: Implement Clean Architecture Structure**
+- [ ] **Task 5.6: Integrate Bloc with UI**
   - Status: In Progress
-  - Notes: Directory structure created, placeholder files to be added
+  - Notes: Connecting FoodCaptureBloc to AddFoodEntryScreen, handling state changes and UI updates
 
 ### Pending Tasks
 
-- [ ] **Task 1.3: Dependency Injection Setup**
-- [ ] **Task 1.4: Implement Food Entry Database Storage**
+- [ ] **Task 5.7: Implement Error Handling**
+- [ ] **Task 5.8: Add Confirmation Screen**
+- [ ] **Task 5.9: Integrate with Dashboard**
 
 ## Issues and Blockers
 
-- ~~"Invalid file upload" error in NutritionService~~ (Resolved)
-- ~~Missing fromJson method in NutritionInfo~~ (Resolved)
-- ~~Potential parsing errors for int/double values~~ (Resolved)
-- ~~Missing context in API requests~~ (Resolved)
-- ~~Inconsistencies in FoodEntry related files after schema change~~ (Resolved)
-- ~~Missing toJson method in NutritionInfo~~ (Resolved)
-- ~~Incorrect return type for getTotalCaloriesConsumed~~ (Resolved)
+- Secure storage for API key not yet implemented
+- Need to improve error handling in NutritionService and FoodCaptureBloc
 
 ## Notes
 
-- **Permissions Update**: Added necessary permissions for internet access, camera usage, location services, and photo library access in Android, iOS, and macOS configuration files.
-- **NutritionService Update**: Implemented correct parsing of API response using updated NutritionInfo structure. Now includes context and service in API requests. Can handle requests without images.
-- **NutritionInfo Update**: Added fromJson and toJson methods and updated structure to correctly parse and store API response data.
-- **NutritionComponent Update**: Improved parsing to handle both int and double types for confidence and value fields. Added toJson method.
-- **ApiConfig Update**: Added a placeholder for the API key (TODO: implement secure storage).
-- **AddFoodEntryScreen Update**: Added functionality to select images from gallery in addition to taking photos with the camera. Now passes context to FoodCaptureBloc. Added "Save to Log" button for saving analyzed food entries.
-- **FoodCaptureBloc Update**: Modified to include context in AnalyzeImage event and pass it to NutritionService. Can now handle food analysis without an image.
-- **FoodEntry Update**: Now includes full NutritionInfo instead of just calories.
-- **FoodEntryModel Update**: Modified to reflect changes in FoodEntry entity, including NutritionInfo.
-- **FoodEntryRepositoryImpl Update**: Updated to work with the new FoodEntry and FoodEntryModel structure. Fixed getTotalCaloriesConsumed to return int.
+- **AddFoodEntryScreen Update**: Implemented UI for both image capture and text input. Added functionality to select images from gallery and take photos with the camera.
+- **FoodCaptureBloc Update**: Implemented basic state management for food capture process. Needs further refinement for error handling.
+- **NutritionService Update**: Integrated with backend API for food analysis. Handles both image and text-based requests.
+- **API Integration**: Currently using a placeholder in ApiConfig for the API key. Need to implement secure storage.
+- **Data Model Updates**: Updated FoodEntry, NutritionInfo, and related models to accommodate full nutrition data from API responses.
+- **Repository Updates**: Modified FoodEntryRepository and its implementation to work with the new data structures.
+
+## Next Steps
+
+1. Complete the integration of FoodCaptureBloc with AddFoodEntryScreen
+2. Implement comprehensive error handling throughout the food capture process
+3. Create a confirmation screen for users to review nutrition information before saving
+4. Integrate the food capture flow with the dashboard for seamless user experience
+5. Implement secure storage for the API key
 
 ## References
 

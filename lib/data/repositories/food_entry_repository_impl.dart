@@ -52,7 +52,7 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
   Future<int> getTotalCaloriesConsumed() async {
     final entries = await getAllFoodEntries();
     return entries.fold<int>(
-        0, (sum, entry) => sum + entry.nutritionInfo.calories.round());
+        0, (sum, entry) => sum + entry.nutritionInfo.calories);
   }
 
   @override

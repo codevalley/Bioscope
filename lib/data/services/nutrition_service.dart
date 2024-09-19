@@ -17,15 +17,21 @@ class NutritionService {
       request.fields['context'] = context;
       request.fields['service'] = 'claude';
 
-      var response = await request.send();
-      var responseBody = await response.stream.bytesToString();
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        var jsonResponse = json.decode(responseBody);
-        return NutritionInfo.fromJson(jsonResponse);
+        print('API Response: ${response.body}'); // Debug log
+        final jsonResponse = json.decode(response.body);
+        try {
+          return NutritionInfo.fromJson(jsonResponse);
+        } catch (e) {
+          print('Error parsing NutritionInfo: $e'); // Debug log
+          rethrow;
+        }
       } else {
         print('API Error: ${response.statusCode}');
-        print('Response body: $responseBody');
+        print('Response body: ${response.body}');
         throw Exception('Failed to analyze food: ${response.reasonPhrase}');
       }
     } catch (e) {

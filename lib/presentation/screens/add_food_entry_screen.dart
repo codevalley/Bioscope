@@ -5,6 +5,9 @@ import 'package:bioscope/data/services/nutrition_service.dart';
 import 'package:bioscope/domain/entities/nutrition_info.dart';
 import 'package:bioscope/domain/entities/food_entry.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:bioscope/domain/repositories/food_entry_repository.dart';
+import 'package:bioscope/application/di/dependency_injection.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:io';
 
 class AddFoodEntryScreen extends StatelessWidget {
@@ -121,17 +124,31 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
     }
   }
 
-  void _saveToLog(NutritionInfo nutritionInfo) {
+  void _saveToLog(NutritionInfo nutritionInfo) async {
     final foodEntry = FoodEntry(
+      id: const Uuid().v4(),
       name: _descriptionController.text,
       nutritionInfo: nutritionInfo,
       date: DateTime.now(),
       imagePath: _imagePath,
     );
-    // TODO: Save foodEntry to database
-    // For now, we'll just print it
-    print('Saved food entry: ${foodEntry.name}');
-    Navigator.pop(context); // Return to previous screen
+
+    try {
+      final IFoodEntryRepository repository = getIt<IFoodEntryRepository>();
+      await repository.addFoodEntry(foodEntry);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Food entry saved successfully')),
+        );
+        Navigator.pop(context); // Return to previous screen
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving food entry: $e')),
+        );
+      }
+    }
   }
 
   @override

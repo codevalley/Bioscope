@@ -11,31 +11,7 @@ final getIt = GetIt.instance;
 
 Future<void> setupDependencies() async {
   // Database
-  final database = await openDatabase(
-    'app_database.db',
-    version: 1,
-    onCreate: (db, version) async {
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS user_profiles(
-          id TEXT PRIMARY KEY,
-          name TEXT,
-          age INTEGER,
-          height REAL,
-          weight REAL,
-          gender TEXT,
-          dailyCalorieGoal INTEGER
-        )
-      ''');
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS food_entries(
-          id TEXT PRIMARY KEY,
-          name TEXT,
-          calories INTEGER,
-          date TEXT
-        )
-      ''');
-    },
-  );
+  final database = await openDatabase('app_database.db', version: 1);
   getIt.registerSingleton<Database>(database);
 
   // Data Sources
@@ -51,4 +27,8 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<IFoodEntryRepository>(
     () => FoodEntryRepositoryImpl(getIt<FoodEntrySqliteDs>()),
   );
+
+  // Initialize data sources
+  await getIt<UserProfileSqliteDs>().initialize();
+  await getIt<FoodEntrySqliteDs>().initialize();
 }
