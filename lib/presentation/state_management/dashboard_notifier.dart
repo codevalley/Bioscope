@@ -1,3 +1,4 @@
+import 'package:bioscope/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/food_entry.dart';
@@ -36,9 +37,24 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
           dailyCalorieGoal: 0,
         )) {
     _initializeDashboard();
+    _listenToFoodEntries();
   }
 
   Future<void> _initializeDashboard() async {
+    try {
+      await _updateDashboardState();
+    } catch (e) {
+      debugPrint('Error initializing dashboard: $e');
+    }
+  }
+
+  void _listenToFoodEntries() {
+    _foodEntryRepository.watchAllFoodEntries().listen((_) {
+      _updateDashboardState();
+    });
+  }
+
+  Future<void> _updateDashboardState() async {
     try {
       final userProfile = await _userProfileRepository.getUserProfile();
       final recentMeals = await _foodEntryRepository.getRecentFoodEntries();
@@ -47,7 +63,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
       if (userProfile != null) {
         state = DashboardState(
-          greeting: _getGreeting(userProfile.name),
+          greeting: _getGreeting(),
           caloriesConsumed: totalCalories,
           caloriesRemaining: userProfile.dailyCalorieGoal - totalCalories,
           recentMeals: recentMeals,
@@ -56,12 +72,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         );
       }
     } catch (e) {
-      debugPrint('Error initializing dashboard: $e');
-      // You might want to set an error state here
+      debugPrint('Error updating dashboard state: $e');
     }
   }
 
-  String _getGreeting(String name) {
+  String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
       return 'Good Morning,';
@@ -74,23 +89,17 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> addFoodEntry(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);
-    await refreshDashboard(); // This will update the state with new data
+    await _updateDashboardState();
   }
 
   Future<void> refreshDashboard() async {
-    final userProfile = await _userProfileRepository.getUserProfile();
-    final recentMeals = await _foodEntryRepository.getRecentFoodEntries();
-    final totalCalories = await _foodEntryRepository.getTotalCaloriesConsumed();
-
-    if (userProfile != null) {
-      state = DashboardState(
-        greeting: _getGreeting(userProfile.name),
-        caloriesConsumed: totalCalories,
-        caloriesRemaining: userProfile.dailyCalorieGoal - totalCalories,
-        recentMeals: recentMeals,
-        userName: userProfile.name,
-        dailyCalorieGoal: userProfile.dailyCalorieGoal,
-      );
-    }
+    await _updateDashboardState();
   }
 }
+
+final dashboardNotifierProvider =
+    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
+  final foodEntryRepository = ref.watch(foodEntryRepositoryProvider);
+  final userProfileRepository = ref.watch(userProfileRepositoryProvider);
+  return DashboardNotifier(foodEntryRepository, userProfileRepository);
+});

@@ -33,8 +33,7 @@ class OnboardingScreen extends ConsumerWidget {
                   return const SizedBox.shrink();
               }
             },
-            complete: () =>
-                _buildCompletionScreen(context, notifier, ref), // Pass ref here
+            complete: () => _buildCompletionScreen(context, notifier, ref),
           ),
         ),
       ),
@@ -43,8 +42,7 @@ class OnboardingScreen extends ConsumerWidget {
 
   Widget _buildNameAndCalorieScreen(BuildContext context,
       OnboardingNotifier notifier, String? name, int? dailyCalorieGoal) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return ListView(
       children: [
         Text(
           'Set your health goals',
@@ -79,7 +77,7 @@ class OnboardingScreen extends ConsumerWidget {
             ),
           ),
         ),
-        const Spacer(),
+        const SizedBox(height: 24),
         CustomButton(
           onPressed: () {
             if (notifier.canMoveToNextPage()) {

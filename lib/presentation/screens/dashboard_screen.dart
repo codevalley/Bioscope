@@ -75,24 +75,28 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     return Column(
       children: [
         Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GreetingSection(
-                  greeting: dashboardState.greeting,
-                  name: dashboardState.userName,
-                  date: DateTime.now(),
-                ),
-                const SizedBox(height: 32),
-                NutritionMeter(
-                  caloriesConsumed: dashboardState.caloriesConsumed,
-                  caloriesRemaining: dashboardState.caloriesRemaining,
-                  dailyCalorieGoal: dashboardState.dailyCalorieGoal,
-                ),
-                const SizedBox(height: 32),
-                RecentHistory(recentMeals: dashboardState.recentMeals),
-              ],
+          child: RefreshIndicator(
+            onRefresh: _refreshData,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GreetingSection(
+                    greeting: dashboardState.greeting,
+                    name: dashboardState.userName,
+                    date: DateTime.now(),
+                  ),
+                  const SizedBox(height: 32),
+                  NutritionMeter(
+                    caloriesConsumed: dashboardState.caloriesConsumed,
+                    caloriesRemaining: dashboardState.caloriesRemaining,
+                    dailyCalorieGoal: dashboardState.dailyCalorieGoal,
+                  ),
+                  const SizedBox(height: 32),
+                  RecentHistory(recentMeals: dashboardState.recentMeals),
+                ],
+              ),
             ),
           ),
         ),

@@ -26,41 +26,85 @@ class RecentHistory extends StatelessWidget {
           color: Theme.of(context).colorScheme.secondary,
         ),
         const SizedBox(height: 16),
-        ...recentMeals.map((meal) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        meal.name,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
+        if (recentMeals.isEmpty)
+          _buildEmptyState(context)
+        else
+          ...recentMeals.map((meal) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            meal.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black,
                                 ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${meal.nutritionInfo.calories} calories',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Colors.black54,
+                                ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${meal.nutritionInfo.calories} calories',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.black54,
-                            ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    DateFormatter.getRelativeTime(meal.date),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.black54,
-                        ),
-                  ),
-                ],
-              ),
-            )),
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      DateFormatter.getRelativeTime(meal.date),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.black54,
+                          ),
+                    ),
+                  ],
+                ),
+              )),
       ],
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Icon(
+            Icons.restaurant,
+            size: 48,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No meals logged yet',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Add your first meal to get started!',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[500],
+                ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
