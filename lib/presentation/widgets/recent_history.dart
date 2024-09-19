@@ -44,7 +44,7 @@ class RecentHistory extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${meal.calories} calories',
+                        '${meal.nutritionInfo.calories} calories',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Colors.black54,
                             ),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bioscope/presentation/blocs/food_capture_bloc.dart';
 import 'package:bioscope/data/services/nutrition_service.dart';
 import 'package:bioscope/domain/entities/nutrition_info.dart';
+import 'package:bioscope/domain/entities/food_entry.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -70,16 +71,21 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _submitEntry,
-                  child: const Text('Submit'),
+                  child: const Text('Analyze Food'),
                 ),
                 if (state is FoodCaptureLoading) ...[
                   const SizedBox(height: 16),
                   const LinearProgressIndicator(),
                   const SizedBox(height: 8),
-                  const Text('Analyzing image...', textAlign: TextAlign.center),
+                  const Text('Analyzing food...', textAlign: TextAlign.center),
                 ] else if (state is FoodCaptureSuccess) ...[
                   const SizedBox(height: 16),
                   NutritionInfoDisplay(state.nutritionInfo),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => _saveToLog(state.nutritionInfo),
+                    child: const Text('Save to Log'),
+                  ),
                 ] else if (state is FoodCaptureFailure) ...[
                   const SizedBox(height: 16),
                   Text('Error: ${state.error}',
@@ -104,11 +110,28 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
   }
 
   void _submitEntry() {
-    if (_imagePath != null) {
+    if (_descriptionController.text.isNotEmpty) {
       context
           .read<FoodCaptureBloc>()
-          .add(AnalyzeImage(_imagePath!, _descriptionController.text));
+          .add(AnalyzeImage(_imagePath, _descriptionController.text));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a food description')),
+      );
     }
+  }
+
+  void _saveToLog(NutritionInfo nutritionInfo) {
+    final foodEntry = FoodEntry(
+      name: _descriptionController.text,
+      nutritionInfo: nutritionInfo,
+      date: DateTime.now(),
+      imagePath: _imagePath,
+    );
+    // TODO: Save foodEntry to database
+    // For now, we'll just print it
+    print('Saved food entry: ${foodEntry.name}');
+    Navigator.pop(context); // Return to previous screen
   }
 
   @override

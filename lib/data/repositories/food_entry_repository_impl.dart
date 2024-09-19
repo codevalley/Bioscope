@@ -26,8 +26,9 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
     await _dataSource.create(FoodEntryModel(
       id: entry.id,
       name: entry.name,
-      calories: entry.calories,
+      nutritionInfo: entry.nutritionInfo,
       date: entry.date,
+      imagePath: entry.imagePath,
     ));
   }
 
@@ -36,8 +37,9 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
     await _dataSource.update(FoodEntryModel(
       id: entry.id,
       name: entry.name,
-      calories: entry.calories,
+      nutritionInfo: entry.nutritionInfo,
       date: entry.date,
+      imagePath: entry.imagePath,
     ));
   }
 
@@ -49,7 +51,8 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
   @override
   Future<int> getTotalCaloriesConsumed() async {
     final entries = await getAllFoodEntries();
-    return entries.fold<int>(0, (sum, entry) => sum + entry.calories);
+    return entries.fold<int>(
+        0, (sum, entry) => sum + entry.nutritionInfo.calories.round());
   }
 
   @override

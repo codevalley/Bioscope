@@ -6,7 +6,7 @@ import 'package:bioscope/domain/entities/nutrition_info.dart';
 abstract class FoodCaptureEvent {}
 
 class AnalyzeImage extends FoodCaptureEvent {
-  final String imagePath;
+  final String? imagePath;
   final String context;
   AnalyzeImage(this.imagePath, this.context);
 }

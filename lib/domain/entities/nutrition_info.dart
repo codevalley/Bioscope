@@ -28,6 +28,13 @@ class NutritionInfo {
                 component: componentName, confidence: 0, unit: '', value: 0))
         .value;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'nutrition': nutrition.map((component) => component.toJson()).toList(),
+      'summary': summary,
+    };
+  }
 }
 
 class NutritionComponent {
@@ -61,5 +68,14 @@ class NutritionComponent {
       return double.parse(value);
     }
     throw FormatException('Unable to parse $value to double');
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'component': component,
+      'confidence': confidence,
+      'unit': unit,
+      'value': value,
+    };
   }
 }
