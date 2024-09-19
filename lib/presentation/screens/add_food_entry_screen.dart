@@ -29,9 +29,21 @@ class AddFoodEntryView extends StatefulWidget {
   AddFoodEntryViewState createState() => AddFoodEntryViewState();
 }
 
-class AddFoodEntryViewState extends State<AddFoodEntryView> {
+class AddFoodEntryViewState extends State<AddFoodEntryView>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _descriptionController = TextEditingController();
   String? _imagePath;
+  final ScrollController _scrollController = ScrollController();
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,28 +58,32 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
       body: BlocBuilder<FoodCaptureBloc, FoodCaptureState>(
         builder: (context, state) {
           return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildFoodDescriptionInput(),
-                  const SizedBox(height: 24),
-                  _buildImageSection(),
-                  const SizedBox(height: 24),
-                  _buildAnalyzeButton(),
-                  const SizedBox(height: 24),
-                  if (state is FoodCaptureLoading) ...[
-                    _buildLoadingIndicator(),
-                  ] else if (state is FoodCaptureSuccess) ...[
-                    _buildNutritionInfo(state.nutritionInfo),
-                    const SizedBox(height: 24),
-                    _buildSaveButton(state.nutritionInfo),
-                  ] else if (state is FoodCaptureFailure) ...[
-                    _buildErrorMessage(state.error),
-                  ],
-                ],
-              ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildFoodDescriptionInput(state),
+                        const SizedBox(height: 24),
+                        _buildImageSection(),
+                        const SizedBox(height: 24),
+                        if (state is FoodCaptureSuccess) ...[
+                          _buildNutritionInfo(state.nutritionInfo),
+                        ] else if (state is FoodCaptureFailure) ...[
+                          _buildErrorMessage(state.error),
+                        ],
+                        // Add extra space to ensure content is scrollable above the bottom bar
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
+                ),
+                _buildBottomBar(state),
+              ],
             ),
           );
         },
@@ -75,22 +91,50 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
     );
   }
 
-  Widget _buildFoodDescriptionInput() {
+  Widget _buildBottomBar(FoodCaptureState state) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black, width: 1),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      color: const Color(0xFFE6F3EF), // Same as background color
+      child: SafeArea(
+        child: state is FoodCaptureSuccess
+            ? _buildSaveButton(state.nutritionInfo)
+            : _buildAnalyzeButton(),
       ),
-      child: TextField(
-        controller: _descriptionController,
-        decoration: const InputDecoration(
-          hintText: 'Describe your meal',
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.all(16),
+    );
+  }
+
+  Widget _buildFoodDescriptionInput(FoodCaptureState state) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.black, width: 1),
+          ),
+          child: TextField(
+            controller: _descriptionController,
+            decoration: const InputDecoration(
+              hintText: 'Describe your meal',
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.all(16),
+            ),
+            style: const TextStyle(fontSize: 16),
+            onSubmitted: (_) => _submitEntry(),
+          ),
         ),
-        style: const TextStyle(fontSize: 16),
-      ),
+        if (state is FoodCaptureLoading)
+          Positioned.fill(
+            child: CircularProgressIndicator(
+              valueColor: _animationController.drive(
+                ColorTween(begin: Colors.yellow, end: Colors.black),
+              ),
+              strokeWidth: 2,
+            ),
+          ),
+      ],
     );
   }
 
@@ -166,24 +210,6 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
     );
   }
 
-  Widget _buildLoadingIndicator() {
-    return Column(
-      children: [
-        const LinearProgressIndicator(
-          backgroundColor: Color(0xFFE6F3EF),
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFDBA21)),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Analyzing food...',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.black54,
-              ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildNutritionInfo(NutritionInfo nutritionInfo) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -196,12 +222,13 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Analysis Results',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            'Nutrition Facts',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
           ),
+          const Divider(color: Colors.black, thickness: 8),
           const SizedBox(height: 8),
           Text(
             nutritionInfo.summary,
@@ -210,26 +237,34 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
                 ),
           ),
           const SizedBox(height: 16),
-          ...nutritionInfo.nutrition.map((component) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      component.component,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
+          const Divider(color: Colors.black, thickness: 1),
+          ...nutritionInfo.nutrition.map((component) => Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          component.component,
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                        Text(
+                          '${component.value} ${component.unit}',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Colors.black,
+                                  ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '${component.value} ${component.unit}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.black54,
-                          ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const Divider(color: Colors.black, thickness: 1),
+                ],
               )),
         ],
       ),
@@ -285,6 +320,8 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
       context
           .read<FoodCaptureBloc>()
           .add(AnalyzeImage(_imagePath, _descriptionController.text));
+      // Scroll to the bottom to show the loading indicator
+      _scrollToBottom();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -328,9 +365,23 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
     }
   }
 
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
     _descriptionController.dispose();
+    _scrollController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 }
