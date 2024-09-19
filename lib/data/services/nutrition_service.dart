@@ -15,7 +15,7 @@ class NutritionService {
             .add(await http.MultipartFile.fromPath('image', imagePath));
       }
       request.fields['context'] = context;
-      request.fields['service'] = 'mock';
+      request.fields['service'] = 'claude';
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);

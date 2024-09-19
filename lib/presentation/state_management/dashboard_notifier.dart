@@ -74,10 +74,23 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> addFoodEntry(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);
-    await _initializeDashboard();
+    await refreshDashboard(); // This will update the state with new data
   }
 
   Future<void> refreshDashboard() async {
-    await _initializeDashboard();
+    final userProfile = await _userProfileRepository.getUserProfile();
+    final recentMeals = await _foodEntryRepository.getRecentFoodEntries();
+    final totalCalories = await _foodEntryRepository.getTotalCaloriesConsumed();
+
+    if (userProfile != null) {
+      state = DashboardState(
+        greeting: _getGreeting(userProfile.name),
+        caloriesConsumed: totalCalories,
+        caloriesRemaining: userProfile.dailyCalorieGoal - totalCalories,
+        recentMeals: recentMeals,
+        userName: userProfile.name,
+        dailyCalorieGoal: userProfile.dailyCalorieGoal,
+      );
+    }
   }
 }

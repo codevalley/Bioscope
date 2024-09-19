@@ -67,9 +67,11 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _buildFoodDescriptionInput(state),
+                        _buildFoodDescriptionInput(),
                         const SizedBox(height: 24),
                         _buildImageSection(),
+                        const SizedBox(height: 8),
+                        if (state is FoodCaptureLoading) _buildLoader(),
                         const SizedBox(height: 24),
                         if (state is FoodCaptureSuccess) ...[
                           _buildNutritionInfo(state.nutritionInfo),
@@ -104,37 +106,23 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
     );
   }
 
-  Widget _buildFoodDescriptionInput(FoodCaptureState state) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.black, width: 1),
-          ),
-          child: TextField(
-            controller: _descriptionController,
-            decoration: const InputDecoration(
-              hintText: 'Describe your meal',
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(16),
-            ),
-            style: const TextStyle(fontSize: 16),
-            onSubmitted: (_) => _submitEntry(),
-          ),
+  Widget _buildFoodDescriptionInput() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black, width: 1),
+      ),
+      child: TextField(
+        controller: _descriptionController,
+        decoration: const InputDecoration(
+          hintText: 'Describe your meal',
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.all(16),
         ),
-        if (state is FoodCaptureLoading)
-          Positioned.fill(
-            child: CircularProgressIndicator(
-              valueColor: _animationController.drive(
-                ColorTween(begin: Colors.yellow, end: Colors.black),
-              ),
-              strokeWidth: 2,
-            ),
-          ),
-      ],
+        style: const TextStyle(fontSize: 16),
+        onSubmitted: (_) => _submitEntry(),
+      ),
     );
   }
 
@@ -241,7 +229,7 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
           ...nutritionInfo.nutrition.map((component) => Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -263,7 +251,7 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
                       ],
                     ),
                   ),
-                  const Divider(color: Colors.black, thickness: 1),
+                  const Divider(color: Colors.black, thickness: 1, height: 1),
                 ],
               )),
         ],
@@ -305,6 +293,16 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
     );
   }
 
+  Widget _buildLoader() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: LinearProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+        backgroundColor: Colors.yellow,
+      ),
+    );
+  }
+
   Future<void> _getImage(ImageSource source) async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: source);
@@ -317,6 +315,9 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
 
   void _submitEntry() {
     if (_descriptionController.text.isNotEmpty) {
+      // Hide the keyboard
+      FocusScope.of(context).unfocus();
+
       context
           .read<FoodCaptureBloc>()
           .add(AnalyzeImage(_imagePath, _descriptionController.text));

@@ -154,6 +154,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
     if (result != null && result is FoodEntry) {
       await ref.read(dashboardNotifierProvider.notifier).addFoodEntry(result);
+      // Trigger a rebuild of the dashboard
+      setState(() {});
     }
   }
 }
