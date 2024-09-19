@@ -36,68 +36,236 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Food Entry')),
+      backgroundColor: const Color(0xFFE6F3EF),
+      appBar: AppBar(
+        title: const Text('Add Food Entry'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
       body: BlocBuilder<FoodCaptureBloc, FoodCaptureState>(
         builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Food Description',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () => _getImage(ImageSource.camera),
-                      icon: const Icon(Icons.camera_alt),
-                      label: const Text('Take Picture'),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () => _getImage(ImageSource.gallery),
-                      icon: const Icon(Icons.photo_library),
-                      label: const Text('Choose from Gallery'),
-                    ),
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildFoodDescriptionInput(),
+                  const SizedBox(height: 24),
+                  _buildImageSection(),
+                  const SizedBox(height: 24),
+                  _buildAnalyzeButton(),
+                  const SizedBox(height: 24),
+                  if (state is FoodCaptureLoading) ...[
+                    _buildLoadingIndicator(),
+                  ] else if (state is FoodCaptureSuccess) ...[
+                    _buildNutritionInfo(state.nutritionInfo),
+                    const SizedBox(height: 24),
+                    _buildSaveButton(state.nutritionInfo),
+                  ] else if (state is FoodCaptureFailure) ...[
+                    _buildErrorMessage(state.error),
                   ],
-                ),
-                if (_imagePath != null) ...[
-                  const SizedBox(height: 16),
-                  Image.file(File(_imagePath!), height: 200),
                 ],
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _submitEntry,
-                  child: const Text('Analyze Food'),
-                ),
-                if (state is FoodCaptureLoading) ...[
-                  const SizedBox(height: 16),
-                  const LinearProgressIndicator(),
-                  const SizedBox(height: 8),
-                  const Text('Analyzing food...', textAlign: TextAlign.center),
-                ] else if (state is FoodCaptureSuccess) ...[
-                  const SizedBox(height: 16),
-                  NutritionInfoDisplay(state.nutritionInfo),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => _saveToLog(state.nutritionInfo),
-                    child: const Text('Save to Log'),
-                  ),
-                ] else if (state is FoodCaptureFailure) ...[
-                  const SizedBox(height: 16),
-                  Text('Error: ${state.error}',
-                      style: const TextStyle(color: Colors.red)),
-                ],
-              ],
+              ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildFoodDescriptionInput() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black, width: 1),
+      ),
+      child: TextField(
+        controller: _descriptionController,
+        decoration: const InputDecoration(
+          hintText: 'Describe your meal',
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.all(16),
+        ),
+        style: const TextStyle(fontSize: 16),
+      ),
+    );
+  }
+
+  Widget _buildImageSection() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildImageButton(
+              icon: Icons.camera_alt,
+              label: 'Take Picture',
+              onPressed: () => _getImage(ImageSource.camera),
+            ),
+            _buildImageButton(
+              icon: Icons.photo_library,
+              label: 'Choose from Gallery',
+              onPressed: () => _getImage(ImageSource.gallery),
+            ),
+          ],
+        ),
+        if (_imagePath != null) ...[
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.file(
+              File(_imagePath!),
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildImageButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, color: Colors.white),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
+
+  Widget _buildAnalyzeButton() {
+    return ElevatedButton(
+      onPressed: _submitEntry,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFFFDBA21),
+        foregroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+      ),
+      child: const Text(
+        'Analyze Food',
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Column(
+      children: [
+        const LinearProgressIndicator(
+          backgroundColor: Color(0xFFE6F3EF),
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFDBA21)),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Analyzing food...',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.black54,
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNutritionInfo(NutritionInfo nutritionInfo) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Analysis Results',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            nutritionInfo.summary,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.black54,
+                ),
+          ),
+          const SizedBox(height: 16),
+          ...nutritionInfo.nutrition.map((component) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      component.component,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    Text(
+                      '${component.value} ${component.unit}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.black54,
+                          ),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(NutritionInfo nutritionInfo) {
+    return ElevatedButton(
+      onPressed: () => _saveToLog(nutritionInfo),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+      ),
+      child: const Text(
+        'Save to Log',
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildErrorMessage(String error) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.red.shade100,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        'Error: $error',
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.red.shade800,
+            ),
       ),
     );
   }
@@ -119,7 +287,10 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
           .add(AnalyzeImage(_imagePath, _descriptionController.text));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a food description')),
+        SnackBar(
+          content: const Text('Please enter a food description'),
+          backgroundColor: Colors.red.shade800,
+        ),
       );
     }
   }
@@ -138,14 +309,20 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
       await repository.addFoodEntry(foodEntry);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Food entry saved successfully')),
+          const SnackBar(
+            content: Text('Food entry saved successfully'),
+            backgroundColor: Colors.green,
+          ),
         );
-        Navigator.pop(context); // Return to previous screen
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving food entry: $e')),
+          SnackBar(
+            content: Text('Error saving food entry: $e'),
+            backgroundColor: Colors.red.shade800,
+          ),
         );
       }
     }
@@ -155,30 +332,5 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
   void dispose() {
     _descriptionController.dispose();
     super.dispose();
-  }
-}
-
-class NutritionInfoDisplay extends StatelessWidget {
-  final NutritionInfo nutritionInfo;
-
-  const NutritionInfoDisplay(this.nutritionInfo, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Analysis Results', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        Text(nutritionInfo.summary),
-        const SizedBox(height: 16),
-        ...nutritionInfo.nutrition.map((component) => ListTile(
-              title: Text(component.component),
-              subtitle: Text('${component.value} ${component.unit}'),
-              trailing: Text(
-                  'Confidence: ${(component.confidence * 100).toStringAsFixed(0)}%'),
-            )),
-      ],
-    );
   }
 }
