@@ -1,10 +1,10 @@
 import '../../domain/entities/food_entry.dart';
 import '../../domain/repositories/food_entry_repository.dart';
-import '../datasources/food_entry_sqlite_ds.dart';
+import '../../core/interfaces/data_source.dart';
 import '../models/food_entry_model.dart';
 
 class FoodEntryRepositoryImpl implements IFoodEntryRepository {
-  final FoodEntrySqliteDs _dataSource;
+  final DataSource<FoodEntryModel> _dataSource;
 
   FoodEntryRepositoryImpl(this._dataSource);
 

@@ -1,10 +1,10 @@
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
-import '../datasources/user_profile_sqlite_ds.dart';
+import '../../core/interfaces/data_source.dart';
 import '../models/user_profile_model.dart';
 
 class UserRepositoryImpl implements IUserProfileRepository {
-  final UserProfileSqliteDs _dataSource;
+  final DataSource<UserProfileModel> _dataSource;
 
   UserRepositoryImpl(this._dataSource);
 

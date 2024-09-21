@@ -1,11 +1,16 @@
 import 'package:get_it/get_it.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sqflite/sqflite.dart';
+import '../../core/interfaces/data_source.dart';
 import '../../data/datasources/user_profile_sqlite_ds.dart';
 import '../../data/datasources/food_entry_sqlite_ds.dart';
+import '../../data/datasources/food_entry_supabase_ds.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../data/repositories/food_entry_repository_impl.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import '../../domain/repositories/food_entry_repository.dart';
+import '../../data/models/food_entry_model.dart';
+import '../../data/models/user_profile_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -14,21 +19,35 @@ Future<void> setupDependencies() async {
   final database = await openDatabase('app_database.db', version: 1);
   getIt.registerSingleton<Database>(database);
 
+  // Supabase client
+  final supabaseClient = Supabase.instance.client;
+  getIt.registerLazySingleton<SupabaseClient>(() => supabaseClient);
+
   // Data Sources
-  getIt.registerLazySingleton<UserProfileSqliteDs>(
-      () => UserProfileSqliteDs(database));
-  getIt.registerLazySingleton<FoodEntrySqliteDs>(
-      () => FoodEntrySqliteDs(database));
+  getIt.registerLazySingleton<DataSource<UserProfileModel>>(
+      () => UserProfileSqliteDs(getIt<Database>()));
+
+  // Conditionally register either SQLite or Supabase data source for food entries
+  if (useSupabase) {
+    getIt.registerLazySingleton<DataSource<FoodEntryModel>>(
+        () => FoodEntrySupabaseDs(getIt<SupabaseClient>()));
+  } else {
+    getIt.registerLazySingleton<DataSource<FoodEntryModel>>(
+        () => FoodEntrySqliteDs(getIt<Database>()));
+  }
 
   // Repositories
   getIt.registerLazySingleton<IUserProfileRepository>(
-    () => UserRepositoryImpl(getIt<UserProfileSqliteDs>()),
+    () => UserRepositoryImpl(getIt<DataSource<UserProfileModel>>()),
   );
   getIt.registerLazySingleton<IFoodEntryRepository>(
-    () => FoodEntryRepositoryImpl(getIt<FoodEntrySqliteDs>()),
+    () => FoodEntryRepositoryImpl(getIt<DataSource<FoodEntryModel>>()),
   );
 
   // Initialize data sources
-  await getIt<UserProfileSqliteDs>().initialize();
-  await getIt<FoodEntrySqliteDs>().initialize();
+  await getIt<DataSource<UserProfileModel>>().initialize();
+  await getIt<DataSource<FoodEntryModel>>().initialize();
 }
+
+// Flag to determine which data source to use
+const bool useSupabase = true; // Set this to false to use SQLite
