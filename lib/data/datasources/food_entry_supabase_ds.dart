@@ -38,7 +38,12 @@ class FoodEntrySupabaseDs implements DataSource<FoodEntryModel> {
 
   @override
   Future<void> create(FoodEntryModel item) async {
-    await _supabaseClient.from(_tableName).insert(_toJson(item));
+    try {
+      await _supabaseClient.from(_tableName).insert(_toJson(item));
+    } catch (e) {
+      print('Error creating food entry: $e');
+      throw Exception('Failed to create food entry');
+    }
   }
 
   @override

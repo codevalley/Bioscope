@@ -11,6 +11,7 @@ import '../../domain/repositories/user_profile_repository.dart';
 import '../../domain/repositories/food_entry_repository.dart';
 import '../../data/models/food_entry_model.dart';
 import '../../data/models/user_profile_model.dart';
+import '../../config/supabase_config.dart';
 
 final getIt = GetIt.instance;
 
@@ -51,3 +52,14 @@ Future<void> setupDependencies() async {
 
 // Flag to determine which data source to use
 const bool useSupabase = true; // Set this to false to use SQLite
+
+void initializeDependencies() async {
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    anonKey: SupabaseConfig.anonKey,
+  );
+
+  final supabaseClient = Supabase.instance.client;
+
+  // ... rest of your dependency injection
+}
