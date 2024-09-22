@@ -12,4 +12,5 @@ class OnboardingState with _$OnboardingState {
     List<String>? dietaryPreferences,
   }) = _InProgress;
   const factory OnboardingState.complete() = _Complete;
+  const factory OnboardingState.error(String message) = _Error;
 }

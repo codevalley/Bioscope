@@ -34,8 +34,40 @@ class OnboardingScreen extends ConsumerWidget {
               }
             },
             complete: () => _buildCompletionScreen(context, notifier, ref),
+            error: (message) => _buildErrorScreen(context, message, notifier),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorScreen(
+      BuildContext context, String message, OnboardingNotifier notifier) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'An error occurred',
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(color: Colors.red),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              notifier.startOnboarding(); // Reset the onboarding process
+            },
+            child: const Text('Retry'),
+          ),
+        ],
       ),
     );
   }

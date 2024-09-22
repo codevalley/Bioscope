@@ -23,6 +23,7 @@ mixin _$OnboardingState {
             int? dailyCalorieGoal, List<String>? dietaryPreferences)
         inProgress,
     required TResult Function() complete,
+    required TResult Function(String message) error,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -32,6 +33,7 @@ mixin _$OnboardingState {
             List<String>? dietaryPreferences)?
         inProgress,
     TResult? Function()? complete,
+    TResult? Function(String message)? error,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -41,6 +43,7 @@ mixin _$OnboardingState {
             List<String>? dietaryPreferences)?
         inProgress,
     TResult Function()? complete,
+    TResult Function(String message)? error,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -49,6 +52,7 @@ mixin _$OnboardingState {
     required TResult Function(_Initial value) initial,
     required TResult Function(_InProgress value) inProgress,
     required TResult Function(_Complete value) complete,
+    required TResult Function(_Error value) error,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -56,6 +60,7 @@ mixin _$OnboardingState {
     TResult? Function(_Initial value)? initial,
     TResult? Function(_InProgress value)? inProgress,
     TResult? Function(_Complete value)? complete,
+    TResult? Function(_Error value)? error,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -63,6 +68,7 @@ mixin _$OnboardingState {
     TResult Function(_Initial value)? initial,
     TResult Function(_InProgress value)? inProgress,
     TResult Function(_Complete value)? complete,
+    TResult Function(_Error value)? error,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -135,6 +141,7 @@ class _$InitialImpl implements _Initial {
             int? dailyCalorieGoal, List<String>? dietaryPreferences)
         inProgress,
     required TResult Function() complete,
+    required TResult Function(String message) error,
   }) {
     return initial();
   }
@@ -147,6 +154,7 @@ class _$InitialImpl implements _Initial {
             List<String>? dietaryPreferences)?
         inProgress,
     TResult? Function()? complete,
+    TResult? Function(String message)? error,
   }) {
     return initial?.call();
   }
@@ -159,6 +167,7 @@ class _$InitialImpl implements _Initial {
             List<String>? dietaryPreferences)?
         inProgress,
     TResult Function()? complete,
+    TResult Function(String message)? error,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -173,6 +182,7 @@ class _$InitialImpl implements _Initial {
     required TResult Function(_Initial value) initial,
     required TResult Function(_InProgress value) inProgress,
     required TResult Function(_Complete value) complete,
+    required TResult Function(_Error value) error,
   }) {
     return initial(this);
   }
@@ -183,6 +193,7 @@ class _$InitialImpl implements _Initial {
     TResult? Function(_Initial value)? initial,
     TResult? Function(_InProgress value)? inProgress,
     TResult? Function(_Complete value)? complete,
+    TResult? Function(_Error value)? error,
   }) {
     return initial?.call(this);
   }
@@ -193,6 +204,7 @@ class _$InitialImpl implements _Initial {
     TResult Function(_Initial value)? initial,
     TResult Function(_InProgress value)? inProgress,
     TResult Function(_Complete value)? complete,
+    TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -328,6 +340,7 @@ class _$InProgressImpl implements _InProgress {
             int? dailyCalorieGoal, List<String>? dietaryPreferences)
         inProgress,
     required TResult Function() complete,
+    required TResult Function(String message) error,
   }) {
     return inProgress(currentPage, name, dailyCalorieGoal, dietaryPreferences);
   }
@@ -340,6 +353,7 @@ class _$InProgressImpl implements _InProgress {
             List<String>? dietaryPreferences)?
         inProgress,
     TResult? Function()? complete,
+    TResult? Function(String message)? error,
   }) {
     return inProgress?.call(
         currentPage, name, dailyCalorieGoal, dietaryPreferences);
@@ -353,6 +367,7 @@ class _$InProgressImpl implements _InProgress {
             List<String>? dietaryPreferences)?
         inProgress,
     TResult Function()? complete,
+    TResult Function(String message)? error,
     required TResult orElse(),
   }) {
     if (inProgress != null) {
@@ -368,6 +383,7 @@ class _$InProgressImpl implements _InProgress {
     required TResult Function(_Initial value) initial,
     required TResult Function(_InProgress value) inProgress,
     required TResult Function(_Complete value) complete,
+    required TResult Function(_Error value) error,
   }) {
     return inProgress(this);
   }
@@ -378,6 +394,7 @@ class _$InProgressImpl implements _InProgress {
     TResult? Function(_Initial value)? initial,
     TResult? Function(_InProgress value)? inProgress,
     TResult? Function(_Complete value)? complete,
+    TResult? Function(_Error value)? error,
   }) {
     return inProgress?.call(this);
   }
@@ -388,6 +405,7 @@ class _$InProgressImpl implements _InProgress {
     TResult Function(_Initial value)? initial,
     TResult Function(_InProgress value)? inProgress,
     TResult Function(_Complete value)? complete,
+    TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
     if (inProgress != null) {
@@ -462,6 +480,7 @@ class _$CompleteImpl implements _Complete {
             int? dailyCalorieGoal, List<String>? dietaryPreferences)
         inProgress,
     required TResult Function() complete,
+    required TResult Function(String message) error,
   }) {
     return complete();
   }
@@ -474,6 +493,7 @@ class _$CompleteImpl implements _Complete {
             List<String>? dietaryPreferences)?
         inProgress,
     TResult? Function()? complete,
+    TResult? Function(String message)? error,
   }) {
     return complete?.call();
   }
@@ -486,6 +506,7 @@ class _$CompleteImpl implements _Complete {
             List<String>? dietaryPreferences)?
         inProgress,
     TResult Function()? complete,
+    TResult Function(String message)? error,
     required TResult orElse(),
   }) {
     if (complete != null) {
@@ -500,6 +521,7 @@ class _$CompleteImpl implements _Complete {
     required TResult Function(_Initial value) initial,
     required TResult Function(_InProgress value) inProgress,
     required TResult Function(_Complete value) complete,
+    required TResult Function(_Error value) error,
   }) {
     return complete(this);
   }
@@ -510,6 +532,7 @@ class _$CompleteImpl implements _Complete {
     TResult? Function(_Initial value)? initial,
     TResult? Function(_InProgress value)? inProgress,
     TResult? Function(_Complete value)? complete,
+    TResult? Function(_Error value)? error,
   }) {
     return complete?.call(this);
   }
@@ -520,6 +543,7 @@ class _$CompleteImpl implements _Complete {
     TResult Function(_Initial value)? initial,
     TResult Function(_InProgress value)? inProgress,
     TResult Function(_Complete value)? complete,
+    TResult Function(_Error value)? error,
     required TResult orElse(),
   }) {
     if (complete != null) {
@@ -531,4 +555,162 @@ class _$CompleteImpl implements _Complete {
 
 abstract class _Complete implements OnboardingState {
   const factory _Complete() = _$CompleteImpl;
+}
+
+/// @nodoc
+abstract class _$$ErrorImplCopyWith<$Res> {
+  factory _$$ErrorImplCopyWith(
+          _$ErrorImpl value, $Res Function(_$ErrorImpl) then) =
+      __$$ErrorImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String message});
+}
+
+/// @nodoc
+class __$$ErrorImplCopyWithImpl<$Res>
+    extends _$OnboardingStateCopyWithImpl<$Res, _$ErrorImpl>
+    implements _$$ErrorImplCopyWith<$Res> {
+  __$$ErrorImplCopyWithImpl(
+      _$ErrorImpl _value, $Res Function(_$ErrorImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of OnboardingState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? message = null,
+  }) {
+    return _then(_$ErrorImpl(
+      null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$ErrorImpl implements _Error {
+  const _$ErrorImpl(this.message);
+
+  @override
+  final String message;
+
+  @override
+  String toString() {
+    return 'OnboardingState.error(message: $message)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ErrorImpl &&
+            (identical(other.message, message) || other.message == message));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, message);
+
+  /// Create a copy of OnboardingState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ErrorImplCopyWith<_$ErrorImpl> get copyWith =>
+      __$$ErrorImplCopyWithImpl<_$ErrorImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function(int currentPage, String? name,
+            int? dailyCalorieGoal, List<String>? dietaryPreferences)
+        inProgress,
+    required TResult Function() complete,
+    required TResult Function(String message) error,
+  }) {
+    return error(message);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function(int currentPage, String? name, int? dailyCalorieGoal,
+            List<String>? dietaryPreferences)?
+        inProgress,
+    TResult? Function()? complete,
+    TResult? Function(String message)? error,
+  }) {
+    return error?.call(message);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function(int currentPage, String? name, int? dailyCalorieGoal,
+            List<String>? dietaryPreferences)?
+        inProgress,
+    TResult Function()? complete,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(message);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(_InProgress value) inProgress,
+    required TResult Function(_Complete value) complete,
+    required TResult Function(_Error value) error,
+  }) {
+    return error(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Initial value)? initial,
+    TResult? Function(_InProgress value)? inProgress,
+    TResult? Function(_Complete value)? complete,
+    TResult? Function(_Error value)? error,
+  }) {
+    return error?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_InProgress value)? inProgress,
+    TResult Function(_Complete value)? complete,
+    TResult Function(_Error value)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _Error implements OnboardingState {
+  const factory _Error(final String message) = _$ErrorImpl;
+
+  String get message;
+
+  /// Create a copy of OnboardingState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ErrorImplCopyWith<_$ErrorImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

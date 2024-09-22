@@ -1,18 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 import '../../application/di/dependency_injection.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import 'onboarding_state.dart';
+import '../../domain/services/IAuthService.dart';
 
 final userProfileRepositoryProvider = Provider<IUserProfileRepository>((ref) {
   return getIt<IUserProfileRepository>();
 });
 
-class OnboardingNotifier extends StateNotifier<OnboardingState> {
-  final IUserProfileRepository userProfileRepository;
+final authServiceProvider = Provider<IAuthService>((ref) {
+  return getIt<IAuthService>();
+});
 
-  OnboardingNotifier(this.userProfileRepository)
+class OnboardingNotifier extends StateNotifier<OnboardingState> {
+  final IUserProfileRepository _userProfileRepository;
+  final IAuthService _authService;
+
+  OnboardingNotifier(this._userProfileRepository, this._authService)
       : super(const OnboardingState.inProgress(
           currentPage: 0,
           name: null,
@@ -85,17 +90,30 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       inProgress:
           (currentPage, name, dailyCalorieGoal, dietaryPreferences) async {
         if (name != null && name.isNotEmpty && dailyCalorieGoal != null) {
-          final userProfile = UserProfile(
-            id: const Uuid().v4(),
-            name: name,
-            age: 0, // You might want to add age to onboarding
-            height: 0, // You might want to add height to onboarding
-            weight: 0, // You might want to add weight to onboarding
-            gender: '', // You might want to add gender to onboarding
-            dailyCalorieGoal: dailyCalorieGoal,
-          );
-          await userProfileRepository.saveUserProfile(userProfile);
-          state = const OnboardingState.complete();
+          try {
+            // Sign in anonymously before creating the profile
+            await _authService.signInAnonymously();
+
+            final userId = await _authService.getCurrentUserId();
+            if (userId == null) throw Exception('Failed to get user ID');
+
+            final userProfile = UserProfile(
+              id: userId,
+              name: name,
+              age: 0,
+              height: 0,
+              weight: 0,
+              gender: '',
+              dailyCalorieGoal: dailyCalorieGoal,
+            );
+            await _userProfileRepository.saveUserProfile(userProfile);
+            state = const OnboardingState.complete();
+          } catch (e) {
+            // Handle any errors that occur during the process
+            print('Error completing onboarding: $e');
+            // Set an error state or notify the UI
+            state = OnboardingState.error(e.toString());
+          }
         }
       },
       orElse: () {},
@@ -105,7 +123,8 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
 final onboardingProvider =
     StateNotifierProvider<OnboardingNotifier, OnboardingState>(
-  (ref) => OnboardingNotifier(ref.watch(userProfileRepositoryProvider)),
+  (ref) => OnboardingNotifier(
+      ref.watch(userProfileRepositoryProvider), ref.watch(authServiceProvider)),
 );
 
 // Remove this line as it's now defined in user_repository_impl.dart

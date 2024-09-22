@@ -42,9 +42,12 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
       throw Exception('Unauthorized access to user profile');
     }
     try {
-      final response =
-          await _supabaseClient.from(_tableName).select().eq('id', id).single();
-      return response.isEmpty ? UserProfileModel.fromJson(response) : null;
+      final response = await _supabaseClient
+          .from(_tableName)
+          .select()
+          .eq('id', id)
+          .maybeSingle();
+      return response != null ? UserProfileModel.fromJson(response) : null;
     } catch (e) {
       print('Error fetching user profile by ID: $e');
       return null;
@@ -53,7 +56,6 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
 
   @override
   Future<void> create(UserProfileModel item) async {
-    await _supabaseClient.auth.signInAnonymously();
     if (_currentUserId.isEmpty) {
       throw Exception('User not authenticated');
     }
@@ -61,10 +63,18 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
       final dataToInsert = item.toJson();
       dataToInsert['id'] =
           _currentUserId; // Ensure the ID matches the authenticated user
-      await _supabaseClient.from(_tableName).insert(dataToInsert);
+
+      final response =
+          await _supabaseClient.from(_tableName).insert(dataToInsert);
+
+      if (response.error != null) {
+        print('Insert error: ${response.error!.message}');
+        throw Exception(
+            'Failed to create user profile: ${response.error!.message}');
+      }
     } catch (e) {
       print('Error creating user profile: $e');
-      throw Exception('Failed to create user profile: $e');
+      rethrow; // Re-throw the exception to be handled by the calling function
     }
   }
 

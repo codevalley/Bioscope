@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../../domain/entities/food_entry.dart';
 import '../../domain/repositories/food_entry_repository.dart';
 import '../../domain/repositories/user_profile_repository.dart';
+import '../../domain/services/IAuthService.dart';
 
 class DashboardState {
   final String greeting;
@@ -21,14 +22,27 @@ class DashboardState {
     required this.userName,
     required this.dailyCalorieGoal,
   });
+
+  factory DashboardState.initial() => DashboardState(
+        greeting: '',
+        caloriesConsumed: 0,
+        caloriesRemaining: 0,
+        recentMeals: [],
+        userName: '',
+        dailyCalorieGoal: 0,
+      );
 }
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
   final IFoodEntryRepository _foodEntryRepository;
   final IUserProfileRepository _userProfileRepository;
+  final IAuthService _authService;
 
-  DashboardNotifier(this._foodEntryRepository, this._userProfileRepository)
-      : super(DashboardState(
+  DashboardNotifier(
+    this._foodEntryRepository,
+    this._userProfileRepository,
+    this._authService,
+  ) : super(DashboardState(
           greeting: '',
           caloriesConsumed: 0,
           caloriesRemaining: 0,
@@ -101,5 +115,7 @@ final dashboardNotifierProvider =
     StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
   final foodEntryRepository = ref.watch(foodEntryRepositoryProvider);
   final userProfileRepository = ref.watch(userProfileRepositoryProvider);
-  return DashboardNotifier(foodEntryRepository, userProfileRepository);
+  final authService = ref.watch(authServiceProvider);
+  return DashboardNotifier(
+      foodEntryRepository, userProfileRepository, authService);
 });
