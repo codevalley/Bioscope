@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/food_entry.dart';
 import '../../utils/date_formatter.dart';
+import '../screens/food_entry_detail_screen.dart';
 
 class RecentHistory extends StatelessWidget {
   final List<FoodEntry> recentMeals;
@@ -29,51 +30,82 @@ class RecentHistory extends StatelessWidget {
         if (recentMeals.isEmpty)
           _buildEmptyState(context)
         else
-          ...recentMeals.map((meal) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            meal.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${meal.nutritionInfo.calories} calories',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: Colors.black54,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      DateFormatter.getRelativeTime(meal.date),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.black54,
-                          ),
-                    ),
-                  ],
-                ),
-              )),
+          ...recentMeals.map((meal) => _buildMealItem(context, meal)),
       ],
+    );
+  }
+
+  Widget _buildMealItem(BuildContext context, FoodEntry meal) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FoodEntryDetailScreen(foodEntry: meal),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    meal.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${meal.nutritionInfo.calories} calories',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.black54,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  DateFormatter.getRelativeTime(meal.date),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.black54,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                const Icon(
+                  Icons.chevron_right,
+                  color: Colors.black54,
+                  size: 20,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
