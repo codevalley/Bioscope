@@ -1,3 +1,4 @@
+import 'package:bioscope/presentation/widgets/nutrition_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bioscope/presentation/blocs/food_capture_bloc.dart';
@@ -74,7 +75,8 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
                         if (state is FoodCaptureLoading) _buildLoader(),
                         const SizedBox(height: 24),
                         if (state is FoodCaptureSuccess) ...[
-                          _buildNutritionInfo(state.nutritionInfo),
+                          NutritionInfoWidget(
+                              nutritionInfo: state.nutritionInfo),
                         ] else if (state is FoodCaptureFailure) ...[
                           _buildErrorMessage(state.error),
                         ],
@@ -194,67 +196,6 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
       child: const Text(
         'Analyze Food',
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Widget _buildNutritionInfo(NutritionInfo nutritionInfo) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Nutrition Facts',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-          ),
-          const Divider(color: Colors.black, thickness: 8),
-          const SizedBox(height: 8),
-          Text(
-            nutritionInfo.summary,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.black54,
-                ),
-          ),
-          const SizedBox(height: 16),
-          const Divider(color: Colors.black, thickness: 1),
-          ...nutritionInfo.nutrition.map((component) => Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          component.component,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                        Text(
-                          '${component.value} ${component.unit}',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Colors.black,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(color: Colors.black, thickness: 1, height: 1),
-                ],
-              )),
-        ],
       ),
     );
   }
