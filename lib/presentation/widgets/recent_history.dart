@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../../domain/entities/food_entry.dart';
 import '../../utils/date_formatter.dart';
 import '../screens/food_entry_detail_screen.dart';
@@ -10,28 +11,11 @@ class RecentHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Recent Meals',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          height: 2,
-          width: MediaQuery.of(context).size.width * 0.3,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-        const SizedBox(height: 16),
-        if (recentMeals.isEmpty)
-          _buildEmptyState(context)
-        else
-          ...recentMeals.map((meal) => _buildMealItem(context, meal)),
-      ],
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) => _buildMealItem(context, recentMeals[index]),
+        childCount: recentMeals.length,
+      ),
     );
   }
 
@@ -46,22 +30,31 @@ class RecentHistory extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        margin: const EdgeInsets.only(bottom: 16),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (meal.imagePath != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(
+                  File(meal.imagePath!),
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
+              )
+            else
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.fastfood, color: Colors.grey[600]),
+              ),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,73 +62,25 @@ class RecentHistory extends StatelessWidget {
                   Text(
                     meal.name,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${meal.nutritionInfo.calories} calories',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.black54,
-                        ),
+                    DateFormatter.getRelativeTime(meal.date),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${meal.nutritionInfo.calories} kcal',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  DateFormatter.getRelativeTime(meal.date),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black54,
-                      ),
-                ),
-                const SizedBox(height: 4),
-                const Icon(
-                  Icons.chevron_right,
-                  color: Colors.black54,
-                  size: 20,
-                ),
-              ],
-            ),
+            Icon(Icons.more_vert, color: Colors.grey[600]),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          Icon(
-            Icons.restaurant,
-            size: 48,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No meals logged yet',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Add your first meal to get started!',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[500],
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ],
       ),
     );
   }

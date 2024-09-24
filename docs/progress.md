@@ -32,17 +32,16 @@
 - [x] **Task 4.7**: Modify DashboardNotifier
   - Notes: Updated to use watchAll method for real-time updates
 
+- [x] **Task 4.8**: Update AddFoodEntryScreen
+  - Notes: Modified UI to allow input of more detailed nutritional information
+
+- [x] **Task 4.9**: Update Dashboard UI
+  - Notes: Adjusted dashboard to display more comprehensive nutritional information
+  - Implemented NutritionInfoWidget for reusable nutrition display
+  - Redesigned RecentHistory widget for better visual appeal
+  - Added FoodEntryDetailScreen for detailed food entry view
+
 #### Pending Tasks
-
-- [ ] **Task 4.8**: Update AddFoodEntryScreen
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-  - Notes: Modify UI to allow input of more detailed nutritional information
-
-- [ ] **Task 4.9**: Update Dashboard UI
-  - Status: To Do
-  - Assigned to: [Team Member Name]
-  - Notes: Adjust dashboard to display more comprehensive nutritional information
 
 - [ ] **Task 4.10**: Optimize Supabase Data Fetch
   - Status: To Do
@@ -73,14 +72,16 @@
 - Optimization of Supabase data fetching is crucial for improving app performance.
 - Implementing real-time updates for the dashboard will enhance user experience.
 - Robust error handling for nutrition analysis will improve app reliability.
+- The new NutritionInfoWidget improves code reusability and consistency in nutrition data display.
+- The redesigned RecentHistory widget and new FoodEntryDetailScreen enhance the user experience.
 
 ### Next Steps
 
 1. Optimize Supabase data fetching to reduce initial loading times
 2. Implement real-time updates for the dashboard using Supabase's reactivity features
 3. Enhance error handling for nutrition analysis API responses
-4. Complete the remaining UI updates for AddFoodEntryScreen and Dashboard
-5. Implement Supabase authentication for user management
+4. Implement Supabase authentication for user management
+5. Consider adding more interactive elements to the FoodEntryDetailScreen, such as editing capabilities
 
 ## Chunk 5: Food Capture Interface Development
 
@@ -144,6 +145,62 @@
 3. Create a confirmation screen for users to review nutrition information before saving
 4. Integrate the food capture flow with the dashboard for seamless user experience
 5. Implement secure storage for the API key
+
+## Chunk 6: Dashboard UI Redesign
+
+### Chunk Overview
+
+- **Description**: Redesign the dashboard screen to follow an Instagram-like layout with improved food history display and nutrition goal visualization.
+- **Milestone**: Updated dashboard with a more visually appealing and user-friendly interface.
+
+### Tasks
+
+#### Completed Tasks
+
+- [x] **Task 6.1: Redesign RecentHistory Widget**
+  - Notes: Updated RecentHistory to display food entries in an Instagram-like card layout
+
+- [x] **Task 6.2: Create NutritionGoalBar Widget**
+  - Notes: Implemented a new widget to display daily nutrition goal progress
+
+- [x] **Task 6.3: Update DashboardScreen Layout**
+  - Notes: Restructured DashboardScreen to include NutritionGoalBar, scrollable RecentHistory, and "Add Food" button in a bottom bar
+
+#### Pending Tasks
+
+- [ ] **Task 6.4: Implement Navigation to AddFoodEntryScreen**
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Add functionality to the "Add Food" button to navigate to the food entry screen
+
+- [ ] **Task 6.5: Integrate Real Data with Dashboard**
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Connect the dashboard with actual user data from the repository
+
+- [ ] **Task 6.6: Implement Pull-to-Refresh Functionality**
+  - Status: To Do
+  - Assigned to: [Team Member Name]
+  - Notes: Add the ability to refresh the dashboard data by pulling down on the screen
+
+### Issues and Blockers
+
+- Need to ensure that the new layout is responsive on different screen sizes
+- May need to optimize image loading for better performance in the RecentHistory widget
+
+### Notes
+
+- The new Instagram-like layout provides a more familiar and engaging user experience
+- Consider adding animations to smooth transitions between screens and when loading new data
+- Explore the possibility of adding quick actions (like delete or edit) to food history items
+
+### Next Steps
+
+1. Complete the integration of the new dashboard design with the existing data flow
+2. Implement navigation to the AddFoodEntryScreen
+3. Add pull-to-refresh functionality for updating dashboard data
+4. Conduct user testing to gather feedback on the new design
+5. Optimize performance, especially for image loading in the food history
 
 ## References
 
