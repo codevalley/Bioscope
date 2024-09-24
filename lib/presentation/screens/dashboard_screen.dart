@@ -27,30 +27,36 @@ class DashboardScreen extends ConsumerWidget {
           child: Image.network("https://via.placeholder.com/30x30"),
         ),
       ),
-      body: Column(
-        children: [
-          DashboardTopSection(
-            greeting: dashboardState.greeting,
-            name: dashboardState.userName,
-            caloriesConsumed: dashboardState.caloriesConsumed,
-            dailyCalorieGoal: dashboardState.dailyCalorieGoal,
-            nutritionData: {
-              'Calories': dashboardState.caloriesConsumed /
-                  dashboardState.dailyCalorieGoal,
-              'Protein': 0.7, // Replace with actual data
-              'Carbs': 0.5, // Replace with actual data
-              'Fat': 0.3, // Replace with actual data
-            },
-          ),
-          Expanded(
-            child: RecentHistory(recentMeals: dashboardState.recentMeals),
-          ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () =>
+            ref.read(dashboardNotifierProvider.notifier).refreshDashboard(),
+        child: Column(
+          children: [
+            DashboardTopSection(
+              greeting: dashboardState.greeting,
+              name: dashboardState.userName,
+              caloriesConsumed: dashboardState.caloriesConsumed,
+              dailyCalorieGoal: dashboardState.dailyCalorieGoal,
+              nutritionData: {
+                'Calories': dashboardState.dailyCalorieGoal > 0
+                    ? dashboardState.caloriesConsumed /
+                        dashboardState.dailyCalorieGoal
+                    : 0,
+                'Protein': 0.7, // Replace with actual data
+                'Carbs': 0.5, // Replace with actual data
+                'Fat': 0.3, // Replace with actual data
+              },
+            ),
+            Expanded(
+              child: RecentHistory(recentMeals: dashboardState.recentMeals),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: DashboardBottomBar(
         onAddMealPressed: () => _navigateToAddFoodEntry(context, ref),
         onHomePressed: () {
-          // TODO: Implement home navigation or refresh dashboard
+          ref.read(dashboardNotifierProvider.notifier).refreshDashboard();
         },
         onSettingsPressed: () {
           // TODO: Implement settings navigation

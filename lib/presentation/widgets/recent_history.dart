@@ -9,6 +9,12 @@ class RecentHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (recentMeals.isEmpty) {
+      return const Center(
+        child: Text('No recent meals. Add your first meal!'),
+      );
+    }
+
     return ListView.builder(
       itemCount: recentMeals.length,
       itemBuilder: (context, index) => FoodEntryItem(entry: recentMeals[index]),

@@ -11,7 +11,7 @@ class NutritionIndicator extends StatelessWidget {
     required this.label,
     required this.value,
     required this.progress,
-    this.size = 60, // Reduced size (75% of 80)
+    this.size = 60,
   }) : super(key: key);
 
   @override
@@ -19,35 +19,38 @@ class NutritionIndicator extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
+        SizedBox(
           width: size,
           height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: const Color(0xFFFFF3E0), // Light orange fill
-            border: Border.all(color: Colors.black, width: 1),
-          ),
           child: Stack(
             alignment: Alignment.center,
             children: [
-              CircularProgressIndicator(
-                value: progress,
-                backgroundColor: Colors.transparent,
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFFED764A)), // Orange progress bar
-                strokeWidth: 4,
+              Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFFFFF3E0), // Light orange fill
+                  border: Border.all(color: Colors.black, width: 1),
+                ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${(progress * 100).toInt()}%',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
+              SizedBox(
+                width: size,
+                height: size,
+                child: CircularProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.transparent,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFFED764A)), // Orange progress bar
+                  strokeWidth: 4,
+                ),
+              ),
+              Text(
+                '${(progress * 100).toInt()}%',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ],
           ),

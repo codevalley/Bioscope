@@ -37,16 +37,25 @@ class FoodEntryItem extends StatelessWidget {
                       '${entry.nutritionInfo.calories} Calories',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    Text(
-                      entry.name,
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          DateFormatter.getRelativeTime(entry.date),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ),
-              Text(
-                DateFormatter.getRelativeTime(entry.date),
-                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),
