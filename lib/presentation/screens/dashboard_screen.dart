@@ -30,24 +30,31 @@ class DashboardScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () =>
             ref.read(dashboardNotifierProvider.notifier).refreshDashboard(),
-        child: Column(
-          children: [
-            DashboardTopSection(
-              greeting: dashboardState.greeting,
-              name: dashboardState.userName,
-              caloriesConsumed: dashboardState.caloriesConsumed,
-              dailyCalorieGoal: dashboardState.dailyCalorieGoal,
-              nutritionData: {
-                'Calories': dashboardState.dailyCalorieGoal > 0
-                    ? dashboardState.caloriesConsumed /
-                        dashboardState.dailyCalorieGoal
-                    : 0,
-                'Protein': 0.7, // Replace with actual data
-                'Carbs': 0.5, // Replace with actual data
-                'Fat': 0.3, // Replace with actual data
-              },
+        child: CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _SliverAppBarDelegate(
+                minHeight: 60.0,
+                maxHeight: 200.0,
+                child: DashboardTopSection(
+                  greeting: dashboardState.greeting,
+                  name: dashboardState.userName,
+                  caloriesConsumed: dashboardState.caloriesConsumed,
+                  dailyCalorieGoal: dashboardState.dailyCalorieGoal,
+                  nutritionData: {
+                    'Calories': dashboardState.dailyCalorieGoal > 0
+                        ? dashboardState.caloriesConsumed /
+                            dashboardState.dailyCalorieGoal
+                        : 0,
+                    'Protein': 0.7, // Replace with actual data
+                    'Carbs': 0.5, // Replace with actual data
+                    'Fat': 0.3, // Replace with actual data
+                  },
+                ),
+              ),
             ),
-            Expanded(
+            SliverToBoxAdapter(
               child: RecentHistory(recentMeals: dashboardState.recentMeals),
             ),
           ],
@@ -74,5 +81,36 @@ class DashboardScreen extends ConsumerWidget {
     if (result != null) {
       await ref.read(dashboardNotifierProvider.notifier).addFoodEntry(result);
     }
+  }
+}
+
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  _SliverAppBarDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }

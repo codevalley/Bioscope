@@ -160,25 +160,31 @@
 - [x] **Task 6.1: Redesign RecentHistory Widget**
   - Notes: Updated RecentHistory to display food entries in an Instagram-like card layout
 
-- [x] **Task 6.2: Create NutritionGoalBar Widget**
+- [x] **Task 6.2: Create NutritionIndicator Widget**
   - Notes: Implemented a new widget to display daily nutrition goal progress
 
 - [x] **Task 6.3: Update DashboardScreen Layout**
-  - Notes: Restructured DashboardScreen to include NutritionGoalBar, scrollable RecentHistory, and "Add Food" button in a bottom bar
+  - Notes: Restructured DashboardScreen to include DashboardTopSection, scrollable RecentHistory, and "Add Food" button in a bottom bar
+
+- [x] **Task 6.4: Update DashboardBottomBar and DashboardTopSection**
+  - Notes: Updated the design for DashboardBottomBar and DashboardTopSection
+
+- [x] **Task 6.5: Separate FoodEntryItem into a new widget**
+  - Notes: Created a new FoodEntryItem widget for individual food entries
 
 #### Pending Tasks
 
-- [ ] **Task 6.4: Implement Navigation to AddFoodEntryScreen**
+- [ ] **Task 6.6: Implement Navigation to AddFoodEntryScreen**
   - Status: To Do
   - Assigned to: [Team Member Name]
   - Notes: Add functionality to the "Add Food" button to navigate to the food entry screen
 
-- [ ] **Task 6.5: Integrate Real Data with Dashboard**
+- [ ] **Task 6.7: Integrate Real Data with Dashboard**
   - Status: To Do
   - Assigned to: [Team Member Name]
   - Notes: Connect the dashboard with actual user data from the repository
 
-- [ ] **Task 6.6: Implement Pull-to-Refresh Functionality**
+- [ ] **Task 6.8: Implement Pull-to-Refresh Functionality**
   - Status: To Do
   - Assigned to: [Team Member Name]
   - Notes: Add the ability to refresh the dashboard data by pulling down on the screen

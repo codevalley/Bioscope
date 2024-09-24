@@ -18,49 +18,80 @@ class DashboardTopSection extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            '$greeting, $name',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-        Container(
-          height: 100,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: nutritionData.entries.map((entry) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: NutritionIndicator(
-                  label: entry.key,
-                  value: '${(entry.value * dailyCalorieGoal).toInt()} kcal',
-                  progress: entry.value,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double expandRatio = (constraints.maxHeight - 70) / (200 - 70);
+        final bool isExpanded = expandRatio > 0.5;
+
+        return Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              AnimatedOpacity(
+                opacity: isExpanded ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        '$greeting, $name',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        children: nutritionData.entries.map((entry) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: NutritionIndicator(
+                              label: entry.key,
+                              value:
+                                  '${(entry.value * dailyCalorieGoal).toInt()} kcal',
+                              progress: entry.value,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ),
-              );
-            }).toList(),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Today: $caloriesConsumed / $dailyCalorieGoal kcal',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Today: $caloriesConsumed / $dailyCalorieGoal kcal',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
+                    ),
+                    Container(
+                      height: 1,
+                      color: Colors.black12,
+                    ),
+                  ],
                 ),
+              ),
+            ],
           ),
-        ),
-        Container(
-          height: 1,
-          color: Colors.black12,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-        ),
-      ],
+        );
+      },
     );
   }
 }
