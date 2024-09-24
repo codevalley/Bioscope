@@ -83,24 +83,32 @@ Additionally, we provide an elaborate description of the design language to guid
 **D. Visual and Interaction Design**
 
 - **Theme and Background**:
-
   - **Primary Background**: Utilize a pastel white/gray theme as the base, with the option for a dark theme featuring a deep navy color (#0B1120) for high contrast.
 
 - **Typography**:
-
   - **Primary Font**: Bold, large sans-serif font for headings and main titles.
   - **Secondary Font**: Smaller, regular weight sans-serif font for subtexts.
   - **Text Alignment**: Center-aligned for greetings and main headings; left-aligned for detailed information.
 
 - **Color Palette**:
+  - **Primary Colors**: Black, white, and shades of gray.
+  - **Accent Colors**: Orange (#ED764A) for primary actions, mint green for progress indicators.
 
-  - **Primary Colors**: Light blues and pastel colors for interactive elements and highlights.
-  - **Accent Colors**: Muted colors for secondary information to maintain focus on primary data.
+- **Progress Indicator**:
+  - Thin line (2px) chart with dots for data points.
+  - Use mint green for the line, black for data points.
 
-- **Spacing and Layout**:
+- **Task List**:
+  - Left-aligned text with ample spacing between items (24px).
+  - Circular checkboxes (24x24px) aligned to the right.
 
-  - **Ample White Space**: Ensures readability and reduces visual clutter.
-  - **Uniform Padding and Margins**: Consistency across elements enhances visual harmony.
+- **Profile Section**:
+  - Circular avatar (48x48px) in the top-left corner.
+  - User name right-aligned in the top-right corner.
+
+- **Navigation**:
+  - Bottom tab bar with simple icons and labels.
+  - Active state indicated by filled icons or underline.
 
 ---
 

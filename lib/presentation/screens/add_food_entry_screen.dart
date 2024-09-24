@@ -1,4 +1,3 @@
-import 'package:bioscope/presentation/widgets/nutrition_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bioscope/presentation/blocs/food_capture_bloc.dart';
@@ -10,6 +9,7 @@ import 'package:bioscope/domain/repositories/food_entry_repository.dart';
 import 'package:bioscope/application/di/dependency_injection.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
+import '../widgets/nutrition_info.dart';
 
 class AddFoodEntryScreen extends StatelessWidget {
   const AddFoodEntryScreen({Key? key}) : super(key: key);
@@ -30,31 +30,20 @@ class AddFoodEntryView extends StatefulWidget {
   AddFoodEntryViewState createState() => AddFoodEntryViewState();
 }
 
-class AddFoodEntryViewState extends State<AddFoodEntryView>
-    with SingleTickerProviderStateMixin {
+class AddFoodEntryViewState extends State<AddFoodEntryView> {
   final TextEditingController _descriptionController = TextEditingController();
   String? _imagePath;
   final ScrollController _scrollController = ScrollController();
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE6F3EF),
+      backgroundColor: const Color(0xFFFAFAF7),
       appBar: AppBar(
         title: const Text('Add Food Entry'),
+        centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.black,
       ),
       body: BlocBuilder<FoodCaptureBloc, FoodCaptureState>(
         builder: (context, state) {
@@ -64,24 +53,22 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
                 Expanded(
                   child: SingleChildScrollView(
                     controller: _scrollController,
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _buildFoodDescriptionInput(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 16),
                         _buildImageSection(),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 16),
                         if (state is FoodCaptureLoading) _buildLoader(),
-                        const SizedBox(height: 24),
                         if (state is FoodCaptureSuccess) ...[
                           NutritionInfoWidget(
                               nutritionInfo: state.nutritionInfo),
                         ] else if (state is FoodCaptureFailure) ...[
                           _buildErrorMessage(state.error),
                         ],
-                        // Add extra space to ensure content is scrollable above the bottom bar
-                        const SizedBox(height: 100),
+                        const SizedBox(height: 32),
                       ],
                     ),
                   ),
@@ -95,25 +82,12 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
     );
   }
 
-  Widget _buildBottomBar(FoodCaptureState state) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      color: const Color(0xFFE6F3EF), // Same as background color
-      child: SafeArea(
-        child: state is FoodCaptureSuccess
-            ? _buildSaveButton(state.nutritionInfo)
-            : _buildAnalyzeButton(),
-      ),
-    );
-  }
-
   Widget _buildFoodDescriptionInput() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.black, width: 1),
+        borderRadius: BorderRadius.circular(3),
       ),
       child: TextField(
         controller: _descriptionController,
@@ -123,7 +97,6 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
           contentPadding: EdgeInsets.all(16),
         ),
         style: const TextStyle(fontSize: 16),
-        onSubmitted: (_) => _submitEntry(),
       ),
     );
   }
@@ -148,13 +121,19 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
         ),
         if (_imagePath != null) ...[
           const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.file(
-              File(_imagePath!),
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.black, width: 1),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: Image.file(
+                File(_imagePath!),
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ],
@@ -169,15 +148,32 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
   }) {
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, color: Colors.white),
+      icon: Icon(icon, color: Colors.black),
       label: Text(label),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(3),
+          side: const BorderSide(color: Colors.black, width: 1),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(FoodCaptureState state) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: Color(0xFFFBFAF8),
+        border: Border(top: BorderSide(color: Colors.black, width: 1)),
+      ),
+      child: SafeArea(
+        child: state is FoodCaptureSuccess
+            ? _buildSaveButton(state.nutritionInfo)
+            : _buildAnalyzeButton(),
       ),
     );
   }
@@ -186,10 +182,11 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
     return ElevatedButton(
       onPressed: _submitEntry,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFFDBA21),
-        foregroundColor: Colors.black,
+        backgroundColor: const Color(0xFFED764A),
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(3),
+          side: const BorderSide(color: Colors.black, width: 1),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
@@ -204,10 +201,11 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
     return ElevatedButton(
       onPressed: () => _saveToLog(nutritionInfo),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFFED764A),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(3),
+          side: const BorderSide(color: Colors.black, width: 1),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
@@ -222,13 +220,13 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.shade100,
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.red, width: 1),
+        borderRadius: BorderRadius.circular(3),
       ),
       child: Text(
         'Error: $error',
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.red.shade800,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.red,
             ),
       ),
     );
@@ -238,8 +236,8 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       child: LinearProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-        backgroundColor: Colors.yellow,
+        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFED764A)),
+        backgroundColor: Colors.black12,
       ),
     );
   }
@@ -256,19 +254,16 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
 
   void _submitEntry() {
     if (_descriptionController.text.isNotEmpty) {
-      // Hide the keyboard
       FocusScope.of(context).unfocus();
-
       context
           .read<FoodCaptureBloc>()
           .add(AnalyzeImage(_imagePath, _descriptionController.text));
-      // Scroll to the bottom to show the loading indicator
       _scrollToBottom();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please enter a food description'),
-          backgroundColor: Colors.red.shade800,
+        const SnackBar(
+          content: Text('Please enter a food description'),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -300,7 +295,7 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error saving food entry: $e'),
-            backgroundColor: Colors.red.shade800,
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -323,7 +318,6 @@ class AddFoodEntryViewState extends State<AddFoodEntryView>
   void dispose() {
     _descriptionController.dispose();
     _scrollController.dispose();
-    _animationController.dispose();
     super.dispose();
   }
 }
