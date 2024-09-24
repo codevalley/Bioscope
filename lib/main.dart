@@ -11,6 +11,52 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
+ThemeData buildAppTheme() {
+  return ThemeData(
+    primaryColor: const Color(0xFFFAFAF7),
+    scaffoldBackgroundColor: const Color(0xFFFAFAF7),
+    fontFamily: 'Manrope',
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.90,
+        color: Colors.black,
+      ),
+      titleLarge: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Colors.black,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: Colors.black,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: Colors.black,
+      ),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Color(0xFFFAFAF7),
+      elevation: 0,
+      titleTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.90,
+      ),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: Color(0xFFFBFAF8),
+      selectedItemColor: Color(0xFFED764A),
+      unselectedItemColor: Color(0xFFA1A1A1),
+    ),
+  );
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -18,46 +64,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Bioscope',
-      theme: ThemeData(
-        primaryColor: const Color(0xFFFDBA21), // Yellow primary color
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily:
-            'Poppins', // You can replace this with a clean sans-serif font
-        textTheme: const TextTheme(
-          headlineMedium: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Colors.black,
-          ),
-          headlineLarge: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.w700,
-            color: Colors.black,
-          ),
-          bodyMedium: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            color: Colors.black54,
-          ),
-          titleMedium: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
-        ),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: const Color(0xFFFDBA21), // Yellow accent color
-          secondary: Colors.black, // Black text and icons
-          onPrimary: Colors.white, // White on primary elements
-        ),
-        buttonTheme: ButtonThemeData(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          buttonColor: Colors.black,
-          textTheme: ButtonTextTheme.primary,
-        ),
-      ),
+      theme: buildAppTheme(),
       home: const DashboardScreen(),
     );
   }

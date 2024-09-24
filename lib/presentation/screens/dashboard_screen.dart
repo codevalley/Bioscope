@@ -50,41 +50,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildDashboardContent(BuildContext context, WidgetRef ref) {
     final dashboardState = ref.watch(dashboardNotifierProvider);
 
-    return SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _refreshData,
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: DashboardTopSection(
-                      greeting: dashboardState.greeting,
-                      name: dashboardState.userName,
-                      caloriesConsumed: dashboardState.caloriesConsumed,
-                      dailyCalorieGoal: dashboardState.dailyCalorieGoal,
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver:
-                        RecentHistory(recentMeals: dashboardState.recentMeals),
-                  ),
-                ],
-              ),
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('BIOSCOPE'),
+        centerTitle: true,
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.black, width: 1),
+            borderRadius: BorderRadius.circular(3),
           ),
-          DashboardBottomBar(
-            onAddMealPressed: () => _navigateToAddFoodEntry(context, ref),
-            onAnalyticsPressed: () {
-              // TODO: Implement analytics navigation
+          child: Image.network("https://via.placeholder.com/30x30"),
+        ),
+      ),
+      body: Column(
+        children: [
+          DashboardTopSection(
+            greeting: dashboardState.greeting,
+            name: dashboardState.userName,
+            caloriesConsumed: dashboardState.caloriesConsumed,
+            dailyCalorieGoal: dashboardState.dailyCalorieGoal,
+            nutritionData: {
+              'Calories': dashboardState.caloriesConsumed /
+                  dashboardState.dailyCalorieGoal,
+              'Protein': 0.7, // Replace with actual data
+              'Carbs': 0.5, // Replace with actual data
+              'Fat': 0.3, // Replace with actual data
             },
-            onSettingsPressed: () {
-              // TODO: Implement settings navigation
-            },
+          ),
+          Expanded(
+            child: RecentHistory(recentMeals: dashboardState.recentMeals),
           ),
         ],
+      ),
+      bottomNavigationBar: DashboardBottomBar(
+        onAddMealPressed: () {
+          // TODO: Implement add meal functionality
+        },
+        onAnalyticsPressed: () {
+          // TODO: Implement analytics navigation
+        },
+        onSettingsPressed: () {
+          // TODO: Implement settings navigation
+        },
       ),
     );
   }

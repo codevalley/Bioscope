@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class DashboardBottomBar extends StatelessWidget {
   final VoidCallback onAddMealPressed;
-  final VoidCallback onAnalyticsPressed;
+  final VoidCallback onHomePressed;
   final VoidCallback onSettingsPressed;
 
   const DashboardBottomBar({
     Key? key,
     required this.onAddMealPressed,
-    required this.onAnalyticsPressed,
+    required this.onHomePressed,
     required this.onSettingsPressed,
   }) : super(key: key);
 
@@ -16,33 +16,57 @@ class DashboardBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 80,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, -3),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: Color(0xFFFBFAF8),
+        border: Border(top: BorderSide(color: Colors.black, width: 1)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          IconButton(
-            icon: const Icon(Icons.analytics),
-            onPressed: onAnalyticsPressed,
+          _buildBottomBarItem(
+            icon: Icons.home,
+            color: const Color(0xFFED764A),
+            onPressed: onHomePressed,
           ),
-          FloatingActionButton(
-            onPressed: onAddMealPressed,
-            child: const Icon(Icons.add),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
+          _buildAddMealButton(),
+          _buildBottomBarItem(
+            icon: Icons.settings,
+            color: const Color(0xFFA1A1A1),
             onPressed: onSettingsPressed,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBottomBarItem({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return IconButton(
+      icon: Icon(icon, color: color),
+      onPressed: onPressed,
+      iconSize: 30,
+    );
+  }
+
+  Widget _buildAddMealButton() {
+    return GestureDetector(
+      onTap: onAddMealPressed,
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: const Color(0xFFED764A),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black, width: 1),
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 30,
+        ),
       ),
     );
   }
