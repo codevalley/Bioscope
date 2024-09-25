@@ -1,210 +1,95 @@
-# Workflow Documentation
+# Workflow for Bioscope Project
 
-## Introduction
-
-This document outlines the workflow for developing our personal coach app, focusing on Phase 1 as defined in our project scope. The workflow is designed to ensure efficient progress tracking, clear communication, and alignment with our goals and design principles. We maintain two primary documents for day-to-day operations and refer to several foundational documents that capture our project's essence, design language, and development plan.
-
----
-
-## Overview of Documents
+## Key Documents
 
 ### Primary Documents
 
 1. **progress.md**
+   - Purpose: Tracks current development chunk and task status
+   - Content:
+     - Current chunk title and description
+     - Completed tasks (with checkmarks)
+     - In-progress tasks (with status updates)
+     - Pending tasks
+     - Notes on blockers or issues
 
-   - **Purpose**: Captures the current chunk under development, including both completed tasks and tasks to be completed (in progress).
-   - **Usage**: Updated regularly to reflect the latest status of tasks within the active development chunk.
-   - **Content**:
-     - Current development chunk title.
-     - List of tasks:
-       - Completed tasks with checkmarks or strikethroughs.
-       - In-progress tasks with status updates.
-       - Pending tasks to be started.
-     - Notes on any blockers or issues encountered.
-   - **References**: Links to relevant sections in `Approach.md`, `Pitch.md`, `DesignLanguage.md`, and `ProjectPlan.md` for context.
-
+2. **completed.md**
+   - Purpose: Archives completed tasks and milestones
+   - Content: Comprehensive list of completed tasks, organized by development chunks
 
 ### Foundational Documents
 
 1. **Pitch.md**
-
-   - **Purpose**: Contains the initial project proposal, outlining our goals, approach, and the division into Phase 1 and Phase 2.
-   - **Content**:
-     - Project vision and objectives.
-     - High-level description of features for both phases.
-     - Philosophical approach to design and user experience.
+   - Purpose: Outlines project vision and high-level features
+   - Content: Project goals, feature descriptions, and design philosophy
 
 2. **Approach.md**
-
-   - **Purpose**: Details the features, user journeys, and workflows discussed during the planning phase.
-   - **Content**:
-     - In-depth descriptions of app functionalities.
-     - User flow diagrams and narratives.
-     - Decisions on feature priorities and exclusions.
+   - Purpose: Details features, user journeys, and workflows
+   - Content: In-depth descriptions of app functionalities and user flows
 
 3. **DesignLanguage.md**
-
-   - **Purpose**: Defines our design style and guidelines for UI development.
-   - **Content**:
-     - General aesthetic principles (theme, color palette, typography).
-     - Component designs (buttons, icons, cards).
-     - Layout conventions and accessibility considerations.
+   - Purpose: Defines UI/UX guidelines
+   - Content: Color palette, typography, component designs, and layout conventions
 
 4. **ProjectPlan.md**
+   - Purpose: Outlines development plan
+   - Content: Development chunks, milestones, and task breakdowns
 
-   - **Purpose**: Outlines the development plan, broken into 10 chunks with milestones and sub-tasks.
-   - **Content**:
-     - Detailed breakdown of development phases.
-     - Task lists with dependencies and estimated timelines.
-     - Milestones with verifiable outcomes.
-
----
+5. **DataArchitecture.md**
+   - Purpose: Describes data layer structure and implementation
+   - Content: Layer descriptions, current implementation details, and future considerations
 
 ## Workflow Process
 
-### Development Cycle
+### Task Selection and Execution
 
-1. **Selecting the Current Development Chunk**
+1. Review `progress.md` to identify the current development chunk and available tasks.
+2. Select a task based on priority and dependencies.
+3. Before starting, review relevant sections in foundational documents:
+   - `Approach.md` for feature details
+   - `DesignLanguage.md` for UI/UX guidelines
+   - `DataArchitecture.md` for data layer implementation
 
-   - From `ProjectPlan.md`, identify the next chunk scheduled for development.
-   - Update `progress.md` to reflect the current chunk, including its title and description.
+4. Execute the task, referring to the codebase and foundational documents as needed.
+5. Update `progress.md` with task status and any notes or blockers encountered.
 
-2. **Task Management within the Chunk**
+### Code Implementation Guidelines
 
-   - List all tasks associated with the current chunk in `progress.md`.
-   - For each task:
-     - Provide a brief description.
-     - Assign responsible team members.
-     - Set status indicators (To Do, In Progress, Completed).
+1. Follow the clean architecture principles outlined in `DataArchitecture.md`.
+2. Adhere to the design language specified in `DesignLanguage.md`.
+3. Implement features as described in `Approach.md`.
+4. Use Riverpod for state management as per the current implementation.
+5. Implement proper error handling and logging.
 
-3. **Updates**
+### Testing and Quality Assurance
 
-   - Update `progress.md` at the end of each code update.
-   - Include progress made, challenges faced, and any adjustments to timelines.
-   - Use checkmarks or status labels to indicate task completion or progress.
+1. Write unit tests for new functionality.
+2. Ensure UI components are responsive and follow the design language.
+3. Test for edge cases and error scenarios.
 
-4. **Referencing Foundational Documents**
+### Documentation
 
-   - When working on tasks, refer to the relevant sections in:
-     - `Pitch.md` for understanding the overarching goals and phases.
-     - `Approach.md` for detailed feature descriptions and user journeys.
-     - `DesignLanguage.md` for UI/UX guidelines and consistency.
-     - `ProjectPlan.md` for context on how tasks fit into the overall project timeline.
+1. Add inline comments for complex logic.
+2. Update relevant documentation if the implementation differs from the original plan.
 
-5. **Issue Tracking and Resolution**
+### Task Completion
 
-   - Document any blockers or issues in `progress.md`.
-   - Assign action items for resolving issues.
-   - If the issues are carried forward to the next chunk, keep them in progress.md under issues section (with reference to the chunk & task number)
+1. Mark the task as completed in `progress.md`.
+2. If the task completes a chunk, move the chunk details to `completed.md`.
+3. Push code changes and update relevant documentation.
 
----
+## Handling Blockers and Issues
 
-## Maintenance and Update Procedures
+1. Document any blockers or issues in `progress.md`.
+2. If a blocker requires changes to the project plan or approach:
+   - Note the suggested changes in the respective document under a "Suggestions" section.
+   - Update `progress.md` with a reference to the suggested change.
 
-### Updating progress.md
+## AI Agent Guidelines
 
-- **Task Completion**
-
-  - When a task is completed, mark it as such in `progress.md`.
-  - Provide any relevant notes or comments on the implementation.
-
-- **Adding New Tasks**
-
-  - If new tasks arise within the current chunk, add them to `progress.md` with appropriate details.
-  - Ensure they align with the objectives outlined in `ProjectPlan.md`.
-
-- **In-Progress Tasks**
-
-  - For tasks that are underway, include brief status updates.
-  - Note any expected completion dates or shifts in timelines.
-
-### Referencing Other Documents
-
-- **Cross-Referencing**
-
-  - In `progress.md`, include hyperlinks or references to specific sections in the foundational documents when relevant.
-  - Example: "See `DesignLanguage.md` section on 'Buttons and CTAs' for guidelines."
-
-- **Document Updates**
-
-  - Keep `Approach.md`, `Pitch.md`, `DesignLanguage.md`, or `ProjectPlan.md` like an immutable document and add any suggestions to the bottom of the document under "Suggestion" section, note these in `progress.md`.
-  - Summarize the changes and their impact on current tasks.
-
-### Document Versioning
-
-- **Backup and Archiving**
-
-  - When a chunk is completed, compact the contents of `Progress.md` into a `Completed.md` file and flush the contents of `Progress.md`
-
-
-## Conclusion
-
-This workflow is designed to streamline our development process, ensuring clarity, accountability, and alignment with our project's vision. By maintaining `progress.md` as the central document for tracking current development efforts and referring to our foundational documents (`Approach.md`, `Pitch.md`, `DesignLanguage.md`, `ProjectPlan.md`), we create a cohesive system that supports efficient collaboration and progress monitoring.
-
----
-
-## Appendices
-
-### Sample progress.md Structure
-
-```markdown
-# Progress - [Current Chunk Title]
-
-## Chunk Overview
-
-- **Description**: [Brief description of the current development chunk]
-- **Milestone**: [Expected outcome of the chunk]
-
-## Tasks
-
-### Completed Tasks
-
-- [x] **Task 1**: Description of task 1
-  - Notes: Any relevant comments or findings
-- [x] **Task 2**: Description of task 2
-  - Notes: Reference to `DesignLanguage.md` section on typography
-
-### In-Progress Tasks
-
-- [ ] **Task 3**: Description of task 3
-  - Status: In Progress
-  - Assigned to: Team Member Name
-  - Notes: Encountered an issue with [specific detail], see `Approach.md` for context
-
-### Pending Tasks
-
-- [ ] **Task 4**: Description of task 4
-  - Status: To Do
-  - Assigned to: Team Member Name
-
-## Issues and Blockers
-
-- **Issue 1**: Description of the issue
-  - Action Items: Steps being taken to resolve
-  - References: See `ProjectPlan.md` Chunk 5 for related tasks
-
-## Notes
-
-- **General Observations**: Any overarching comments or insights
-- **Adjustments**: Any changes to timelines or task scopes
-
-## References
-
-- [Pitch.md](./Pitch.md)
-- [Approach.md](./Approach.md)
-- [DesignLanguage.md](./DesignLanguage.md)
-- [ProjectPlan.md](./ProjectPlan.md)
-```
-
----
-
-### Document Maintenance Tips
-
-- **Consistency**: Ensure all team members follow the same format when updating documents.
-- **Clarity**: Use clear and concise language to avoid misunderstandings.
-- **Timeliness**: Update documents promptly to reflect the most current information.
-- **Collaboration**: Encourage open communication about changes or updates made to any documents.
-
----
-
-By adhering to this workflow and utilizing the outlined documents effectively, we can maintain a high level of organization and focus throughout the development process, ultimately leading to the successful completion of our personal coach app.
+1. Always start by reviewing `progress.md` and the current state of the project.
+2. Consult foundational documents for context before implementing features.
+3. Adhere strictly to the established architecture and design patterns.
+4. When in doubt, refer to the existing codebase for implementation examples.
+5. Communicate clearly about task progress, blockers, and completion in `progress.md`.
+6. Suggest improvements or optimizations when appropriate, noting them in the relevant documents.

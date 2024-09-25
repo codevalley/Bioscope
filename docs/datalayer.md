@@ -1,131 +1,39 @@
-# Data Layer Design for Bioscope
+# Comprehensive Data Architecture for Bioscope
 
-**Data Layer Design**
+## Overview
 
-```dart
-// Data Layer Design for Bioscope
+This document outlines the comprehensive data architecture for the Bioscope app, covering the core, domain, and data layers. It describes the current implementation using SQLite and Supabase, while preserving flexibility for future enhancements.
 
-// 1. Abstract Data Source
-abstract class DataSource<T> {
-  Future<void> initialize();
-  Future<List<T>> getAll();
-  Future<T?> getById(String id);
-  Future<void> create(T item);
-  Future<void> update(T item);
-  Future<void> delete(String id);
-}
+## Layer Structure
 
-// 2. Concrete Implementations
-class SQLiteDataSource<T> implements DataSource<T> {
-  // SQLite implementation
-}
+### Core Layer
 
-class HiveDataSource<T> implements DataSource<T> {
-  // Hive implementation
-}
+The core layer contains interfaces and utilities that can be used across the entire application.
 
-class ReactiveDataSource<T> implements DataSource<T> {
-  // Reactive local-first store implementation (e.g., Supabase)
-}
+**Structure:**
+- `lib/core/interfaces/data_source.dart`: Defines the generic DataSource interface.
 
-class RestApiDataSource<T> implements DataSource<T> {
-  // REST API implementation
-}
+### Domain Layer
 
-// 3. Repository
-class Repository<T> {
-  final DataSource<T> localDataSource;
-  final DataSource<T> remoteDataSource;
+The domain layer contains the core business logic, entities, and repository interfaces of the application. It should be independent of any external frameworks or libraries.
 
-  Repository({required this.localDataSource, required this.remoteDataSource});
+**Structure:**
+For each entity (e.g., FoodEntry, UserProfile), create the following files in the `lib/domain` directory:
+1. `entities/{entity_name}.dart`: Defines the entity class.
+2. `repositories/{entity_name}_repository.dart`: Defines the abstract repository interface.
+3. `usecases/{entity_name}/{usecase_name}.dart`: Defines individual use cases for the entity.
 
-  Future<List<T>> getAll() async {
-    try {
-      final remoteData = await remoteDataSource.getAll();
-      await localDataSource.initialize();
-      for (var item in remoteData) {
-        await localDataSource.create(item);
-      }
-      return remoteData;
-    } catch (e) {
-      return localDataSource.getAll();
-    }
-  }
+### Data Layer
 
-  // Implement other CRUD operations with similar pattern
-}
+The data layer implements the repositories defined in the domain layer and handles data persistence and retrieval.
 
-// 4. Usage Example
-class FoodEntryRepository extends Repository<FoodEntry> {
-  FoodEntryRepository({
-    required DataSource<FoodEntry> localDataSource,
-    required DataSource<FoodEntry> remoteDataSource,
-  }) : super(localDataSource: localDataSource, remoteDataSource: remoteDataSource);
+**Structure:**
+For each entity, create the following files in the `lib/data` directory:
+1. `models/{entity_name}_model.dart`: Defines the data model, which is a serializable version of the domain entity.
+2. `datasources/{entity_name}_{storage_type}_ds.dart`: Implements specific data storage (e.g., sqlite, supabase).
+3. `repositories/{entity_name}_repository_impl.dart`: Implements the repository interface from the domain layer.
 
-  // Add any FoodEntry specific methods here
-}
-
-```
-
-Now, let's discuss the approach and choices for implementing this data layer:
-
-1. Abstraction Layer:
-   - We'll use an abstract `DataSource` class to define the common interface for all data sources.
-   - This abstraction allows us to easily switch between different data sources without affecting the rest of the application.
-
-2. Local Data Storage:
-   - For local storage, we can implement both SQLite and Hive options:
-     - SQLite: Good for complex queries and relational data.
-     - Hive: Excellent for simple key-value storage and fast performance.
-   - We'll create concrete implementations for both (`SQLiteDataSource` and `HiveDataSource`).
-   - The choice between SQLite and Hive can be made based on specific requirements for each data type.
-
-3. Reactive Local-First Store:
-   - Supabase is a good choice for a reactive local-first store. It provides real-time capabilities and offline support.
-   - We'll implement a `ReactiveDataSource` that uses Supabase SDK for Flutter.
-   - This will allow for real-time updates and offline-first functionality.
-
-4. REST API:
-   - We'll implement a `RestApiDataSource` to handle communication with the server.
-   - This will serve as the source of truth for the application.
-
-5. Repository Pattern:
-   - We'll use the Repository pattern to coordinate between local and remote data sources.
-   - The Repository will handle the logic of fetching from the remote source, caching locally, and falling back to local data when offline.
-
-6. Data Flow:
-   - The app will primarily interact with the Repository.
-   - The Repository will first try to fetch from the remote source (REST API).
-   - If successful, it will update the local storage (SQLite/Hive) and return the data.
-   - If the remote fetch fails, it will fall back to the local storage.
-
-7. Reactive Updates:
-   - For real-time updates, we can use Supabase's real-time capabilities.
-   - The Repository can expose streams of data that components can listen to for reactive updates.
-
-8. Dependency Injection:
-   - We'll use dependency injection to provide the appropriate data sources to the Repository.
-   - This allows for easy switching between data sources (e.g., SQLite vs. Hive) without changing the Repository code.
-
-9. Error Handling and Connectivity:
-   - Implement robust error handling in the Repository.
-   - Use a connectivity package to detect network status and adjust behavior accordingly.
-
-10. Migration Strategy:
-    - Design a migration strategy for local databases to handle schema changes.
-    - Implement version control for local data to ensure compatibility with server data.
-
-This approach provides a flexible and robust data layer that can handle different types of data sources while maintaining a clean abstraction for the rest of the application. It allows for easy switching between data sources and provides a clear path for implementing offline-first functionality and real-time updates.
-
-To implement this, you'll need to:
-1. Update your pubspec.yaml to include necessary packages (sqflite, hive, supabase, http for REST API).
-2. Implement the concrete data sources.
-3. Update the existing `FoodEntryRepository` to use this new structure.
-4. Adjust the UI and business logic layers to work with the new Repository structure.
-
-## Current Implementation
-
-### Data Source Disambiguation Diagram
+## Data Source Disambiguation Diagram
 
 ```
 +-------------------+
@@ -156,8 +64,8 @@ To implement this, you'll need to:
    |     |     |     +------------+
    |     |     |
 +--v-+ +-v-+ +-v--+
-|SQL-| |SP | |Mock|
-|ite | |   | |API |
+|SQL-| |SP | |Supa|
+|ite | |   | |base|
 +----+ +---+ +----+
 
 SP: SharedPreferences
@@ -165,49 +73,120 @@ SP: SharedPreferences
 
 ### Explanation of the diagram:
 
-1. **Presentation Layer**:
-   - Contains UI components.
-   - Uses Riverpod for state management and dependency injection.
+1. **Presentation Layer**: Contains UI components and uses Riverpod for state management and dependency injection.
+2. **Domain Layer**: Contains business logic, use cases, and defines abstract repositories and entities.
+3. **Data Layer**: Implements the repository pattern and manages data sources and their coordination.
+4. **Local Store**: 
+   - Primary: SQLite (implemented) for storing structured data like food entries.
+   - Secondary: SharedPreferences (not yet implemented) for storing simple key-value pairs like user preferences.
+5. **Remote Store**: Supabase for cloud storage and real-time synchronization.
 
-2. **Domain Layer**:
-   - Contains business logic and use cases.
-   - Defines abstract repositories and entities.
+## Current Implementation
 
-3. **Data Layer**:
-   - Implements the repository pattern.
-   - Manages data sources and their coordination.
+### DataSource Interface
 
-4. **Local Store**:
-   - Primary: SQLite (implemented)
-     - Used for storing structured data like food entries.
-   - Secondary: SharedPreferences (not yet implemented)
-     - Could be used for storing simple key-value pairs like user preferences.
+```dart
+abstract class DataSource<T> {
+  Future<void> initialize();
+  Future<List<T>> getAll();
+  Future<T?> getById(String id);
+  Future<void> create(T item);
+  Future<void> update(T item);
+  Future<void> delete(String id);
+  Stream<List<T>> watchAll();
+  Stream<T?> watchById(String id);
+}
+```
 
-5. **Remote Store**:
-   - Currently using a mock implementation.
-   - In the future, this will be replaced with a real REST API client.
+### Concrete Implementations
 
-6. **Future Options**:
-   - Supabase: Could be used as an edge store for real-time synchronization and offline-first capabilities.
+1. **SQLiteDataSource**: 
+   - Used for local storage of structured data.
+   - Implements CRUD operations using SQLite database.
 
-### Current Implementation Details:
+2. **SupabaseDataSource**: 
+   - Used for remote storage and real-time synchronization.
+   - Implements CRUD operations and real-time subscriptions using Supabase SDK.
 
-- We're using SQLite for local storage of food entries.
-- A mock remote data source is in place for simulating remote operations.
-- Riverpod is used for state management and dependency injection.
-- The Repository pattern is implemented to coordinate between local and remote data sources.
+### Repository Pattern
 
-### Future Considerations:
+```dart
+class Repository<T> {
+  final DataSource<T> localDataSource;
+  final DataSource<T> remoteDataSource;
 
-1. Implement SharedPreferences for storing user preferences and app settings.
-2. Replace the mock remote data source with a real REST API client.
-3. Consider integrating Supabase as an edge store for real-time synchronization and offline-first functionality.
-4. Evaluate Hive as a potential alternative to SQLite for local storage, especially if we need faster read/write operations for simpler data structures.
+  Repository({required this.localDataSource, required this.remoteDataSource});
 
-### Clarification on Hive and Supabase:
+  Future<List<T>> getAll() async {
+    try {
+      final remoteData = await remoteDataSource.getAll();
+      await localDataSource.initialize();
+      for (var item in remoteData) {
+        await localDataSource.create(item);
+      }
+      return remoteData;
+    } catch (e) {
+      return localDataSource.getAll();
+    }
+  }
 
-- **Hive**: This is an alternative to SQLite for local storage. It's not currently implemented but could be considered in the future as a replacement for SQLite if we need better performance for simpler data structures.
+  // Implement other CRUD operations with similar pattern
+}
+```
 
-- **Supabase**: This is primarily an option for edge storage, providing real-time synchronization and offline-first capabilities. It's not a direct alternative to SQLite or Hive but rather a comprehensive solution that could potentially replace both our local and remote stores in the future.
+The Repository coordinates between local (SQLite) and remote (Supabase) data sources, implementing caching and offline-first strategies.
 
-In the current implementation, we're using SQLite for local storage and a mock API for remote storage. The consideration of Hive and Supabase is part of our future planning to potentially improve our data layer architecture.
+## Naming Conventions
+
+- Use PascalCase for entity and use case class names.
+- Use snake_case for file names.
+- Prefix repository interfaces with "I" (e.g., IFoodEntryRepository).
+- Suffix data models with "Model" (e.g., FoodEntryModel).
+- Use specific storage type names for data sources (e.g., FoodEntrySqliteDs, UserProfileSupabaseDs).
+- Suffix repository implementations with "RepositoryImpl" (e.g., FoodEntryRepositoryImpl).
+
+## Example Structure
+
+For a FoodEntry entity:
+
+```
+lib/
+├── core/
+│   └── interfaces/
+│       └── data_source.dart
+├── domain/
+│   ├── entities/
+│   │   └── food_entry.dart
+│   ├── repositories/
+│   │   └── food_entry_repository.dart
+│   └── usecases/
+│       └── food_entry/
+│           ├── get_food_entries.dart
+│           └── add_food_entry.dart
+└── data/
+    ├── models/
+    │   └── food_entry_model.dart
+    ├── datasources/
+    │   ├── food_entry_sqlite_ds.dart
+    │   └── food_entry_supabase_ds.dart
+    └── repositories/
+        └── food_entry_repository_impl.dart
+```
+
+## Future Considerations
+
+1. **Evaluate Hive**: Consider Hive as an alternative to SQLite for simpler data structures or faster read/write operations.
+2. **Enhance Supabase Integration**: 
+   - Improve offline-first functionality.
+   - Implement more sophisticated conflict resolution strategies.
+3. **Error Handling and Connectivity**:
+   - Implement robust error handling in the Repository.
+   - Use a connectivity package to detect network status and adjust behavior accordingly.
+4. **Migration Strategy**:
+   - Design a migration strategy for local databases to handle schema changes.
+   - Implement version control for local data to ensure compatibility with server data.
+5. **Caching Strategies**:
+   - Implement intelligent caching mechanisms to optimize data retrieval and reduce network calls.
+6. **Real-time Updates**:
+   - Leverage Supabase's real-time capabilities to provide instant updates across devices.
+

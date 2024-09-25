@@ -1,292 +1,207 @@
-**I. Introduction**
+# Approach Document
 
-Focusing exclusively on Phase 1, our mission is to craft a beautifully designed and reliable core experience for the personal coach app. We'll build upon this foundation by integrating user feedback and data-driven improvements over time. Central to this effort is a minimalistic yet visually stunning dashboard, supplemented by seamless food capture, intuitive onboarding, and thoughtful guidance through ephemeral prompts (floating thoughts).
+## I. Introduction
+
+Our mission is to craft a beautifully designed and reliable core experience for the personal nutrition coach app, now with an added social dimension. We'll build upon this foundation by integrating user feedback and data-driven improvements over time. Central to this effort is a visually engaging, Instagram-like feed for food entries, supplemented by seamless food capture, intuitive onboarding, and thoughtful guidance through ephemeral prompts (floating thoughts).
 
 This document outlines the detailed definitions and designs for:
 
-- Dashboard
+- Feed Screen (formerly Dashboard)
 - Food Capture Interface
-- Onboarding
+- Onboarding and User Profile
+- Social Features and Public Feed
 - Guidance and Insights
 
 Additionally, we provide an elaborate description of the design language to guide our UI developers in creating a cohesive and engaging user interface.
 
----
+## II. Feed Screen (formerly Dashboard)
 
-**II. Dashboard**
-
-*The heart of the app—a minimalistic, visually engaging dashboard that provides users with immediate insight into their nutritional intake and progress toward their goals.*
+*The heart of the app—a visually engaging, Instagram-like feed that provides users with immediate insight into their nutritional intake, progress toward their goals, and social interactions.*
 
 **A. Purpose and Functionality**
 
-- **Immediate Clarity**: Present critical information at a glance—current calorie and nutrient consumption vs. daily targets.
+- **Social Engagement**: Present a scrollable feed of the user's and followed users' food entries.
+- **Nutritional Insight**: Display current calorie and nutrient consumption vs. daily targets in an easily digestible format.
 - **Motivational Visuals**: Use engaging visuals to motivate users without overwhelming them.
-- **Seamless Interaction**: Provide effortless transitions between viewing progress and capturing new food entries.
+- **Seamless Interaction**: Provide effortless transitions between viewing the feed, capturing new food entries, and interacting with posts.
 
 **B. Design Elements**
 
 1. **Layout and Structure**
+   - **Full-Screen Feed Design**: The feed utilizes the entire display, creating an immersive experience similar to Instagram.
+   - **Vertical Scrolling**: Users can scroll vertically through the feed of food entry posts.
 
-   - **Full-Screen Card Design**: The dashboard is a full-screen card that utilizes the entire display, creating an immersive experience.
-   - **Vertical Scrolling**: While the primary dashboard fits on one screen, users can scroll vertically to view recent history or additional details.
+2. **Feed Posts**
+   - **Post Structure**:
+     - User avatar and name
+     - Food entry image
+     - Caption or notes
+     - Nutrition information summary
+     - Like and comment buttons
+     - Timestamp
 
-2. **Greeting Section**
+3. **Nutrition Overview**
+   - **Sticky Header or Pull-Down View**:
+     - Quick summary of daily nutrition progress
+     - Circular progress indicators for calories and key nutrients
 
-   - **Prominent Greeting**:
-     - **Text**: A large, bold, center-aligned greeting such as "Good Morning" or "Hello, [User's Name]" at the top of the screen.
-     - **Font**: Uses a bold, large sans-serif font for readability at a glance.
-   - **Secondary Details**:
-     - **Date and Summary**: Below the greeting, display the current date and a concise summary like "1,200 kcal consumed, 800 kcal remaining."
-     - **Muted Text Style**: Use smaller, less contrasting fonts for secondary information to create a visual hierarchy.
-
-3. **Nutrition Meter**
-
-   - **Circular Progress Ring**:
-     - **Central Element**: A large, circular ring representing overall calorie intake against the daily goal.
-     - **Dynamic Filling**: The ring fills proportionally as the user logs food, with subtle color changes to indicate progress (e.g., from light blue to deep navy).
-     - **Inner Nutrient Rings**: Additional concentric rings represent key nutrients like proteins, carbs, and fats.
-
-   - **Data Display**:
-     - **Calorie Count**: Center of the circle displays total calories consumed in large, bold text.
-     - **Nutrient Breakdown**: Below the calorie count, display grams of proteins, carbs, and fats in smaller, muted text.
-
-4. **Recent History**
-
-   - **Scrollable Section**:
-     - **Layout**: Vertically scrollable list of recent meals below the nutrition meter.
-     - **Card Design**: Each meal is represented by a rounded rectangular card with a pastel background color.
-     - **Content**:
-       - **Meal Title**: Large, bold text indicating the meal (e.g., "Breakfast").
-       - **Subtext**: Smaller font for time and calorie content (e.g., "8:00 AM • 350 kcal").
-       - **Icons/Images**: Minimalist icons or small images representing the meal.
-
-5. **Capture Call-to-Action (CTA)**
-
+4. **Add Entry Call-to-Action (CTA)**
    - **Prominent Button**:
-     - **Design**: A large, pill-shaped button labeled "Add Meal" at the bottom of the screen.
-     - **Color Coding**: Uses a light blue color to stand out against the background.
-     - **Iconography**: Includes a simple '+' icon within the button for quick recognition.
+     - Design: A large, circular button with a '+' icon, similar to Instagram's add post button.
+     - Placement: Fixed position at the bottom right of the screen.
 
 **C. User Flow**
 
 1. **Upon Opening the App**
+   - **Immediate Engagement**: Users see their personalized feed without any loading screens.
+   - **Pull to Refresh**: Users can pull down to refresh the feed and nutrition data.
 
-   - **Immediate Engagement**: Users see the greeting and current progress without any loading screens.
-   - **Visual Update**: The nutrition meter and recent history reflect the latest data.
+2. **Interacting with the Feed**
+   - **Viewing Posts**: Users can scroll through the feed, viewing their own and followed users' food entries.
+   - **Liking and Commenting**: Users can interact with posts through likes and comments.
+   - **Viewing Details**: Tapping on a post opens a detailed view with full nutrition information.
 
-2. **Interacting with the Dashboard**
+3. **Adding a Food Entry**
+   - **Capture Interface**: Tapping the '+' button opens the food capture interface.
+   - **Quick Add**: Long-pressing the '+' button could open a quick-add menu for frequently logged items.
 
-   - **Viewing Details**: Tapping on the nutrition meter brings up detailed statistics in an overlay card.
-   - **Scrolling Through History**: Users can scroll vertically to review or edit recent meals.
-   - **Adding a Meal**: Tapping the "Add Meal" button transitions to the food capture interface.
+## III. Food Capture Interface
 
-**D. Visual and Interaction Design**
-
-- **Theme and Background**:
-  - **Primary Background**: Utilize a pastel white/gray theme as the base, with the option for a dark theme featuring a deep navy color (#0B1120) for high contrast.
-
-- **Typography**:
-  - **Primary Font**: Bold, large sans-serif font for headings and main titles.
-  - **Secondary Font**: Smaller, regular weight sans-serif font for subtexts.
-  - **Text Alignment**: Center-aligned for greetings and main headings; left-aligned for detailed information.
-
-- **Color Palette**:
-  - **Primary Colors**: Black, white, and shades of gray.
-  - **Accent Colors**: Orange (#ED764A) for primary actions, mint green for progress indicators.
-
-- **Progress Indicator**:
-  - Thin line (2px) chart with dots for data points.
-  - Use mint green for the line, black for data points.
-
-- **Task List**:
-  - Left-aligned text with ample spacing between items (24px).
-  - Circular checkboxes (24x24px) aligned to the right.
-
-- **Profile Section**:
-  - Circular avatar (48x48px) in the top-left corner.
-  - User name right-aligned in the top-right corner.
-
-- **Navigation**:
-  - Bottom tab bar with simple icons and labels.
-  - Active state indicated by filled icons or underline.
-
----
-
-**III. Food Capture Interface**
-
-*An intuitive interface that allows users to effortlessly log their meals through minimal steps, integrating seamlessly with the dashboard.*
+*An intuitive interface that allows users to effortlessly log their meals through minimal steps, integrating seamlessly with the feed.*
 
 **A. Purpose and Functionality**
 
 - **Effortless Logging**: Minimize friction in logging food entries to encourage consistent use.
 - **Intelligent Recognition**: Leverage AI for image recognition and learning from user habits.
+- **Social Sharing**: Allow users to easily share their food entries on their feed.
 
 **B. Design Elements**
 
 1. **Capture Methods**
-
    - **Photo Capture**:
-     - **Full-Screen Camera Interface**: Activated upon tapping "Add Meal," with minimal on-screen elements.
-     - **Overlay Instructions**: Muted text prompts like "Snap a photo of your meal" appear at the center.
-     - **Capture Button**: A circular, pastel-colored button at the bottom center with a camera icon.
-
+     - Full-screen camera interface activated upon tapping "Add Entry."
+     - Overlay instructions and capture button.
    - **Text Input**:
-     - **Switch Option**: A small, flat icon (e.g., a keyboard symbol) allows users to switch to text input.
-     - **Input Field**: A clean, full-screen card with a large text field for typing or dictating meal details.
+     - Clean, full-screen card with a large text field for typing or dictating meal details.
+   - **Quick Selection**:
+     - Option to quickly select from recently or frequently logged items.
 
 2. **Confirmation Screen**
-
-   - **Layout**:
-
-     - **Full-Screen Card**: A rounded rectangular card pops up, summarizing the detected food items.
-     - **Background Color**: Uses a light pastel color to differentiate from the main dashboard.
-
+   - **Layout**: Full-screen card summarizing the detected food items and nutrition info.
    - **Content**:
+     - Editable meal title and description.
+     - List of detected food items with quantities and nutrition info.
+     - Option to add or remove items manually.
+   - **Social Sharing Options**:
+     - Toggle for public/private posting.
+     - Option to add a caption for the feed post.
 
-     - **Meal Title**: Editable field with the meal name in large, bold text.
-     - **Detected Items**: List of food items with icons or images, each in its own card section.
-     - **Nutritional Information**: Calories and key nutrients displayed in smaller, muted text below each item.
-
-   - **Actions**:
-
-     - **Edit Options**: Users can tap on any item to adjust quantities or make corrections.
-     - **Add to Favorites**: A small star icon allows users to save the meal for quick future logging.
-     - **Save Meal**: A prominent "Save Meal" button at the bottom in a light blue color.
+3. **Actions**
+   - Edit options for adjusting quantities or making corrections.
+   - "Post to Feed" button to save the entry and share it on the user's feed.
 
 **C. User Flow**
 
 1. **Initiating Capture**
-
-   - **From Dashboard**: User taps the "Add Meal" button.
-   - **Default Method**: The app opens the camera interface by default, with the option to switch to text input.
+   - From Feed Screen: User taps the "+" button.
+   - Default to camera interface, with options to switch to text input or quick selection.
 
 2. **Capturing and Confirming**
+   - Real-time processing of captured images or text input.
+   - Review and edit detected items and nutrition information.
+   - Add social elements like captions and privacy settings.
 
-   - **Real-Time Processing**: The app begins analyzing the image as soon as it's captured.
-   - **Review and Edit**: The confirmation screen allows users to review and adjust detected items.
+3. **Posting to Feed**
+   - Tapping "Post to Feed" saves the entry, adds it to the user's feed, and returns to the Feed Screen.
+   - The Feed Screen updates to show the new entry.
 
-3. **Completion**
+## IV. Onboarding and User Profile
 
-   - **Saving the Meal**: Tapping "Save Meal" logs the entry and returns the user to the dashboard.
-   - **Immediate Feedback**: The nutrition meter updates to reflect the new data.
-
-**D. Visual and Interaction Design**
-
-- **Iconography**:
-
-  - **Minimal and Flat Icons**: Use simple, flat icons for camera, keyboard, and food items.
-  - **Circular Backgrounds**: Icons are placed inside circular backgrounds for clarity.
-
-- **Buttons**:
-
-  - **Design**: Filled buttons with round edges, following Material Design principles.
-  - **Color Coding**: Light blue for primary actions like "Save Meal."
-
-- **Animations and Transitions**:
-
-  - **Smooth Transitions**: Gentle animations when moving between screens enhance the user experience.
-  - **Feedback**: Subtle vibrations or color changes provide immediate feedback on interactions.
-
----
-
-**IV. Onboarding**
-
-*An intuitive onboarding process that quickly sets up the user with minimal effort, ensuring they can start using the app effectively from the outset.*
+*An intuitive onboarding process that quickly sets up the user with a personalized profile, ensuring they can start using the app effectively from the outset.*
 
 **A. Purpose and Functionality**
 
 - **Immediate Value**: Guide users to the core functionality swiftly.
 - **Personalization**: Collect essential information to tailor the app experience.
+- **Goal Setting**: Allow users to set detailed nutrition goals.
 
 **B. Design Elements**
 
 1. **Welcome Screen**
+   - Greeting message and brief app description.
+   - Options for sign-up or login, including Google Sign-In.
 
-   - **Greeting Message**:
+2. **Profile Setup**
+   - Input fields for name, age, height, weight, and gender.
+   - Profile picture upload option.
 
-     - **Text**: Large, bold, center-aligned message like "Welcome to [App Name]".
-     - **Subtext**: Smaller font with a brief description of the app's purpose.
+3. **Goal Setting**
+   - Daily calorie goal input.
+   - Macronutrient distribution setting (protein, carbs, fat percentages).
+   - Option to set goals for specific micronutrients.
 
-   - **Visuals**:
+4. **Dietary Preferences**
+   - Selection of dietary restrictions or preferences (e.g., vegetarian, vegan, gluten-free).
 
-     - **Minimalistic Graphics**: Simple illustrations or icons that align with the app's aesthetic.
-
-2. **Goal Setting**
-
-   - **Full-Screen Cards**:
-
-     - **Layout**: Each onboarding step is presented on a separate full-screen card with a pastel background.
-
-   - **Content**:
-
-     - **Daily Calorie Goal**:
-
-       - **Input Method**: Large, easy-to-use slider or input field.
-       - **Visual Feedback**: As the user adjusts the goal, an on-screen icon or meter reflects the change.
-
-     - **Nutrient Targets**:
-
-       - **Selection Options**: Toggle buttons or sliders for proteins, carbs, and fats.
-       - **Defaults and Customization**: Provide default values with the option to customize.
-
-3. **Preferences**
-
-   - **Dietary Restrictions**:
-
-     - **Icons with Labels**: Options like vegetarian, vegan, gluten-free, represented with simple icons and text.
-
-   - **Units of Measurement**:
-
-     - **Buttons**: Choice between imperial and metric units using clear labels.
-
-   - **Notification Settings**:
-
-     - **Toggle Switches**: Enable or disable different types of notifications.
-
-4. **Finalization**
-
-   - **Summary Screen**:
-
-     - **Content**: Recap of the user's selections in a clean, readable format.
-     - **Edit Option**: An "Edit" button allows users to make changes before proceeding.
-
-   - **Start Button**:
-
-     - **Design**: A prominent, pill-shaped "Get Started" button in light blue.
+5. **Feed Customization**
+   - Options to select interests or types of food posts to see in the public feed.
 
 **C. User Flow**
 
-1. **Starting Onboarding**
+1. **Account Creation**
+   - Users can sign up with email or use Google Sign-In.
+   - Brief explanation of data usage and privacy policy.
 
-   - **Account Setup**: Option to sign up or continue as a guest, with assurances about data privacy.
+2. **Profile and Goal Setting**
+   - Step-by-step guide through profile creation and goal setting.
+   - Option to skip detailed setup and use default goals.
 
-2. **Setting Up**
+3. **Feed Introduction**
+   - Brief tutorial on how to use the feed, add entries, and interact with posts.
 
-   - **Sequential Progression**: Users swipe left or tap "Next" to move through each onboarding card.
-   - **Progress Indicators**: Small dots or a progress bar at the bottom indicate the number of steps.
+## V. Social Features and Public Feed
 
-3. **Completion**
+*Engaging social features that allow users to connect, share, and discover through a public feed of food entries.*
 
-   - **Welcome Message**: A final greeting like "You're all set, [User's Name]!" before entering the dashboard.
+**A. Purpose and Functionality**
 
-**D. Visual and Interaction Design**
+- **Community Building**: Foster a supportive community around healthy eating habits.
+- **Inspiration**: Provide users with ideas and motivation from others' food choices.
+- **Education**: Facilitate learning about nutrition through shared experiences.
 
-- **Consistency**:
+**B. Design Elements**
 
-  - **Color Palette**: Use the same pastel colors and design elements as the main app.
+1. **Public Feed**
+   - Similar layout to the main feed, but with posts from all public users.
+   - Discover tab or search functionality to find new users or specific types of food entries.
 
-- **Typography**:
+2. **User Profiles**
+   - Public profile pages showing user's public food entries and summary statistics.
+   - Follow/Unfollow buttons.
 
-  - **Primary Font**: Large, bold sans-serif for headings.
-  - **Secondary Font**: Smaller, regular weight for instructions and options.
+3. **Interactions**
+   - Like and comment functionality on public posts.
+   - Option to share interesting posts to one's own feed.
 
-- **Icons and Graphics**:
+4. **Privacy Controls**
+   - Granular privacy settings for each post (public, followers only, private).
+   - Option to make entire profile private.
 
-  - **Minimalist Icons**: Enhance comprehension without clutter.
+**C. User Flow**
 
----
+1. **Accessing the Public Feed**
+   - Tab or button in the main navigation to switch to the public feed.
+   - Infinite scrolling through public posts.
 
-**V. Guidance and Insights**
+2. **Discovering and Following Users**
+   - Search functionality to find users by username or food types.
+   - Suggested users based on similar goals or interests.
+
+3. **Interacting with Posts**
+   - Liking, commenting, and sharing public posts.
+   - Viewing and responding to interactions on own posts.
+
+## VI. Guidance and Insights
 
 *Providing users with meaningful feedback through subtle, contextually relevant prompts and insights to support their goals without causing distractions.*
 
@@ -294,44 +209,60 @@ Additionally, we provide an elaborate description of the design language to guid
 
 - **Supportive Nudges**: Offer guidance as gentle reminders rather than intrusive notifications.
 - **Contextual Relevance**: Ensure prompts are timely and based on user habits and progress.
+- **Community Insights**: Provide insights based on community trends and successful practices.
 
 **B. Design Elements**
 
 1. **Floating Thoughts**
+   - Small, rounded rectangular cards that appear temporarily on the feed.
+   - Short, encouraging messages or tips based on user's progress and community insights.
 
-   - **Ephemeral Prompts**:
+2. **Insights Dashboard**
+   - Accessible through a tab or by swiping up on the feed.
+   - Displays detailed progress towards goals, trends, and achievements.
+   - Community comparisons and success stories.
 
-     - **Appearance**: Small, rounded rectangular cards that appear temporarily on the dashboard.
-     - **Content**: Short messages like "Great job yesterday!" or "Don't forget to log your lunch."
-
-   - **Design**:
-
-     - **Background Color**: Use pastel colors that stand out subtly against the main background.
-     - **Text Style**: Smaller, friendly font that matches the app's typography.
-
-2. **Insights**
-
-   - **Daily Summary**:
-
-     - **Access**: Swiping up from the bottom reveals a full-screen card with insights.
-     - **Content**:
-
-       - **Statistics**: Display total calories, nutrient breakdowns, and progress towards goals.
-       - **Visuals**: Simple charts or bars with flat design elements.
-
-   - **Encouraging Messages**:
-
-     - **Placement**: Below the statistics, include messages like "You're on track!" or "Consider more protein for muscle gain."
+3. **Smart Notifications**
+   - Customizable push notifications for reminders, goal achievements, and social interactions.
+   - In-app notification center for a summary of recent activities and insights.
 
 **C. User Flow**
 
-1. **Receiving Prompts**
+1. **Receiving Guidance**
+   - Contextual prompts appear as users scroll through their feed or after adding entries.
+   - Users can tap on prompts for more detailed information or suggestions.
 
-   - **Timing**: Prompts appear after certain actions or at relevant times (e.g., near usual meal times).
-   - **Interactivity**: Tapping a prompt can provide more details or dismiss it.
+2. **Exploring Insights**
+   - Users can access the Insights Dashboard for a comprehensive view of their progress.
+   - Insights are updated real-time as new entries are added or goals are modified.
 
-2. **Interacting with Insights**
+3. **Community Benchmarks**
+   - Users can opt-in to see how their habits compare to similar users or the community at large.
+   - Personalized suggestions based on successful strategies from similar users.
 
-   - **Accessing**: Users can swipe up from the dashboard or tap an icon to view insights.
-   - **Navigating**: Vertical scrolling within the insights card allows users to see more data.
+## VII. Visual and Interaction Design
 
+- **Theme and Background**:
+  - Light, clean aesthetic with ample white space.
+  - Option for dark mode with deep navy color (#0B1120) for high contrast.
+
+- **Typography**:
+  - Sans-serif font family for clean, modern look.
+  - Hierarchical type scale for clear information structure.
+
+- **Color Palette**:
+  - Primary: Black (#000000) and White (#FFFFFF) for high contrast.
+  - Accent: Bright Yellow (#FFD700) for highlights and calls-to-action.
+  - Mint Green (#E6F3EF) for progress indicators and success states.
+
+- **Iconography**:
+  - Simple, line-based icons with 2px stroke width.
+  - Consistent 24x24px size for standard icons.
+
+- **Interaction Design**:
+  - Smooth, subtle animations for transitions and feedback.
+  - Haptic feedback for key actions on supported devices.
+
+- **Accessibility**:
+  - High contrast text and important UI elements.
+  - Support for dynamic type and screen readers.

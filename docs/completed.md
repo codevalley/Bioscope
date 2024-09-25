@@ -177,3 +177,26 @@ Redesigned the dashboard screen to follow an Instagram-like layout with improved
 - Create reusable components for common UI elements like styled dividers.
 - Consider adding animations for smoother user experience.
 - Ensure accessibility of new UI components.
+
+## Chunk 7: Onboarding Revamp and User Profile Enhancement
+
+### Overview
+Revamped the onboarding process and enhanced the user profile with detailed nutrition goals and dietary preferences.
+
+### Key Accomplishments
+- Updated UserProfile entity with new fields: carbsGoal, proteinGoal, fatGoal, fiberGoal, and dietaryPreferences
+- Implemented UserProfileSupabaseDs for cloud storage of user profiles
+- Updated UserProfileSqliteDs to include new UserProfile fields in local storage
+- Created a new WelcomeScreen as an introductory screen for the onboarding process
+- Modified SplashScreen to navigate to either DashboardScreen or WelcomeScreen based on user status
+- Updated OnboardingScreen with UI elements for setting new nutrition goals and dietary preferences
+
+### Lessons Learned
+- Importance of considering both local and cloud storage when updating data models
+- Value of a comprehensive onboarding process for gathering detailed user information
+- Need for flexible UI components that can adapt to various types of user inputs (e.g., sliders for numerical goals, toggles for preferences)
+
+### Future Considerations
+- Implement data synchronization between local (SQLite) and cloud (Supabase) storage for user profiles
+- Update dashboard and nutrition tracking features to utilize the new, more detailed user profile information
+- Consider adding a profile editing feature to allow users to update their goals and preferences after initial onboarding
