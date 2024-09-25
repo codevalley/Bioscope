@@ -1,17 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../application/di/dependency_injection.dart';
+import 'package:bioscope/presentation/providers/providers.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import 'onboarding_state.dart';
 import '../../domain/services/IAuthService.dart';
-
-final userProfileRepositoryProvider = Provider<IUserProfileRepository>((ref) {
-  return getIt<IUserProfileRepository>();
-});
-
-final authServiceProvider = Provider<IAuthService>((ref) {
-  return getIt<IAuthService>();
-});
 
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final IUserProfileRepository _userProfileRepository;
@@ -21,17 +13,41 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       : super(const OnboardingState.inProgress(
           currentPage: 0,
           name: null,
-          dailyCalorieGoal: null,
+          goals: null,
           dietaryPreferences: null,
         ));
 
+  int _lastSuccessfulStep = 0;
+
   void startOnboarding() {
-    state = const OnboardingState.inProgress(
-      currentPage: 0,
-      name: null,
-      dailyCalorieGoal: null,
-      dietaryPreferences: null,
+    state = OnboardingState.inProgress(
+      currentPage: _lastSuccessfulStep,
+      name: state.maybeWhen(
+        inProgress: (_, name, __, ___) => name,
+        orElse: () => null,
+      ),
+      goals: state.maybeWhen(
+        inProgress: (_, __, goals, ___) => goals,
+        orElse: () => null,
+      ),
+      dietaryPreferences: state.maybeWhen(
+        inProgress: (_, __, ___, dietaryPreferences) => dietaryPreferences,
+        orElse: () => null,
+      ),
     );
+  }
+
+  void nextPage() {
+    if (canMoveToNextPage()) {
+      _lastSuccessfulStep = state.maybeMap(
+        inProgress: (s) => s.currentPage + 1,
+        orElse: () => _lastSuccessfulStep,
+      );
+      state = state.maybeMap(
+        inProgress: (s) => s.copyWith(currentPage: s.currentPage + 1),
+        orElse: () => state,
+      );
+    }
   }
 
   void setName(String name) {
@@ -41,16 +57,29 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     );
   }
 
-  void setDailyCalorieGoal(int goal) {
+  void setGoal(String goalType, double value) {
     state = state.maybeMap(
-      inProgress: (s) => s.copyWith(dailyCalorieGoal: goal),
+      inProgress: (s) {
+        final updatedGoals = Map<String, double>.from(s.goals ?? {});
+        updatedGoals[goalType] = value;
+        return s.copyWith(goals: updatedGoals);
+      },
       orElse: () => state,
     );
   }
 
-  void setDietaryPreferences(List<String> preferences) {
+  void toggleDietaryPreference(String preference) {
     state = state.maybeMap(
-      inProgress: (s) => s.copyWith(dietaryPreferences: preferences),
+      inProgress: (s) {
+        final updatedPreferences =
+            List<String>.from(s.dietaryPreferences ?? []);
+        if (updatedPreferences.contains(preference)) {
+          updatedPreferences.remove(preference);
+        } else {
+          updatedPreferences.add(preference);
+        }
+        return s.copyWith(dietaryPreferences: updatedPreferences);
+      },
       orElse: () => state,
     );
   }
@@ -59,23 +88,15 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     return state.maybeMap(
       inProgress: (s) {
         if (s.currentPage == 0) {
-          return s.name != null &&
-              s.name!.isNotEmpty &&
-              s.dailyCalorieGoal != null;
+          return s.name != null && s.name!.isNotEmpty;
+        } else if (s.currentPage == 1) {
+          //return true;
+          return s.goals != null && s.goals!.isNotEmpty;
         }
         return true;
       },
       orElse: () => false,
     );
-  }
-
-  void nextPage() {
-    if (canMoveToNextPage()) {
-      state = state.maybeMap(
-        inProgress: (s) => s.copyWith(currentPage: s.currentPage + 1),
-        orElse: () => state,
-      );
-    }
   }
 
   void previousPage() {
@@ -87,11 +108,9 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
   Future<void> completeOnboarding() async {
     state.maybeWhen(
-      inProgress:
-          (currentPage, name, dailyCalorieGoal, dietaryPreferences) async {
-        if (name != null && name.isNotEmpty && dailyCalorieGoal != null) {
+      inProgress: (currentPage, name, goals, dietaryPreferences) async {
+        if (name != null && name.isNotEmpty && goals != null) {
           try {
-            // Sign in anonymously before creating the profile
             await _authService.signInAnonymously();
 
             final userId = await _authService.getCurrentUserId();
@@ -104,14 +123,18 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
               height: 0,
               weight: 0,
               gender: '',
-              dailyCalorieGoal: dailyCalorieGoal,
+              dailyCalorieGoal: (goals['Calories'] ?? 0.5 * 2000).toInt(),
+              carbsGoal: goals['Carbs'] ?? 0.5,
+              proteinGoal: goals['Proteins'] ?? 0.5,
+              fatGoal: goals['Fats'] ?? 0.5,
+              fiberGoal: goals['Fiber'] ?? 0.5,
+              dietaryPreferences: dietaryPreferences ?? [],
             );
             await _userProfileRepository.saveUserProfile(userProfile);
+            _lastSuccessfulStep = currentPage;
             state = const OnboardingState.complete();
           } catch (e) {
-            // Handle any errors that occur during the process
             print('Error completing onboarding: $e');
-            // Set an error state or notify the UI
             state = OnboardingState.error(e.toString());
           }
         }
@@ -126,6 +149,3 @@ final onboardingProvider =
   (ref) => OnboardingNotifier(
       ref.watch(userProfileRepositoryProvider), ref.watch(authServiceProvider)),
 );
-
-// Remove this line as it's now defined in user_repository_impl.dart
-// final userRepositoryProvider = Provider<UserRepository>((ref) => throw UnimplementedError());

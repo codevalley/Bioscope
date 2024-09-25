@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart';
 import '../widgets/dashboard_top_section.dart';
 import '../widgets/recent_history.dart';
+import '../screens/onboarding_screen.dart';
 import '../widgets/dashboard_bottom_bar.dart';
 import 'add_food_entry_screen.dart';
 
@@ -11,6 +12,29 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userProfileAsyncValue = ref.watch(userProfileProvider);
+
+    return userProfileAsyncValue.when(
+      data: (userProfile) {
+        if (userProfile == null) {
+          // If userProfile is null, show a loading indicator and try to refresh the data
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.refresh(userProfileProvider);
+          });
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
+        }
+        // If user profile exists, show the dashboard
+        return _buildDashboard(context, ref);
+      },
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (_, __) =>
+          const Scaffold(body: Center(child: Text('Error loading user data'))),
+    );
+  }
+
+  Widget _buildDashboard(BuildContext context, WidgetRef ref) {
     final dashboardState = ref.watch(dashboardNotifierProvider);
 
     return Scaffold(

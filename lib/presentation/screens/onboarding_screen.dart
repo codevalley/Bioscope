@@ -14,19 +14,25 @@ class OnboardingScreen extends ConsumerWidget {
     final notifier = ref.read(onboardingProvider.notifier);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFAFAF7),
+      appBar: AppBar(
+        title: const Text('BIOSCOPE'),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: onboardingState.when(
-            initial: () =>
-                _buildNameAndCalorieScreen(context, notifier, null, null),
-            inProgress:
-                (currentPage, name, dailyCalorieGoal, dietaryPreferences) {
+            initial: () => _buildNameScreen(context, notifier),
+            inProgress: (currentPage, name, goals, dietaryPreferences) {
               switch (currentPage) {
                 case 0:
-                  return _buildNameAndCalorieScreen(
-                      context, notifier, name, dailyCalorieGoal);
+                  return _buildNameScreen(context, notifier, name);
                 case 1:
+                  return _buildGoalsScreen(context, notifier, goals);
+                case 2:
                   return _buildDietaryPreferencesScreen(
                       context, notifier, dietaryPreferences);
                 default:
@@ -41,43 +47,12 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorScreen(
-      BuildContext context, String message, OnboardingNotifier notifier) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'An error occurred',
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(color: Colors.red),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              notifier.startOnboarding(); // Reset the onboarding process
-            },
-            child: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNameAndCalorieScreen(BuildContext context,
-      OnboardingNotifier notifier, String? name, int? dailyCalorieGoal) {
+  Widget _buildNameScreen(BuildContext context, OnboardingNotifier notifier,
+      [String? name]) {
     return ListView(
       children: [
         Text(
-          'Set your health goals',
+          'Welcome to Bioscope',
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -95,20 +70,6 @@ class OnboardingScreen extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        _InputCard(
-          icon: Icons.local_fire_department,
-          label: 'Daily Calorie Goal',
-          child: TextField(
-            onChanged: (value) =>
-                notifier.setDailyCalorieGoal(int.tryParse(value) ?? 0),
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              hintText: 'Enter your daily calorie goal',
-              border: InputBorder.none,
-            ),
-          ),
-        ),
         const SizedBox(height: 24),
         CustomButton(
           onPressed: () {
@@ -117,6 +78,87 @@ class OnboardingScreen extends ConsumerWidget {
             }
           },
           child: const Text('Next'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGoalsScreen(BuildContext context, OnboardingNotifier notifier,
+      Map<String, double>? goals) {
+    final goalTypes = ['Calories', 'Carbs', 'Proteins', 'Fats', 'Fiber'];
+    return ListView(
+      children: [
+        Text(
+          'Set your nutrition goals',
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 24),
+        ...goalTypes.map((goal) =>
+            _buildGoalSlider(context, notifier, goal, goals?[goal] ?? 0.5)),
+        const SizedBox(height: 24),
+        CustomButton(
+          onPressed: () {
+            if (notifier.canMoveToNextPage()) {
+              notifier.nextPage();
+            }
+          },
+          child: const Text('Next'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGoalSlider(BuildContext context, OnboardingNotifier notifier,
+      String goalType, double value) {
+    String displayValue;
+    switch (goalType) {
+      case 'Calories':
+        displayValue = '${(value * 2000).round()} kcal';
+        break;
+      case 'Carbs':
+      case 'Proteins':
+      case 'Fats':
+        displayValue = '${(value * 100).round()}g';
+        break;
+      case 'Fiber':
+        displayValue = '${(value * 50).round()}g';
+        break;
+      default:
+        displayValue = '${(value * 100).round()}%';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              goalType,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            Text(
+              displayValue,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: const Color(0xFFED764A),
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ],
+        ),
+        Slider(
+          value: value,
+          onChanged: (newValue) {
+            notifier.setGoal(goalType, newValue);
+          },
+          activeColor: const Color(0xFFED764A),
+          inactiveColor: Colors.grey[300],
         ),
       ],
     );
@@ -153,32 +195,35 @@ class OnboardingScreen extends ConsumerWidget {
               label: Text(pref),
               selected: isSelected,
               onSelected: (selected) {
-                final newPreferences =
-                    List<String>.from(dietaryPreferences ?? []);
-                if (selected) {
-                  newPreferences.add(pref);
-                } else {
-                  newPreferences.remove(pref);
-                }
-                notifier.setDietaryPreferences(newPreferences);
+                notifier.toggleDietaryPreference(pref);
               },
               backgroundColor: Colors.grey[200],
-              selectedColor: Colors.purple[100],
-              checkmarkColor: Colors.purple,
+              selectedColor: const Color(0xFFED764A),
+              checkmarkColor: Colors.white,
             );
           }).toList(),
         ),
         const Spacer(),
-        CustomButton(
-          onPressed: () async {
-            await notifier.completeOnboarding();
-            if (context.mounted) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const DashboardScreen()),
-              );
-            }
+        Consumer(
+          builder: (context, ref, child) {
+            final isLoading = ref.watch(onboardingProvider).maybeWhen(
+                  inProgress: (_, __, ___, ____) => false,
+                  orElse: () => true,
+                );
+            return CustomButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (context.mounted) {
+                        await _completeOnboardingAndNavigate(
+                            context, notifier, ref);
+                      }
+                    },
+              child: isLoading
+                  ? const CircularProgressIndicator()
+                  : const Text('Finish'),
+            );
           },
-          child: const Text('Finish'),
         ),
       ],
     );
@@ -204,19 +249,56 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildErrorScreen(
+      BuildContext context, String message, OnboardingNotifier notifier) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'An error occurred',
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(color: Colors.red),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 24),
+          CustomButton(
+            onPressed: () {
+              notifier.startOnboarding();
+            },
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _completeOnboardingAndNavigate(
       BuildContext context, OnboardingNotifier notifier, WidgetRef ref) async {
     await notifier.completeOnboarding();
     if (!context.mounted) return;
 
-    final user = await ref.refresh(userProfileProvider.future);
-    if (!context.mounted) return;
-
-    if (user != null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
-    }
+    final onboardingState = ref.read(onboardingProvider);
+    onboardingState.maybeWhen(
+      complete: () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      },
+      error: (message) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $message')),
+        );
+      },
+      orElse: () {},
+    );
   }
 }
 
@@ -236,7 +318,8 @@ class _InputCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black, width: 1),
       ),
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -244,12 +327,12 @@ class _InputCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, color: Colors.purple, size: 28),
+              Icon(icon, color: const Color(0xFFED764A), size: 24),
               const SizedBox(width: 12),
               Text(
                 label,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.black87,
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
               ),

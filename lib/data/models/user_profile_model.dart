@@ -9,6 +9,11 @@ class UserProfileModel extends UserProfile {
     required double weight,
     required String gender,
     required int dailyCalorieGoal,
+    required double carbsGoal,
+    required double proteinGoal,
+    required double fatGoal,
+    required double fiberGoal,
+    required List<String> dietaryPreferences,
   }) : super(
           id: id,
           name: name,
@@ -17,6 +22,11 @@ class UserProfileModel extends UserProfile {
           weight: weight,
           gender: gender,
           dailyCalorieGoal: dailyCalorieGoal,
+          carbsGoal: carbsGoal,
+          proteinGoal: proteinGoal,
+          fatGoal: fatGoal,
+          fiberGoal: fiberGoal,
+          dietaryPreferences: dietaryPreferences,
         );
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +38,11 @@ class UserProfileModel extends UserProfile {
       weight: (json['weight'] as num).toDouble(),
       gender: json['gender'],
       dailyCalorieGoal: json['dailyCalorieGoal'],
+      carbsGoal: (json['carbsGoal'] as num).toDouble(),
+      proteinGoal: (json['proteinGoal'] as num).toDouble(),
+      fatGoal: (json['fatGoal'] as num).toDouble(),
+      fiberGoal: (json['fiberGoal'] as num).toDouble(),
+      dietaryPreferences: List<String>.from(json['dietaryPreferences']),
     );
   }
 
@@ -40,6 +55,11 @@ class UserProfileModel extends UserProfile {
       'weight': weight,
       'gender': gender,
       'dailyCalorieGoal': dailyCalorieGoal,
+      'carbsGoal': carbsGoal,
+      'proteinGoal': proteinGoal,
+      'fatGoal': fatGoal,
+      'fiberGoal': fiberGoal,
+      'dietaryPreferences': dietaryPreferences,
     };
   }
 
@@ -52,6 +72,11 @@ class UserProfileModel extends UserProfile {
       weight: weight,
       gender: gender,
       dailyCalorieGoal: dailyCalorieGoal,
+      carbsGoal: carbsGoal,
+      proteinGoal: proteinGoal,
+      fatGoal: fatGoal,
+      fiberGoal: fiberGoal,
+      dietaryPreferences: dietaryPreferences,
     );
   }
 
@@ -64,6 +89,11 @@ class UserProfileModel extends UserProfile {
       weight: userProfile.weight,
       gender: userProfile.gender,
       dailyCalorieGoal: userProfile.dailyCalorieGoal,
+      carbsGoal: userProfile.carbsGoal,
+      proteinGoal: userProfile.proteinGoal,
+      fatGoal: userProfile.fatGoal,
+      fiberGoal: userProfile.fiberGoal,
+      dietaryPreferences: userProfile.dietaryPreferences,
     );
   }
 }

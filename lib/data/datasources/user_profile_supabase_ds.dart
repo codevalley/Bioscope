@@ -61,20 +61,23 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
     }
     try {
       final dataToInsert = item.toJson();
-      dataToInsert['id'] =
-          _currentUserId; // Ensure the ID matches the authenticated user
+      dataToInsert['id'] = _currentUserId;
 
       final response =
-          await _supabaseClient.from(_tableName).insert(dataToInsert);
+          await _supabaseClient.from(_tableName).insert(dataToInsert).select();
 
-      if (response.error != null) {
-        print('Insert error: ${response.error!.message}');
-        throw Exception(
-            'Failed to create user profile: ${response.error!.message}');
+      if (response.isEmpty) {
+        // If response is null or empty, but no error was thrown, assume success
+        print('User profile created successfully, but no response received');
+        return;
       }
+
+      // If we reach here, we have a response, so we can parse it
+      final createdProfile = UserProfileModel.fromJson(response.first);
+      print('User profile created successfully: ${createdProfile.id}');
     } catch (e) {
       print('Error creating user profile: $e');
-      rethrow; // Re-throw the exception to be handled by the calling function
+      throw Exception('Failed to create user profile: $e');
     }
   }
 

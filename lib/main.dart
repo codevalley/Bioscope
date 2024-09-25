@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bioscope/presentation/screens/dashboard_screen.dart';
+import 'package:bioscope/presentation/screens/splash_screen.dart';
 import 'package:bioscope/application/di/dependency_injection.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -65,7 +65,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bioscope',
       theme: buildAppTheme(),
-      home: const DashboardScreen(),
+      home: const SplashScreen(), // Change this line
     );
   }
 }

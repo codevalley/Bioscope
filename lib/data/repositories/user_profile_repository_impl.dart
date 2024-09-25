@@ -26,17 +26,8 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
     if (userId == null) {
       throw Exception('User not logged in');
     }
-    // await _dataSource
-    //     .create(UserProfileModel.fromDomain(userProfile)..id = userId);
-    await _dataSource.create(UserProfileModel(
-      id: userProfile.id,
-      name: userProfile.name,
-      age: userProfile.age,
-      height: userProfile.height,
-      weight: userProfile.weight,
-      gender: userProfile.gender,
-      dailyCalorieGoal: userProfile.dailyCalorieGoal,
-    ));
+    final updatedProfile = userProfile.copyWith(id: userId);
+    await _dataSource.create(UserProfileModel.fromDomain(updatedProfile));
   }
 
   @override
