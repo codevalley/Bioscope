@@ -5,6 +5,7 @@ import '../../domain/entities/food_entry.dart';
 import '../../domain/repositories/food_entry_repository.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import '../../domain/services/IAuthService.dart';
+import '../../domain/entities/goal_item.dart';
 
 class DashboardState {
   final String greeting;
@@ -13,6 +14,7 @@ class DashboardState {
   final List<FoodEntry> recentMeals;
   final String userName;
   final int dailyCalorieGoal;
+  final Map<String, GoalItem> nutritionGoals;
 
   DashboardState({
     required this.greeting,
@@ -21,6 +23,7 @@ class DashboardState {
     required this.recentMeals,
     required this.userName,
     required this.dailyCalorieGoal,
+    required this.nutritionGoals,
   });
 
   factory DashboardState.initial() => DashboardState(
@@ -30,6 +33,7 @@ class DashboardState {
         recentMeals: [],
         userName: '',
         dailyCalorieGoal: 0,
+        nutritionGoals: {},
       );
 }
 
@@ -42,14 +46,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     this._foodEntryRepository,
     this._userProfileRepository,
     this._authService,
-  ) : super(DashboardState(
-          greeting: '',
-          caloriesConsumed: 0,
-          caloriesRemaining: 0,
-          recentMeals: [],
-          userName: '',
-          dailyCalorieGoal: 0,
-        )) {
+  ) : super(DashboardState.initial()) {
     _initializeDashboard();
     _listenToFoodEntries();
   }
@@ -76,13 +73,16 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
           await _foodEntryRepository.getTotalCaloriesConsumed();
 
       if (userProfile != null) {
+        final calorieGoal =
+            userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000;
         state = DashboardState(
           greeting: _getGreeting(),
           caloriesConsumed: totalCalories,
-          caloriesRemaining: userProfile.dailyCalorieGoal - totalCalories,
+          caloriesRemaining: calorieGoal - totalCalories,
           recentMeals: recentMeals,
           userName: userProfile.name,
-          dailyCalorieGoal: userProfile.dailyCalorieGoal,
+          dailyCalorieGoal: calorieGoal,
+          nutritionGoals: userProfile.nutritionGoals,
         );
       }
     } catch (e) {
@@ -93,11 +93,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return 'Good Morning,';
+      return 'Good Morning ';
     } else if (hour < 17) {
-      return 'Good Afternoon,';
+      return 'Good Afternoon ';
     } else {
-      return 'Good Evening,';
+      return 'Good Evening ';
     }
   }
 

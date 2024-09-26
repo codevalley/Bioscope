@@ -5,7 +5,7 @@ import '../widgets/custom_button.dart';
 import 'dashboard_screen.dart';
 
 class OnboardingScreen extends ConsumerWidget {
-  const OnboardingScreen({super.key});
+  const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -89,10 +89,7 @@ class OnboardingScreen extends ConsumerWidget {
       children: [
         Text(
           'Set your nutrition goals',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(context).textTheme.headlineLarge,
         ),
         const SizedBox(height: 24),
         ...goalTypes.map((goal) =>
@@ -132,32 +129,19 @@ class OnboardingScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(goalType, style: Theme.of(context).textTheme.titleMedium),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              goalType,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+            Expanded(
+              child: Slider(
+                value: value,
+                onChanged: (newValue) {
+                  notifier.setGoal(goalType, newValue);
+                },
+              ),
             ),
-            Text(
-              displayValue,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: const Color(0xFFED764A),
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+            Text(displayValue),
           ],
-        ),
-        Slider(
-          value: value,
-          onChanged: (newValue) {
-            notifier.setGoal(goalType, newValue);
-          },
-          activeColor: const Color(0xFFED764A),
-          inactiveColor: Colors.grey[300],
         ),
       ],
     );

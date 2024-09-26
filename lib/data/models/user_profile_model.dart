@@ -1,4 +1,5 @@
 import '../../domain/entities/user_profile.dart';
+import '../../domain/entities/goal_item.dart';
 
 class UserProfileModel extends UserProfile {
   UserProfileModel({
@@ -8,12 +9,7 @@ class UserProfileModel extends UserProfile {
     required double height,
     required double weight,
     required String gender,
-    required int dailyCalorieGoal,
-    required double carbsGoal,
-    required double proteinGoal,
-    required double fatGoal,
-    required double fiberGoal,
-    required List<String> dietaryPreferences,
+    required Map<String, GoalItem> nutritionGoals,
   }) : super(
           id: id,
           name: name,
@@ -21,12 +17,7 @@ class UserProfileModel extends UserProfile {
           height: height,
           weight: weight,
           gender: gender,
-          dailyCalorieGoal: dailyCalorieGoal,
-          carbsGoal: carbsGoal,
-          proteinGoal: proteinGoal,
-          fatGoal: fatGoal,
-          fiberGoal: fiberGoal,
-          dietaryPreferences: dietaryPreferences,
+          nutritionGoals: nutritionGoals,
         );
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
@@ -37,12 +28,20 @@ class UserProfileModel extends UserProfile {
       height: (json['height'] as num).toDouble(),
       weight: (json['weight'] as num).toDouble(),
       gender: json['gender'],
-      dailyCalorieGoal: json['dailyCalorieGoal'],
-      carbsGoal: (json['carbsGoal'] as num).toDouble(),
-      proteinGoal: (json['proteinGoal'] as num).toDouble(),
-      fatGoal: (json['fatGoal'] as num).toDouble(),
-      fiberGoal: (json['fiberGoal'] as num).toDouble(),
-      dietaryPreferences: List<String>.from(json['dietaryPreferences']),
+      nutritionGoals: (json['nutritionGoals'] as Map<String, dynamic>).map(
+        (key, value) => MapEntry(
+          key,
+          GoalItem(
+            name: value['name'],
+            description: value['description'],
+            target: value['target'],
+            actual: value['actual'],
+            isPublic: value['isPublic'],
+            unit: value['unit'],
+            timestamp: DateTime.parse(value['timestamp']),
+          ),
+        ),
+      ),
     );
   }
 
@@ -54,31 +53,24 @@ class UserProfileModel extends UserProfile {
       'height': height,
       'weight': weight,
       'gender': gender,
-      'dailyCalorieGoal': dailyCalorieGoal,
-      'carbsGoal': carbsGoal,
-      'proteinGoal': proteinGoal,
-      'fatGoal': fatGoal,
-      'fiberGoal': fiberGoal,
-      'dietaryPreferences': dietaryPreferences,
+      'nutritionGoals': nutritionGoals.map(
+        (key, value) => MapEntry(
+          key,
+          {
+            'name': value.name,
+            'description': value.description,
+            'target': value.target,
+            'actual': value.actual,
+            'isPublic': value.isPublic,
+            'unit': value.unit,
+            'timestamp': value.timestamp.toIso8601String(),
+          },
+        ),
+      ),
     };
   }
 
-  UserProfile toDomain() {
-    return UserProfile(
-      id: id,
-      name: name,
-      age: age,
-      height: height,
-      weight: weight,
-      gender: gender,
-      dailyCalorieGoal: dailyCalorieGoal,
-      carbsGoal: carbsGoal,
-      proteinGoal: proteinGoal,
-      fatGoal: fatGoal,
-      fiberGoal: fiberGoal,
-      dietaryPreferences: dietaryPreferences,
-    );
-  }
+  UserProfile toDomain() => this;
 
   factory UserProfileModel.fromDomain(UserProfile userProfile) {
     return UserProfileModel(
@@ -88,12 +80,7 @@ class UserProfileModel extends UserProfile {
       height: userProfile.height,
       weight: userProfile.weight,
       gender: userProfile.gender,
-      dailyCalorieGoal: userProfile.dailyCalorieGoal,
-      carbsGoal: userProfile.carbsGoal,
-      proteinGoal: userProfile.proteinGoal,
-      fatGoal: userProfile.fatGoal,
-      fiberGoal: userProfile.fiberGoal,
-      dietaryPreferences: userProfile.dietaryPreferences,
+      nutritionGoals: userProfile.nutritionGoals,
     );
   }
 }

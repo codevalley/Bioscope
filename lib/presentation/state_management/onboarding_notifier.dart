@@ -4,6 +4,7 @@ import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import 'onboarding_state.dart';
 import '../../domain/services/IAuthService.dart';
+import '../../domain/entities/goal_item.dart';
 
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final IUserProfileRepository _userProfileRepository;
@@ -116,22 +117,18 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             final userId = await _authService.getCurrentUserId();
             if (userId == null) throw Exception('Failed to get user ID');
 
+            final nutritionGoals = _createNutritionGoals(goals);
+
             final userProfile = UserProfile(
               id: userId,
               name: name,
-              age: 0,
-              height: 0,
-              weight: 0,
-              gender: '',
-              dailyCalorieGoal: (goals['Calories'] ?? 0.5 * 2000).toInt(),
-              carbsGoal: goals['Carbs'] ?? 0.5,
-              proteinGoal: goals['Proteins'] ?? 0.5,
-              fatGoal: goals['Fats'] ?? 0.5,
-              fiberGoal: goals['Fiber'] ?? 0.5,
-              dietaryPreferences: dietaryPreferences ?? [],
+              age: 0, // Default value, can be updated later
+              height: 0, // Default value, can be updated later
+              weight: 0, // Default value, can be updated later
+              gender: '', // Default value, can be updated later
+              nutritionGoals: nutritionGoals,
             );
             await _userProfileRepository.saveUserProfile(userProfile);
-            _lastSuccessfulStep = currentPage;
             state = const OnboardingState.complete();
           } catch (e) {
             print('Error completing onboarding: $e');
@@ -141,6 +138,41 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       },
       orElse: () {},
     );
+  }
+
+  Map<String, GoalItem> _createNutritionGoals(Map<String, double> goals) {
+    return {
+      'Calories': GoalItem(
+        name: 'Calories',
+        description: 'Daily calorie intake',
+        target: goals['Calories'] ?? 2000,
+        unit: 'kcal',
+      ),
+      'Carbs': GoalItem(
+        name: 'Carbs',
+        description: 'Daily carbohydrate intake',
+        target: goals['Carbs'] ?? 0.5,
+        unit: 'g',
+      ),
+      'Proteins': GoalItem(
+        name: 'Proteins',
+        description: 'Daily protein intake',
+        target: goals['Proteins'] ?? 0.5,
+        unit: 'g',
+      ),
+      'Fats': GoalItem(
+        name: 'Fats',
+        description: 'Daily fat intake',
+        target: goals['Fats'] ?? 0.5,
+        unit: 'g',
+      ),
+      'Fiber': GoalItem(
+        name: 'Fiber',
+        description: 'Daily fiber intake',
+        target: goals['Fiber'] ?? 0.5,
+        unit: 'g',
+      ),
+    };
   }
 }
 

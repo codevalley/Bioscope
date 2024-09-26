@@ -29,30 +29,13 @@ Future<void> setupDependencies() async {
   final supabaseClient = Supabase.instance.client;
   getIt.registerLazySingleton<SupabaseClient>(() => supabaseClient);
 
-// Auth Service
+  // Auth Service
   getIt.registerLazySingleton<IAuthService>(
     () => SupabaseAuthService(getIt<SupabaseClient>()),
   );
 
   // Data Sources
   if (useSupabase) {
-    // getIt.registerLazySingleton<DataSource<UserProfileModel>>(
-    //   () => SupabaseDataSource<UserProfileModel>(
-    //     getIt<SupabaseClient>(),
-    //     'user_profiles',
-    //     UserProfileModel.fromJson,
-    //     (model) => model.toJson(),
-    //   ),
-    // );
-    // getIt.registerLazySingleton<DataSource<FoodEntryModel>>(
-    //   () => SupabaseDataSource<FoodEntryModel>(
-    //     getIt<SupabaseClient>(),
-    //     'food_entries',
-    //     FoodEntryModel.fromJson,
-    //     (model) => model.toJson(),
-    //   ),
-    // );
-    // With these lines:
     getIt.registerLazySingleton<DataSource<UserProfileModel>>(
       () => UserProfileSupabaseDs(getIt<SupabaseClient>()),
     );
@@ -60,7 +43,7 @@ Future<void> setupDependencies() async {
       () => FoodEntrySupabaseDs(getIt<SupabaseClient>()),
     );
   } else {
-    // SQLite setup (assuming you still want to keep this as an option)
+    // SQLite setup
     final database = await openDatabase('app_database.db', version: 1);
     getIt.registerSingleton<Database>(database);
     getIt.registerLazySingleton<DataSource<UserProfileModel>>(

@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'goal_item.dart';
 
 class UserProfile {
   final String id;
@@ -7,12 +8,7 @@ class UserProfile {
   final double height;
   final double weight;
   final String gender;
-  final int dailyCalorieGoal;
-  final double carbsGoal;
-  final double proteinGoal;
-  final double fatGoal;
-  final double fiberGoal;
-  final List<String> dietaryPreferences;
+  final Map<String, GoalItem> nutritionGoals;
 
   UserProfile({
     String? id,
@@ -21,13 +17,9 @@ class UserProfile {
     required this.height,
     required this.weight,
     required this.gender,
-    required this.dailyCalorieGoal,
-    required this.carbsGoal,
-    required this.proteinGoal,
-    required this.fatGoal,
-    required this.fiberGoal,
-    required this.dietaryPreferences,
-  }) : id = id ?? const Uuid().v4();
+    Map<String, GoalItem>? nutritionGoals,
+  })  : id = id ?? const Uuid().v4(),
+        nutritionGoals = nutritionGoals ?? {};
 
   UserProfile copyWith({
     String? id,
@@ -36,12 +28,7 @@ class UserProfile {
     double? height,
     double? weight,
     String? gender,
-    int? dailyCalorieGoal,
-    double? carbsGoal,
-    double? proteinGoal,
-    double? fatGoal,
-    double? fiberGoal,
-    List<String>? dietaryPreferences,
+    Map<String, GoalItem>? nutritionGoals,
   }) {
     return UserProfile(
       id: id ?? this.id,
@@ -50,12 +37,7 @@ class UserProfile {
       height: height ?? this.height,
       weight: weight ?? this.weight,
       gender: gender ?? this.gender,
-      dailyCalorieGoal: dailyCalorieGoal ?? this.dailyCalorieGoal,
-      carbsGoal: carbsGoal ?? this.carbsGoal,
-      proteinGoal: proteinGoal ?? this.proteinGoal,
-      fatGoal: fatGoal ?? this.fatGoal,
-      fiberGoal: fiberGoal ?? this.fiberGoal,
-      dietaryPreferences: dietaryPreferences ?? this.dietaryPreferences,
+      nutritionGoals: nutritionGoals ?? this.nutritionGoals,
     );
   }
 }

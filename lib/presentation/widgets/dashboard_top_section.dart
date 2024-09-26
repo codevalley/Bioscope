@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'nutrition_indicator.dart';
+import '../../domain/entities/goal_item.dart';
 
 class DashboardTopSection extends StatelessWidget {
   final String greeting;
   final String name;
   final int caloriesConsumed;
   final int dailyCalorieGoal;
-  final Map<String, double> nutritionData;
+  final Map<String, GoalItem> nutritionGoals;
 
   const DashboardTopSection({
     Key? key,
@@ -14,10 +15,9 @@ class DashboardTopSection extends StatelessWidget {
     required this.name,
     required this.caloriesConsumed,
     required this.dailyCalorieGoal,
-    required this.nutritionData,
+    required this.nutritionGoals,
   }) : super(key: key);
 
-  @override
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -47,14 +47,16 @@ class DashboardTopSection extends StatelessWidget {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        children: nutritionData.entries.map((entry) {
+                        children: nutritionGoals.entries.map((entry) {
+                          final goalItem = entry.value;
+                          final progress = goalItem.actual / goalItem.target;
                           return Padding(
                             padding: const EdgeInsets.only(right: 16),
                             child: NutritionIndicator(
-                              label: entry.key,
+                              label: goalItem.name,
                               value:
-                                  '${(entry.value * dailyCalorieGoal).toInt()} kcal',
-                              progress: entry.value,
+                                  '${goalItem.actual.toInt()} ${goalItem.unit}',
+                              progress: progress,
                             ),
                           );
                         }).toList(),

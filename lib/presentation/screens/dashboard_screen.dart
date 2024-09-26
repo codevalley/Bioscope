@@ -5,35 +5,42 @@ import '../widgets/dashboard_top_section.dart';
 import '../widgets/recent_history.dart';
 import '../widgets/dashboard_bottom_bar.dart';
 import 'add_food_entry_screen.dart';
+import 'edit_user_goals_screen.dart';
+import 'package:bioscope/domain/entities/user_profile.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileAsyncValue = ref.watch(userProfileProvider);
+    final userProfileAsync = ref.watch(userProfileProvider);
 
-    return userProfileAsyncValue.when(
+    return userProfileAsync.when(
       data: (userProfile) {
         if (userProfile == null) {
-          // If userProfile is null, show a loading indicator and try to refresh the data
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            ref.refresh(userProfileProvider);
+            ref.read(userProfileProvider.notifier).refreshUserProfile();
           });
           return const Scaffold(
               body: Center(child: CircularProgressIndicator()));
         }
-        // If user profile exists, show the dashboard
-        return _buildDashboard(context, ref);
+        return _buildDashboard(context, ref, userProfile);
       },
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (_, __) =>
-          const Scaffold(body: Center(child: Text('Error loading user data'))),
+      error: (error, _) => Scaffold(
+          body: Center(child: Text('Error loading user data: $error'))),
     );
   }
 
-  Widget _buildDashboard(BuildContext context, WidgetRef ref) {
+  void _navigateToEditNutritionGoals(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const EditNutritionGoalsScreen()),
+    );
+  }
+
+  Widget _buildDashboard(
+      BuildContext context, WidgetRef ref, UserProfile userProfile) {
     final dashboardState = ref.watch(dashboardNotifierProvider);
 
     return Scaffold(
@@ -49,10 +56,18 @@ class DashboardScreen extends ConsumerWidget {
           ),
           child: Image.network("https://via.placeholder.com/30x30"),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => _navigateToEditNutritionGoals(context),
+          ),
+        ],
       ),
       body: RefreshIndicator(
-        onRefresh: () =>
-            ref.read(dashboardNotifierProvider.notifier).refreshDashboard(),
+        onRefresh: () async {
+          await ref.read(userProfileProvider.notifier).refreshUserProfile();
+          await ref.read(dashboardNotifierProvider.notifier).refreshDashboard();
+        },
         child: CustomScrollView(
           slivers: [
             SliverPersistentHeader(
@@ -62,18 +77,12 @@ class DashboardScreen extends ConsumerWidget {
                 maxHeight: 200.0,
                 child: DashboardTopSection(
                   greeting: dashboardState.greeting,
-                  name: dashboardState.userName,
+                  name: userProfile.name,
                   caloriesConsumed: dashboardState.caloriesConsumed,
-                  dailyCalorieGoal: dashboardState.dailyCalorieGoal,
-                  nutritionData: {
-                    'Calories': dashboardState.dailyCalorieGoal > 0
-                        ? dashboardState.caloriesConsumed /
-                            dashboardState.dailyCalorieGoal
-                        : 0,
-                    'Protein': 0.7, // Replace with actual data
-                    'Carbs': 0.5, // Replace with actual data
-                    'Fat': 0.3, // Replace with actual data
-                  },
+                  dailyCalorieGoal:
+                      userProfile.nutritionGoals['Calories']?.target.toInt() ??
+                          2000,
+                  nutritionGoals: userProfile.nutritionGoals,
                 ),
               ),
             ),
@@ -86,6 +95,7 @@ class DashboardScreen extends ConsumerWidget {
       bottomNavigationBar: DashboardBottomBar(
         onAddMealPressed: () => _navigateToAddFoodEntry(context, ref),
         onHomePressed: () {
+          ref.read(userProfileProvider.notifier).refreshUserProfile();
           ref.read(dashboardNotifierProvider.notifier).refreshDashboard();
         },
         onSettingsPressed: () {

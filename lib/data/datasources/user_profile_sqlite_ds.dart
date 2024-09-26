@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
+import 'dart:convert';
 import '../../core/interfaces/data_source.dart';
 import '../models/user_profile_model.dart';
-import 'dart:convert';
 
 class UserProfileSqliteDs implements DataSource<UserProfileModel> {
   final Database _database;
@@ -18,12 +18,7 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
         height REAL,
         weight REAL,
         gender TEXT,
-        dailyCalorieGoal INTEGER,
-        carbsGoal REAL,
-        proteinGoal REAL,
-        fatGoal REAL,
-        fiberGoal REAL,
-        dietaryPreferences TEXT
+        nutritionGoals TEXT
       )
     ''');
   }
@@ -34,8 +29,7 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
         await _database.query('user_profiles');
     return List.generate(maps.length, (i) {
       var map = maps[i];
-      map['dietaryPreferences'] =
-          jsonDecode(map['dietaryPreferences'] as String);
+      map['nutritionGoals'] = jsonDecode(map['nutritionGoals'] as String);
       return UserProfileModel.fromJson(map);
     });
   }
@@ -49,8 +43,7 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
     );
     if (maps.isNotEmpty) {
       var map = maps.first;
-      map['dietaryPreferences'] =
-          jsonDecode(map['dietaryPreferences'] as String);
+      map['nutritionGoals'] = jsonDecode(map['nutritionGoals'] as String);
       return UserProfileModel.fromJson(map);
     }
     return null;
@@ -59,7 +52,7 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
   @override
   Future<void> create(UserProfileModel item) async {
     var json = item.toJson();
-    json['dietaryPreferences'] = jsonEncode(json['dietaryPreferences']);
+    json['nutritionGoals'] = jsonEncode(json['nutritionGoals']);
     await _database.insert(
       'user_profiles',
       json,
@@ -70,7 +63,7 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
   @override
   Future<void> update(UserProfileModel item) async {
     var json = item.toJson();
-    json['dietaryPreferences'] = jsonEncode(json['dietaryPreferences']);
+    json['nutritionGoals'] = jsonEncode(json['nutritionGoals']);
     await _database.update(
       'user_profiles',
       json,
