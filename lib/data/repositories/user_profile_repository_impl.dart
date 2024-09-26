@@ -44,6 +44,18 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
   }
 
   @override
+  Stream<UserProfile?> watchUserProfile() async* {
+    final userId = await _authService.getCurrentUserId();
+    if (userId == null) {
+      yield null;
+      return;
+    }
+    yield* _dataSource
+        .watchById(userId)
+        .map((userProfileModel) => userProfileModel?.toDomain());
+  }
+
+  @override
   Future<bool> isOnboardingCompleted() async {
     final profile = await getUserProfile();
     return profile != null;

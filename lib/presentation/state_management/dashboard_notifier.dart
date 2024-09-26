@@ -1,6 +1,4 @@
-import 'package:bioscope/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/foundation.dart';
 import '../../domain/entities/food_entry.dart';
 import '../../domain/repositories/food_entry_repository.dart';
 import '../../domain/repositories/user_profile_repository.dart';
@@ -35,6 +33,26 @@ class DashboardState {
         dailyCalorieGoal: 0,
         nutritionGoals: {},
       );
+
+  DashboardState copyWith({
+    String? greeting,
+    int? caloriesConsumed,
+    int? caloriesRemaining,
+    List<FoodEntry>? recentMeals,
+    String? userName,
+    int? dailyCalorieGoal,
+    Map<String, GoalItem>? nutritionGoals,
+  }) {
+    return DashboardState(
+      greeting: greeting ?? this.greeting,
+      caloriesConsumed: caloriesConsumed ?? this.caloriesConsumed,
+      caloriesRemaining: caloriesRemaining ?? this.caloriesRemaining,
+      recentMeals: recentMeals ?? this.recentMeals,
+      userName: userName ?? this.userName,
+      dailyCalorieGoal: dailyCalorieGoal ?? this.dailyCalorieGoal,
+      nutritionGoals: nutritionGoals ?? this.nutritionGoals,
+    );
+  }
 }
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
@@ -48,74 +66,80 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     this._authService,
   ) : super(DashboardState.initial()) {
     _initializeDashboard();
-    _listenToFoodEntries();
   }
 
   Future<void> _initializeDashboard() async {
-    try {
-      await _updateDashboardState();
-    } catch (e) {
-      debugPrint('Error initializing dashboard: $e');
-    }
+    await _updateDashboardState();
+    _listenToFoodEntries();
+    _listenToUserProfile();
   }
 
   void _listenToFoodEntries() {
-    _foodEntryRepository.watchAllFoodEntries().listen((_) {
-      _updateDashboardState();
+    _foodEntryRepository.watchAllFoodEntries().listen((entries) {
+      state = state.copyWith(recentMeals: entries);
+      _updateCaloriesConsumed();
     });
   }
 
-  Future<void> _updateDashboardState() async {
-    try {
-      final userProfile = await _userProfileRepository.getUserProfile();
-      final recentMeals = await _foodEntryRepository.getRecentFoodEntries();
-      final totalCalories =
-          await _foodEntryRepository.getTotalCaloriesConsumed();
-
+  void _listenToUserProfile() {
+    _userProfileRepository.watchUserProfile().listen((userProfile) {
       if (userProfile != null) {
-        final calorieGoal =
-            userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000;
-        state = DashboardState(
-          greeting: _getGreeting(),
-          caloriesConsumed: totalCalories,
-          caloriesRemaining: calorieGoal - totalCalories,
-          recentMeals: recentMeals,
+        state = state.copyWith(
           userName: userProfile.name,
-          dailyCalorieGoal: calorieGoal,
+          dailyCalorieGoal:
+              userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000,
           nutritionGoals: userProfile.nutritionGoals,
         );
+        _updateCaloriesConsumed();
       }
-    } catch (e) {
-      debugPrint('Error updating dashboard state: $e');
+    });
+  }
+
+  Future<void> _updateCaloriesConsumed() async {
+    final totalCalories = await _foodEntryRepository.getTotalCaloriesConsumed();
+    state = state.copyWith(
+      caloriesConsumed: totalCalories,
+      caloriesRemaining: state.dailyCalorieGoal - totalCalories,
+    );
+  }
+
+  Future<void> _updateDashboardState() async {
+    final userProfile = await _userProfileRepository.getUserProfile();
+    final recentMeals = await _foodEntryRepository.getRecentFoodEntries();
+    final totalCalories = await _foodEntryRepository.getTotalCaloriesConsumed();
+
+    if (userProfile != null) {
+      final calorieGoal =
+          userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000;
+      state = state.copyWith(
+        greeting: _getGreeting(),
+        caloriesConsumed: totalCalories,
+        caloriesRemaining: calorieGoal - totalCalories,
+        recentMeals: recentMeals,
+        userName: userProfile.name,
+        dailyCalorieGoal: calorieGoal,
+        nutritionGoals: userProfile.nutritionGoals,
+      );
     }
   }
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return 'Good Morning ';
+      return 'Good Morning';
     } else if (hour < 17) {
-      return 'Good Afternoon ';
+      return 'Good Afternoon';
     } else {
-      return 'Good Evening ';
+      return 'Good Evening';
     }
+  }
+
+  Future<void> refreshDashboard() async {
+    await _updateDashboardState();
   }
 
   Future<void> addFoodEntry(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);
     await _updateDashboardState();
   }
-
-  Future<void> refreshDashboard() async {
-    await _updateDashboardState();
-  }
 }
-
-final dashboardNotifierProvider =
-    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
-  final foodEntryRepository = ref.watch(foodEntryRepositoryProvider);
-  final userProfileRepository = ref.watch(userProfileRepositoryProvider);
-  final authService = ref.watch(authServiceProvider);
-  return DashboardNotifier(
-      foodEntryRepository, userProfileRepository, authService);
-});

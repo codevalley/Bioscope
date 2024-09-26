@@ -7,11 +7,21 @@ class UserProfileNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
   final IUserProfileRepository _repository;
 
   UserProfileNotifier(this._repository) : super(const AsyncValue.loading()) {
-    refreshUserProfile();
+    _init();
+  }
+
+  void _init() {
+    _repository.watchUserProfile().listen(
+      (userProfile) {
+        state = AsyncValue.data(userProfile);
+      },
+      onError: (error, stackTrace) {
+        state = AsyncValue.error(error, stackTrace);
+      },
+    );
   }
 
   Future<void> refreshUserProfile() async {
-    state = const AsyncValue.loading();
     try {
       final userProfile = await _repository.getUserProfile();
       state = AsyncValue.data(userProfile);
@@ -37,7 +47,7 @@ class UserProfileNotifier extends StateNotifier<AsyncValue<UserProfile?>> {
         updatedGoals[goalName] = updatedGoal;
         final updatedProfile =
             userProfile.copyWith(nutritionGoals: updatedGoals);
-        state = AsyncValue.data(updatedProfile);
+        updateUserProfile(updatedProfile);
       }
     });
   }

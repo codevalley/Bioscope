@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bioscope/presentation/providers/providers.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import 'onboarding_state.dart';
@@ -175,9 +174,3 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     };
   }
 }
-
-final onboardingProvider =
-    StateNotifierProvider<OnboardingNotifier, OnboardingState>(
-  (ref) => OnboardingNotifier(
-      ref.watch(userProfileRepositoryProvider), ref.watch(authServiceProvider)),
-);

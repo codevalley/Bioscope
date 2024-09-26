@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../state_management/onboarding_notifier.dart';
 import '../widgets/custom_button.dart';
 import 'dashboard_screen.dart';
+import '../providers/providers.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -271,8 +272,9 @@ class OnboardingScreen extends ConsumerWidget {
     final onboardingState = ref.read(onboardingProvider);
     onboardingState.maybeWhen(
       complete: () {
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
+          (route) => false,
         );
       },
       error: (message) {
