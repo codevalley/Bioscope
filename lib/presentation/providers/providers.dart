@@ -9,6 +9,7 @@ import '../../domain/services/IAuthService.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../application/di/dependency_injection.dart';
 import '../state_management/onboarding_state.dart';
+import '../state_management/dashboard_state.dart';
 
 final databaseProvider = Provider<Database>((ref) => getIt<Database>());
 

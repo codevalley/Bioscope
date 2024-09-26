@@ -3,62 +3,15 @@ import '../../domain/entities/food_entry.dart';
 import '../../domain/repositories/food_entry_repository.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import '../../domain/services/IAuthService.dart';
-import '../../domain/entities/goal_item.dart';
-
-class DashboardState {
-  final String greeting;
-  final int caloriesConsumed;
-  final int caloriesRemaining;
-  final List<FoodEntry> recentMeals;
-  final String userName;
-  final int dailyCalorieGoal;
-  final Map<String, GoalItem> nutritionGoals;
-
-  DashboardState({
-    required this.greeting,
-    required this.caloriesConsumed,
-    required this.caloriesRemaining,
-    required this.recentMeals,
-    required this.userName,
-    required this.dailyCalorieGoal,
-    required this.nutritionGoals,
-  });
-
-  factory DashboardState.initial() => DashboardState(
-        greeting: '',
-        caloriesConsumed: 0,
-        caloriesRemaining: 0,
-        recentMeals: [],
-        userName: '',
-        dailyCalorieGoal: 0,
-        nutritionGoals: {},
-      );
-
-  DashboardState copyWith({
-    String? greeting,
-    int? caloriesConsumed,
-    int? caloriesRemaining,
-    List<FoodEntry>? recentMeals,
-    String? userName,
-    int? dailyCalorieGoal,
-    Map<String, GoalItem>? nutritionGoals,
-  }) {
-    return DashboardState(
-      greeting: greeting ?? this.greeting,
-      caloriesConsumed: caloriesConsumed ?? this.caloriesConsumed,
-      caloriesRemaining: caloriesRemaining ?? this.caloriesRemaining,
-      recentMeals: recentMeals ?? this.recentMeals,
-      userName: userName ?? this.userName,
-      dailyCalorieGoal: dailyCalorieGoal ?? this.dailyCalorieGoal,
-      nutritionGoals: nutritionGoals ?? this.nutritionGoals,
-    );
-  }
-}
+import 'dashboard_state.dart';
+import 'dart:async';
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
   final IFoodEntryRepository _foodEntryRepository;
   final IUserProfileRepository _userProfileRepository;
   final IAuthService _authService;
+  StreamSubscription? _userProfileSubscription;
+  StreamSubscription? _foodEntriesSubscription;
 
   DashboardNotifier(
     this._foodEntryRepository,
@@ -75,23 +28,46 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   void _listenToFoodEntries() {
-    _foodEntryRepository.watchAllFoodEntries().listen((entries) {
-      state = state.copyWith(recentMeals: entries);
-      _updateCaloriesConsumed();
-    });
+    _foodEntriesSubscription?.cancel();
+    _foodEntriesSubscription =
+        _foodEntryRepository.watchAllFoodEntries().listen(
+      (entries) {
+        state = state.copyWith(recentMeals: entries);
+        _updateCaloriesConsumed();
+      },
+      onError: (error) {
+        print('Error in food entries stream: $error');
+        // Implement retry logic here if needed
+      },
+    );
   }
 
   void _listenToUserProfile() {
-    _userProfileRepository.watchUserProfile().listen((userProfile) {
-      if (userProfile != null) {
-        state = state.copyWith(
-          userName: userProfile.name,
-          dailyCalorieGoal:
-              userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000,
-          nutritionGoals: userProfile.nutritionGoals,
-        );
-        _updateCaloriesConsumed();
-      }
+    _userProfileSubscription?.cancel();
+    _userProfileSubscription = _userProfileRepository.watchUserProfile().listen(
+      (userProfile) {
+        if (userProfile != null) {
+          state = state.copyWith(
+            userName: userProfile.name,
+            dailyCalorieGoal:
+                userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000,
+            nutritionGoals: userProfile.nutritionGoals,
+          );
+          _updateCaloriesConsumed();
+        }
+      },
+      onError: (error) {
+        print('Error in user profile stream: $error');
+        // Implement retry logic here
+        _retryUserProfileStream();
+      },
+    );
+  }
+
+  void _retryUserProfileStream() {
+    // Wait for a short duration before retrying
+    Timer(const Duration(seconds: 5), () {
+      _listenToUserProfile();
     });
   }
 
@@ -141,5 +117,12 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   Future<void> addFoodEntry(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);
     await _updateDashboardState();
+  }
+
+  @override
+  void dispose() {
+    _userProfileSubscription?.cancel();
+    _foodEntriesSubscription?.cancel();
+    super.dispose();
   }
 }

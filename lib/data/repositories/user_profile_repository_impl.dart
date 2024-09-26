@@ -50,9 +50,12 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
       yield null;
       return;
     }
-    yield* _dataSource
-        .watchById(userId)
-        .map((userProfileModel) => userProfileModel?.toDomain());
+
+    yield* _dataSource.watchById(userId).handleError((error) {
+      print('Error in watchUserProfile: $error');
+      // Here we're yielding the last known good state instead of propagating the error
+      return getUserProfile();
+    }).map((userProfileModel) => userProfileModel?.toDomain());
   }
 
   @override
