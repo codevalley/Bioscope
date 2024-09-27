@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../state_management/onboarding_notifier.dart';
 import '../widgets/custom_button.dart';
 import 'dashboard_screen.dart';
-import '../providers/providers.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});

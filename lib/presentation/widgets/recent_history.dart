@@ -20,7 +20,7 @@ class RecentHistory extends StatelessWidget {
 
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: recentMeals.length,
       itemBuilder: (context, index) => FoodEntryItem(entry: recentMeals[index]),
     );

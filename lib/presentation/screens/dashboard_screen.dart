@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart';
 import '../widgets/dashboard_top_section.dart';
 import '../widgets/recent_history.dart';
-import '../screens/onboarding_screen.dart';
 import '../widgets/dashboard_bottom_bar.dart';
 import 'add_food_entry_screen.dart';
 
