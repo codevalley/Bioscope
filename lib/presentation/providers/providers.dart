@@ -34,13 +34,19 @@ final dashboardNotifierProvider =
     StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
   final foodEntryRepository = ref.watch(foodEntryRepositoryProvider);
   final userProfileRepository = ref.watch(userProfileRepositoryProvider);
-  final authService = ref.watch(authServiceProvider);
-  return DashboardNotifier(
-      foodEntryRepository, userProfileRepository, authService);
+
+  return DashboardNotifier(foodEntryRepository, userProfileRepository);
 });
 
 final onboardingProvider =
     StateNotifierProvider<OnboardingNotifier, OnboardingState>((ref) {
   return OnboardingNotifier(
       ref.watch(userProfileRepositoryProvider), ref.watch(authServiceProvider));
+});
+
+final dashboardProvider =
+    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
+  final foodEntryRepository = ref.watch(foodEntryRepositoryProvider);
+  final userProfileRepository = ref.watch(userProfileRepositoryProvider);
+  return DashboardNotifier(foodEntryRepository, userProfileRepository);
 });

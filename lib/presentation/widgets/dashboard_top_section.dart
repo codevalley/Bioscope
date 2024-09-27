@@ -55,7 +55,7 @@ class DashboardTopSection extends StatelessWidget {
                             child: NutritionIndicator(
                               label: goalItem.name,
                               value:
-                                  '${goalItem.actual.toInt()} ${goalItem.unit}',
+                                  '${goalItem.actual.toInt()} / ${goalItem.target.toInt()} ${goalItem.unit}',
                               progress: progress,
                             ),
                           );

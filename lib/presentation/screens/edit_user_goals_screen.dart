@@ -3,21 +3,49 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/custom_button.dart';
 import '../../domain/entities/goal_item.dart';
 import '../../presentation/providers/providers.dart';
+import 'dart:async';
 
-class EditNutritionGoalsScreen extends ConsumerWidget {
+class EditNutritionGoalsScreen extends ConsumerStatefulWidget {
   const EditNutritionGoalsScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final userProfile = ref.watch(userProfileProvider).value;
-    if (userProfile == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+  _EditNutritionGoalsScreenState createState() =>
+      _EditNutritionGoalsScreenState();
+}
 
-    final nutritionGoals = userProfile.nutritionGoals;
+class _EditNutritionGoalsScreenState
+    extends ConsumerState<EditNutritionGoalsScreen> {
+  late Map<String, GoalItem> _localNutritionGoals;
+  Timer? _debounce;
 
+  @override
+  void initState() {
+    super.initState();
+    _localNutritionGoals =
+        Map.from(ref.read(userProfileProvider).value?.nutritionGoals ?? {});
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _updateLocalGoal(String name, GoalItem updatedGoal) {
+    setState(() {
+      _localNutritionGoals[name] = updatedGoal;
+    });
+
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      ref
+          .read(userProfileProvider.notifier)
+          .updateNutritionGoal(name, updatedGoal);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Nutrition Goals'),
@@ -25,13 +53,13 @@ class EditNutritionGoalsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          ...nutritionGoals.entries.map((entry) {
+          ..._localNutritionGoals.entries.map((entry) {
             final goalItem = entry.value;
-            return _buildGoalSlider(context, ref, goalItem);
+            return _buildGoalSlider(context, goalItem);
           }),
           const SizedBox(height: 24),
           CustomButton(
-            onPressed: () => _saveGoals(context, ref, nutritionGoals),
+            onPressed: () => _saveGoals(context),
             child: const Text('Save Goals'),
           ),
         ],
@@ -39,8 +67,7 @@ class EditNutritionGoalsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGoalSlider(
-      BuildContext context, WidgetRef ref, GoalItem goalItem) {
+  Widget _buildGoalSlider(BuildContext context, GoalItem goalItem) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -53,10 +80,8 @@ class EditNutritionGoalsScreen extends ConsumerWidget {
                 min: 0,
                 max: _getMaxValueForGoal(goalItem.name),
                 onChanged: (newValue) {
-                  ref.read(userProfileProvider.notifier).updateNutritionGoal(
-                        goalItem.name,
-                        goalItem.copyWith(target: newValue),
-                      );
+                  _updateLocalGoal(
+                      goalItem.name, goalItem.copyWith(target: newValue));
                 },
               ),
             ),
@@ -82,13 +107,12 @@ class EditNutritionGoalsScreen extends ConsumerWidget {
     }
   }
 
-  void _saveGoals(BuildContext context, WidgetRef ref,
-      Map<String, GoalItem> nutritionGoals) {
+  void _saveGoals(BuildContext context) {
     ref.read(userProfileProvider.notifier).updateUserProfile(
           ref
               .read(userProfileProvider)
               .value!
-              .copyWith(nutritionGoals: nutritionGoals),
+              .copyWith(nutritionGoals: _localNutritionGoals),
         );
     Navigator.of(context).pop();
   }

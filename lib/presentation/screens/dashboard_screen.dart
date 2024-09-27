@@ -6,16 +6,30 @@ import '../widgets/recent_history.dart';
 import '../widgets/dashboard_bottom_bar.dart';
 import 'add_food_entry_screen.dart';
 import 'edit_user_goals_screen.dart';
-import '../state_management/dashboard_state.dart';
-import 'package:bioscope/domain/entities/user_profile.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final dashboardState = ref.watch(dashboardNotifierProvider);
-    final userProfileAsync = ref.watch(userProfileProvider);
+  _DashboardScreenState createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(dashboardProvider.notifier).refreshDashboard();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dashboardState = ref.watch(dashboardProvider);
+    final userProfileState = ref.watch(userProfileProvider);
+
+    print("Dashboard state: $dashboardState"); // Debug print
+    print("User profile state: $userProfileState"); // Debug print
 
     return Scaffold(
       appBar: AppBar(
@@ -37,75 +51,50 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: userProfileAsync.when(
+      body: userProfileState.when(
         data: (userProfile) {
           if (userProfile == null) {
-            return const Center(
-                child:
-                    Text('No user profile found. Please complete onboarding.'));
+            return const Center(child: Text('User profile not found'));
           }
-          return _buildDashboardContent(
-              context, ref, dashboardState, userProfile);
+          return RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(dashboardProvider.notifier).refreshDashboard();
+            },
+            child: dashboardState.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : CustomScrollView(
+                    slivers: [
+                      SliverPersistentHeader(
+                        delegate: DashboardHeaderDelegate(
+                          DashboardTopSection(
+                            greeting: dashboardState.greeting,
+                            name: dashboardState.userName,
+                            caloriesConsumed: dashboardState.caloriesConsumed,
+                            dailyCalorieGoal: dashboardState.dailyCalorieGoal,
+                            nutritionGoals: dashboardState.nutritionGoals,
+                          ),
+                        ),
+                        pinned: true,
+                      ),
+                      SliverToBoxAdapter(
+                        child: RecentHistory(
+                            recentMeals: dashboardState.recentMeals),
+                      ),
+                    ],
+                  ),
+          );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Error loading user data: $error'),
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(userProfileProvider.notifier).refreshUserProfile();
-                  ref
-                      .read(dashboardNotifierProvider.notifier)
-                      .refreshDashboard();
-                },
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+        error: (error, stack) => Center(child: Text('Error: $error')),
       ),
       bottomNavigationBar: DashboardBottomBar(
         onAddMealPressed: () => _navigateToAddFoodEntry(context, ref),
         onHomePressed: () {
-          ref.read(userProfileProvider.notifier).refreshUserProfile();
-          ref.read(dashboardNotifierProvider.notifier).refreshDashboard();
+          ref.read(dashboardProvider.notifier).refreshDashboard();
         },
         onSettingsPressed: () {
           // TODO: Implement settings navigation
         },
-      ),
-    );
-  }
-
-  Widget _buildDashboardContent(BuildContext context, WidgetRef ref,
-      DashboardState dashboardState, UserProfile userProfile) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(userProfileProvider.notifier).refreshUserProfile();
-        await ref.read(dashboardNotifierProvider.notifier).refreshDashboard();
-      },
-      child: CustomScrollView(
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverAppBarDelegate(
-              minHeight: 60.0,
-              maxHeight: 200.0,
-              child: DashboardTopSection(
-                greeting: dashboardState.greeting,
-                name: userProfile.name,
-                caloriesConsumed: dashboardState.caloriesConsumed,
-                dailyCalorieGoal: dashboardState.dailyCalorieGoal,
-                nutritionGoals: dashboardState.nutritionGoals,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: RecentHistory(recentMeals: dashboardState.recentMeals),
-          ),
-        ],
       ),
     );
   }
@@ -123,38 +112,30 @@ class DashboardScreen extends ConsumerWidget {
     );
 
     if (result != null) {
-      await ref.read(dashboardNotifierProvider.notifier).addFoodEntry(result);
+      await ref.read(dashboardProvider.notifier).addFoodEntry(result);
     }
   }
 }
 
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final double minHeight;
-  final double maxHeight;
+class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
 
-  _SliverAppBarDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => maxHeight;
+  DashboardHeaderDelegate(this.child);
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
+    return child;
   }
 
   @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
+  double get maxExtent => 200;
+
+  @override
+  double get minExtent => 70;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
   }
 }

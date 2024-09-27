@@ -1,102 +1,72 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entities/food_entry.dart';
 import '../../domain/repositories/food_entry_repository.dart';
 import '../../domain/repositories/user_profile_repository.dart';
-import '../../domain/services/IAuthService.dart';
 import 'dashboard_state.dart';
+import '../../domain/entities/food_entry.dart';
+import '../../domain/entities/user_profile.dart';
 import 'dart:async';
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
   final IFoodEntryRepository _foodEntryRepository;
   final IUserProfileRepository _userProfileRepository;
-  final IAuthService _authService;
   StreamSubscription? _userProfileSubscription;
   StreamSubscription? _foodEntriesSubscription;
 
-  DashboardNotifier(
-    this._foodEntryRepository,
-    this._userProfileRepository,
-    this._authService,
-  ) : super(DashboardState.initial()) {
-    _initializeDashboard();
+  DashboardNotifier(this._foodEntryRepository, this._userProfileRepository)
+      : super(DashboardState.initial()) {
+    _initializeListeners();
   }
 
-  Future<void> _initializeDashboard() async {
-    await _updateDashboardState();
-    _listenToFoodEntries();
-    _listenToUserProfile();
-  }
-
-  void _listenToFoodEntries() {
-    _foodEntriesSubscription?.cancel();
-    _foodEntriesSubscription =
-        _foodEntryRepository.watchAllFoodEntries().listen(
-      (entries) {
-        state = state.copyWith(recentMeals: entries);
-        _updateCaloriesConsumed();
-      },
-      onError: (error) {
-        print('Error in food entries stream: $error');
-        // Implement retry logic here if needed
-      },
-    );
-  }
-
-  void _listenToUserProfile() {
-    _userProfileSubscription?.cancel();
+  void _initializeListeners() {
     _userProfileSubscription = _userProfileRepository.watchUserProfile().listen(
       (userProfile) {
+        print("User profile updated: $userProfile"); // Debug print
         if (userProfile != null) {
-          state = state.copyWith(
-            userName: userProfile.name,
-            dailyCalorieGoal:
-                userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000,
-            nutritionGoals: userProfile.nutritionGoals,
-          );
-          _updateCaloriesConsumed();
+          _updateDashboardWithUserProfile(userProfile);
+        } else {
+          state = DashboardState.initial().copyWith(isLoading: false);
         }
       },
       onError: (error) {
-        print('Error in user profile stream: $error');
-        // Implement retry logic here
-        _retryUserProfileStream();
+        print("Error in user profile stream: $error"); // Debug print
+      },
+    );
+
+    _foodEntriesSubscription =
+        _foodEntryRepository.watchAllFoodEntries().listen(
+      (foodEntries) {
+        print("Food entries updated: ${foodEntries.length}"); // Debug print
+        _updateDashboardWithFoodEntries(foodEntries);
+      },
+      onError: (error) {
+        print("Error in food entries stream: $error"); // Debug print
       },
     );
   }
 
-  void _retryUserProfileStream() {
-    // Wait for a short duration before retrying
-    Timer(const Duration(seconds: 5), () {
-      _listenToUserProfile();
-    });
-  }
-
-  Future<void> _updateCaloriesConsumed() async {
-    final totalCalories = await _foodEntryRepository.getTotalCaloriesConsumed();
+  void _updateDashboardWithUserProfile(UserProfile userProfile) {
+    print("Updating dashboard with user profile"); // Debug print
     state = state.copyWith(
-      caloriesConsumed: totalCalories,
-      caloriesRemaining: state.dailyCalorieGoal - totalCalories,
+      isLoading: false,
+      greeting: _getGreeting(),
+      userName: userProfile.name,
+      dailyCalorieGoal:
+          userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000,
+      nutritionGoals: userProfile.nutritionGoals,
     );
   }
 
-  Future<void> _updateDashboardState() async {
-    final userProfile = await _userProfileRepository.getUserProfile();
-    final recentMeals = await _foodEntryRepository.getRecentFoodEntries();
-    final totalCalories = await _foodEntryRepository.getTotalCaloriesConsumed();
+  void _updateDashboardWithFoodEntries(List<FoodEntry> foodEntries) {
+    print("Updating dashboard with food entries"); // Debug print
+    final recentMeals = foodEntries.take(5).toList();
+    final caloriesConsumed = foodEntries.fold<int>(
+        0, (sum, entry) => sum + entry.nutritionInfo.calories);
 
-    if (userProfile != null) {
-      final calorieGoal =
-          userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000;
-      state = state.copyWith(
-        greeting: _getGreeting(),
-        caloriesConsumed: totalCalories,
-        caloriesRemaining: calorieGoal - totalCalories,
-        recentMeals: recentMeals,
-        userName: userProfile.name,
-        dailyCalorieGoal: calorieGoal,
-        nutritionGoals: userProfile.nutritionGoals,
-      );
-    }
+    state = state.copyWith(
+      isLoading: false,
+      recentMeals: recentMeals,
+      caloriesConsumed: caloriesConsumed,
+    );
   }
 
   String _getGreeting() {
@@ -111,12 +81,19 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   Future<void> refreshDashboard() async {
-    await _updateDashboardState();
+    state = state.copyWith(isLoading: true);
+    final userProfile = await _userProfileRepository.getUserProfile();
+    final foodEntries = await _foodEntryRepository.getAllFoodEntries();
+
+    if (userProfile != null) {
+      _updateDashboardWithUserProfile(userProfile);
+    }
+    _updateDashboardWithFoodEntries(foodEntries);
   }
 
   Future<void> addFoodEntry(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);
-    await _updateDashboardState();
+    // The dashboard will update automatically via the watchAllFoodEntries stream
   }
 
   @override

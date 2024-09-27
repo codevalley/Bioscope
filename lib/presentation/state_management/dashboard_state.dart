@@ -1,52 +1,28 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/food_entry.dart';
 import '../../domain/entities/goal_item.dart';
 
-class DashboardState {
-  final String greeting;
-  final int caloriesConsumed;
-  final int caloriesRemaining;
-  final List<FoodEntry> recentMeals;
-  final String userName;
-  final int dailyCalorieGoal;
-  final Map<String, GoalItem> nutritionGoals;
+part 'dashboard_state.freezed.dart';
 
-  DashboardState({
-    required this.greeting,
-    required this.caloriesConsumed,
-    required this.caloriesRemaining,
-    required this.recentMeals,
-    required this.userName,
-    required this.dailyCalorieGoal,
-    required this.nutritionGoals,
-  });
+@freezed
+class DashboardState with _$DashboardState {
+  const factory DashboardState({
+    required bool isLoading,
+    required String greeting,
+    required String userName,
+    required int caloriesConsumed,
+    required int dailyCalorieGoal,
+    required Map<String, GoalItem> nutritionGoals,
+    required List<FoodEntry> recentMeals,
+  }) = _DashboardState;
 
-  factory DashboardState.initial() => DashboardState(
+  factory DashboardState.initial() => const DashboardState(
+        isLoading: true,
         greeting: '',
-        caloriesConsumed: 0,
-        caloriesRemaining: 0,
-        recentMeals: [],
         userName: '',
-        dailyCalorieGoal: 0,
+        caloriesConsumed: 0,
+        dailyCalorieGoal: 2000,
         nutritionGoals: {},
+        recentMeals: [],
       );
-
-  DashboardState copyWith({
-    String? greeting,
-    int? caloriesConsumed,
-    int? caloriesRemaining,
-    List<FoodEntry>? recentMeals,
-    String? userName,
-    int? dailyCalorieGoal,
-    Map<String, GoalItem>? nutritionGoals,
-  }) {
-    return DashboardState(
-      greeting: greeting ?? this.greeting,
-      caloriesConsumed: caloriesConsumed ?? this.caloriesConsumed,
-      caloriesRemaining: caloriesRemaining ?? this.caloriesRemaining,
-      recentMeals: recentMeals ?? this.recentMeals,
-      userName: userName ?? this.userName,
-      dailyCalorieGoal: dailyCalorieGoal ?? this.dailyCalorieGoal,
-      nutritionGoals: nutritionGoals ?? this.nutritionGoals,
-    );
-  }
 }
