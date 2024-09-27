@@ -7,22 +7,40 @@ class RecentHistory extends StatelessWidget {
 
   const RecentHistory({Key? key, required this.recentMeals}) : super(key: key);
 
+  String _getFoodEmoji(int calories) {
+    if (calories < 200) return '🥗';
+    if (calories < 400) return '🍽️';
+    if (calories < 600) return '🍔';
+    if (calories < 800) return '🍕';
+    return '🍰';
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (recentMeals.isEmpty) {
-      return const SizedBox(
-        height: 200,
-        child: Center(
-          child: Text('No recent meals. Add your first meal!'),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            'Recent Meals',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: recentMeals.length,
-      itemBuilder: (context, index) => FoodEntryItem(entry: recentMeals[index]),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: recentMeals.length,
+          itemBuilder: (context, index) {
+            final meal = recentMeals[index];
+            return FoodEntryItem(
+              entry: meal,
+              calorieText:
+                  '${_getFoodEmoji(meal.nutritionInfo.calories)} ${meal.nutritionInfo.calories} kcal',
+            );
+          },
+        ),
+      ],
     );
   }
 }

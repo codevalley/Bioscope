@@ -5,8 +5,13 @@ import 'dart:io';
 
 class FoodEntryItem extends StatelessWidget {
   final FoodEntry entry;
+  final String calorieText;
 
-  const FoodEntryItem({Key? key, required this.entry}) : super(key: key);
+  const FoodEntryItem({
+    Key? key,
+    required this.entry,
+    required this.calorieText,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,7 @@ class FoodEntryItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${entry.nutritionInfo.calories} Calories',
+                      calorieText,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Row(

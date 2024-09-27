@@ -48,7 +48,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       body: userProfileState.when(
         data: (userProfile) {
           if (userProfile == null) {
-            return const Center(child: Text('User profile not found'));
+            return const Center(child: Text('😕 User profile not found'));
           }
           return RefreshIndicator(
             onRefresh: () async {
@@ -79,7 +79,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+        error: (error, stack) => Center(child: Text('😢 Error: $error')),
       ),
       bottomNavigationBar: DashboardBottomBar(
         onAddMealPressed: () => _navigateToAddFoodEntry(context, ref),

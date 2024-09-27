@@ -18,6 +18,15 @@ class DashboardTopSection extends StatelessWidget {
     required this.nutritionGoals,
   }) : super(key: key);
 
+  String _getCalorieEmoji(int caloriesConsumed, int dailyCalorieGoal) {
+    final ratio = caloriesConsumed / dailyCalorieGoal;
+    if (ratio < 0.25) return '🥗';
+    if (ratio < 0.5) return '🍽️';
+    if (ratio < 0.75) return '🍔';
+    if (ratio < 1) return '🍕';
+    return '🍰';
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -76,7 +85,7 @@ class DashboardTopSection extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        'Today: $caloriesConsumed / $dailyCalorieGoal kcal',
+                        '${_getCalorieEmoji(caloriesConsumed, dailyCalorieGoal)} Today: $caloriesConsumed / $dailyCalorieGoal kcal',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
