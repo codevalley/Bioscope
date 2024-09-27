@@ -44,12 +44,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           child: Image.network("https://via.placeholder.com/30x30"),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => _navigateToEditNutritionGoals(context),
-          ),
-        ],
       ),
       body: userProfileState.when(
         data: (userProfile) {
@@ -92,9 +86,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         onHomePressed: () {
           ref.read(dashboardProvider.notifier).refreshDashboard();
         },
-        onSettingsPressed: () {
-          // TODO: Implement settings navigation
-        },
+        onEditGoalsPressed: () => _navigateToEditNutritionGoals(context),
       ),
     );
   }

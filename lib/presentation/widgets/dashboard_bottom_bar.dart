@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class DashboardBottomBar extends StatelessWidget {
   final VoidCallback onAddMealPressed;
   final VoidCallback onHomePressed;
-  final VoidCallback onSettingsPressed;
+  final VoidCallback onEditGoalsPressed;
 
   const DashboardBottomBar({
     Key? key,
     required this.onAddMealPressed,
     required this.onHomePressed,
-    required this.onSettingsPressed,
+    required this.onEditGoalsPressed,
   }) : super(key: key);
 
   @override
@@ -30,9 +30,9 @@ class DashboardBottomBar extends StatelessWidget {
           ),
           _buildAddMealButton(),
           _buildBottomBarItem(
-            icon: Icons.settings,
+            icon: Icons.edit,
             color: const Color(0xFFA1A1A1),
-            onPressed: onSettingsPressed,
+            onPressed: onEditGoalsPressed,
           ),
         ],
       ),
