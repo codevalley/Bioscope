@@ -7,4 +7,5 @@ abstract class DataSource<T> {
   Future<void> delete(String id);
   Stream<List<T>> watchAll();
   Stream<T?> watchById(String id);
+  void setupRealtimeListeners(Function(List<T>) onDataChanged);
 }

@@ -97,22 +97,39 @@ class FoodEntrySupabaseDs implements DataSource<FoodEntryModel> {
 
   @override
   Stream<List<FoodEntryModel>> watchAll() {
-    return _supabaseClient
+    final stream = _supabaseClient
         .from(_tableName)
-        .stream(primaryKey: ['id'])
-        .eq('userid', _currentUserId)
-        .map((event) =>
-            event.map((item) => FoodEntryModel.fromJson(item)).toList());
+        .stream(primaryKey: ['id']).eq('userid', _currentUserId);
+
+    return stream.map(
+        (event) => event.map((item) => FoodEntryModel.fromJson(item)).toList());
   }
 
   @override
   Stream<FoodEntryModel?> watchById(String id) {
-    return _supabaseClient
+    final stream = _supabaseClient
         .from(_tableName)
-        .stream(primaryKey: ['id'])
-        .eq('id', id)
-        //.eq('userid', _currentUserId)
-        .map((event) =>
-            event.isNotEmpty ? FoodEntryModel.fromJson(event.first) : null);
+        .stream(primaryKey: ['id']).eq('id', id);
+    //.eq('userid', _currentUserId);
+
+    return stream.map((event) =>
+        event.isNotEmpty ? FoodEntryModel.fromJson(event.first) : null);
+  }
+
+  @override
+  void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
+    _supabaseClient
+        .channel('public:$_tableName')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: _tableName,
+          callback: (payload) async {
+            // Fetch the latest data when a change occurs
+            final updatedData = await getAll();
+            onDataChanged(updatedData);
+          },
+        )
+        .subscribe();
   }
 }

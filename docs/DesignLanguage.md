@@ -17,7 +17,7 @@
 ## General Style
 
 - **Theme**: Minimalist and clean with high contrast color schemes
-- **Color Scheme**: 
+- **Color Scheme**:
   - Light mint green (#E6F3EF) for background
   - Bright yellow (#FFD700) for accent and highlight areas
   - Black (#000000) for text and icons
@@ -41,7 +41,7 @@
 
 ## Color Usage
 
-- **Background Colors**: 
+- **Background Colors**:
   - Primary: Light mint green (#E6F3EF)
   - Secondary: Bright yellow (#FFD700)
 - **Text Colors**:
@@ -101,18 +101,22 @@
 ## Specific Components
 
 ### Progress Indicator
+
 - Thin line (2px) chart with dots for data points
 - Use mint green for the line, black for data points
 
 ### Task List
+
 - Left-aligned text with ample spacing between items (24px)
 - Circular checkboxes (24x24px) aligned to the right
 
 ### Profile Section
+
 - Circular avatar (48x48px) in the top-left corner
 - User name right-aligned in the top-right corner
 
 ### Navigation
+
 - Bottom tab bar with simple icons and labels
 - Active state indicated by filled icons or underline
 

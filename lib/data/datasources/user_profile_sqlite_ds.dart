@@ -99,4 +99,9 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
     // Implement watching a specific user profile if needed
     return Stream.fromFuture(getById(id));
   }
+
+  @override
+  void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
+    // TODO: implementation needed for SQLite
+  }
 }

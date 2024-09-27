@@ -56,4 +56,9 @@ class UserProfileRemoteDs implements DataSource<UserProfileModel> {
   Stream<UserProfileModel?> watchById(String id) {
     return Stream.fromFuture(getById(id));
   }
+
+  @override
+  void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
+    // No implementation needed for mock
+  }
 }

@@ -58,4 +58,9 @@ class FoodEntryRemoteDs implements DataSource<FoodEntryModel> {
   Stream<FoodEntryModel> watchById(String id) {
     return Stream.fromFuture(getById(id));
   }
+
+  @override
+  void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
+    // No implementation needed for mock
+  }
 }

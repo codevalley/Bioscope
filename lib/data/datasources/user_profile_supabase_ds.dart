@@ -138,4 +138,9 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
         .map((event) =>
             event.isNotEmpty ? UserProfileModel.fromJson(event.first) : null);
   }
+
+  @override
+  void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
+    // TODO: implementation needed for Supabase
+  }
 }

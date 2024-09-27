@@ -1,9 +1,10 @@
-![CI](https://github.com/codevalley/bioscope/workflows/CI/badge.svg)
 # Personal Coach App
 
 A Flutter-based personal coach app that helps users track their nutrition and wellness goals.
 
 ## Current Status
+
+![CI](https://github.com/codevalley/bioscope/workflows/CI/badge.svg)
 
 We are currently implementing the food capture interface, which allows users to take photos of their meals and receive nutrition information. The basic functionality is in place, but we are working on improving error handling, user experience, and secure storage of API keys.
 

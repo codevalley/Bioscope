@@ -7,7 +7,18 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
   final DataSource<FoodEntryModel> _dataSource;
 
   FoodEntryRepositoryImpl(this._dataSource);
+  // final StreamController<List<FoodEntryModel>> _foodEntriesController = StreamController.broadcast();
+  // final StreamController<List<FoodEntryModel>> _foodEntriesController = StreamController.broadcast();
 
+  // FoodEntryRepository(this._dataSource) {
+  //   _dataSource.setupRealtimeListeners((updatedData) {
+  //     _foodEntriesController.add(updatedData);
+  //   });
+  // }
+
+  // Stream<List<FoodEntryModel>> watchAllFoodEntries() {
+  //   return _foodEntriesController.stream;
+  // }
   @override
   Future<List<FoodEntry>> getAllFoodEntries() async {
     final foodEntryModels = await _dataSource.getAll();

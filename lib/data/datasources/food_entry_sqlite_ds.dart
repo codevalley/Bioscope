@@ -136,4 +136,9 @@ class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
       print(map);
     }
   }
+
+  @override
+  void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
+    // TODO: implementation needed for SQLite
+  }
 }
