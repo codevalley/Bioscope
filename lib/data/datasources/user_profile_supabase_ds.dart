@@ -141,6 +141,16 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
 
   @override
   void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
-    // TODO: implementation needed for Supabase
+    _supabaseClient
+        .from(_tableName)
+        .stream(primaryKey: ['id'])
+        .eq('id', _currentUserId)
+        .listen((event) {
+          final updatedData =
+              event.map((item) => UserProfileModel.fromJson(item)).toList();
+          onDataChanged(updatedData);
+        }, onError: (error) {
+          print('Error in realtime listener: $error');
+        });
   }
 }

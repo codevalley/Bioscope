@@ -3,12 +3,30 @@ import '../../domain/repositories/user_profile_repository.dart';
 import '../../core/interfaces/data_source.dart';
 import '../models/user_profile_model.dart';
 import '../../domain/services/IAuthService.dart';
+import 'dart:async';
 
 class UserProfileRepositoryImpl implements IUserProfileRepository {
   final DataSource<UserProfileModel> _dataSource;
   final IAuthService _authService;
+  final StreamController<UserProfile?> _userProfileController =
+      StreamController<UserProfile?>.broadcast();
 
-  UserProfileRepositoryImpl(this._dataSource, this._authService);
+  UserProfileRepositoryImpl(this._dataSource, this._authService) {
+    _setupRealtimeListeners();
+  }
+
+  void _setupRealtimeListeners() {
+    _dataSource.setupRealtimeListeners((updatedData) async {
+      final userId = await _authService.getCurrentUserId();
+      if (userId != null && updatedData.isNotEmpty) {
+        final userProfile =
+            updatedData.firstWhere((profile) => profile.id == userId);
+        _userProfileController.add(userProfile.toDomain());
+      } else {
+        _userProfileController.add(null);
+      }
+    });
+  }
 
   @override
   Future<UserProfile?> getUserProfile() async {
@@ -44,23 +62,17 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
   }
 
   @override
-  Stream<UserProfile?> watchUserProfile() async* {
-    final userId = await _authService.getCurrentUserId();
-    if (userId == null) {
-      yield null;
-      return;
-    }
-
-    yield* _dataSource.watchById(userId).handleError((error) {
-      print('Error in watchUserProfile: $error');
-      // Here we're yielding the last known good state instead of propagating the error
-      return getUserProfile();
-    }).map((userProfileModel) => userProfileModel?.toDomain());
+  Stream<UserProfile?> watchUserProfile() {
+    return _userProfileController.stream;
   }
 
   @override
   Future<bool> isOnboardingCompleted() async {
     final profile = await getUserProfile();
     return profile != null;
+  }
+
+  void dispose() {
+    _userProfileController.close();
   }
 }
