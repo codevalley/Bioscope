@@ -15,6 +15,11 @@ import '../../domain/services/IAuthService.dart';
 import '../../data/services/supabase_auth_service.dart';
 import "../../data/datasources/food_entry_supabase_ds.dart";
 import "../../data/datasources/user_profile_supabase_ds.dart";
+import "../../data/datasources/daily_goals_supabase_ds.dart";
+import "../../data/repositories/daily_goals_repository_impl.dart";
+import "../../data/models/daily_goals_model.dart";
+import "../../data/datasources/daily_goals_sqlite_ds.dart";
+import '../../domain/repositories/daily_goals_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -60,8 +65,21 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<IFoodEntryRepository>(
     () => FoodEntryRepositoryImpl(getIt<DataSource<FoodEntryModel>>()),
   );
+// Setup for DailyGoalLog
+  getIt.registerLazySingleton<DataSource<DailyGoalsModel>>(
+    () => useSupabase
+        ? DailyGoalsSupabaseDs(getIt<SupabaseClient>())
+        : DailyGoalsSqliteDs(getIt<Database>()),
+  );
+
+  getIt.registerLazySingleton<IDailyGoalsRepository>(
+    () => DailyGoalsRepositoryImpl(getIt<DataSource<DailyGoalsModel>>()),
+  );
 
   // Initialize data sources
+
+  // Initialize data sources
+  getIt<DataSource<DailyGoalsModel>>().initialize();
   await getIt<DataSource<UserProfileModel>>().initialize();
   await getIt<DataSource<FoodEntryModel>>().initialize();
 }

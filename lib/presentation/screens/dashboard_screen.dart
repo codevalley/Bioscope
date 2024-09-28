@@ -6,6 +6,7 @@ import '../widgets/recent_history.dart';
 import '../widgets/dashboard_bottom_bar.dart';
 import 'add_food_entry_screen.dart';
 import 'edit_user_goals_screen.dart';
+import '../widgets/daily_goals_section.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -27,9 +28,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final dashboardState = ref.watch(dashboardProvider);
     final userProfileState = ref.watch(userProfileProvider);
-
-    print("Dashboard state: $dashboardState"); // Debug print
-    print("User profile state: $userProfileState"); // Debug print
 
     return Scaffold(
       appBar: AppBar(
@@ -69,6 +67,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ),
                         ),
                         pinned: true,
+                      ),
+                      SliverToBoxAdapter(
+                        child: DailyGoalsSection(
+                            dailyGoals: dashboardState.dailyGoals),
                       ),
                       SliverToBoxAdapter(
                         child: RecentHistory(

@@ -10,6 +10,7 @@ import '../../domain/entities/user_profile.dart';
 import '../../application/di/dependency_injection.dart';
 import '../state_management/onboarding_state.dart';
 import '../state_management/dashboard_state.dart';
+import '../../domain/repositories/daily_goals_repository.dart';
 
 final databaseProvider = Provider<Database>((ref) => getIt<Database>());
 
@@ -21,6 +22,10 @@ final userProfileRepositoryProvider = Provider<IUserProfileRepository>((ref) {
   return getIt<IUserProfileRepository>();
 });
 
+final dailyGoalsRepositoryProvider = Provider<IDailyGoalsRepository>((ref) {
+  return getIt<IDailyGoalsRepository>();
+});
+
 final authServiceProvider = Provider<IAuthService>((ref) {
   return getIt<IAuthService>();
 });
@@ -28,14 +33,6 @@ final authServiceProvider = Provider<IAuthService>((ref) {
 final userProfileProvider =
     StateNotifierProvider<UserProfileNotifier, AsyncValue<UserProfile?>>((ref) {
   return UserProfileNotifier(ref.watch(userProfileRepositoryProvider));
-});
-
-final dashboardNotifierProvider =
-    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
-  final foodEntryRepository = ref.watch(foodEntryRepositoryProvider);
-  final userProfileRepository = ref.watch(userProfileRepositoryProvider);
-
-  return DashboardNotifier(foodEntryRepository, userProfileRepository);
 });
 
 final onboardingProvider =
@@ -48,5 +45,7 @@ final dashboardProvider =
     StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
   final foodEntryRepository = ref.watch(foodEntryRepositoryProvider);
   final userProfileRepository = ref.watch(userProfileRepositoryProvider);
-  return DashboardNotifier(foodEntryRepository, userProfileRepository);
+  final dailyGoalsRepository = ref.watch(dailyGoalsRepositoryProvider);
+  return DashboardNotifier(
+      foodEntryRepository, userProfileRepository, dailyGoalsRepository);
 });

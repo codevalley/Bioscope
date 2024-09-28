@@ -23,6 +23,7 @@ mixin _$DashboardState {
   int get dailyCalorieGoal => throw _privateConstructorUsedError;
   Map<String, GoalItem> get nutritionGoals =>
       throw _privateConstructorUsedError;
+  Map<String, GoalItem> get dailyGoals => throw _privateConstructorUsedError;
   List<FoodEntry> get recentMeals => throw _privateConstructorUsedError;
 
   /// Create a copy of DashboardState
@@ -45,6 +46,7 @@ abstract class $DashboardStateCopyWith<$Res> {
       int caloriesConsumed,
       int dailyCalorieGoal,
       Map<String, GoalItem> nutritionGoals,
+      Map<String, GoalItem> dailyGoals,
       List<FoodEntry> recentMeals});
 }
 
@@ -69,6 +71,7 @@ class _$DashboardStateCopyWithImpl<$Res, $Val extends DashboardState>
     Object? caloriesConsumed = null,
     Object? dailyCalorieGoal = null,
     Object? nutritionGoals = null,
+    Object? dailyGoals = null,
     Object? recentMeals = null,
   }) {
     return _then(_value.copyWith(
@@ -96,6 +99,10 @@ class _$DashboardStateCopyWithImpl<$Res, $Val extends DashboardState>
           ? _value.nutritionGoals
           : nutritionGoals // ignore: cast_nullable_to_non_nullable
               as Map<String, GoalItem>,
+      dailyGoals: null == dailyGoals
+          ? _value.dailyGoals
+          : dailyGoals // ignore: cast_nullable_to_non_nullable
+              as Map<String, GoalItem>,
       recentMeals: null == recentMeals
           ? _value.recentMeals
           : recentMeals // ignore: cast_nullable_to_non_nullable
@@ -119,6 +126,7 @@ abstract class _$$DashboardStateImplCopyWith<$Res>
       int caloriesConsumed,
       int dailyCalorieGoal,
       Map<String, GoalItem> nutritionGoals,
+      Map<String, GoalItem> dailyGoals,
       List<FoodEntry> recentMeals});
 }
 
@@ -141,6 +149,7 @@ class __$$DashboardStateImplCopyWithImpl<$Res>
     Object? caloriesConsumed = null,
     Object? dailyCalorieGoal = null,
     Object? nutritionGoals = null,
+    Object? dailyGoals = null,
     Object? recentMeals = null,
   }) {
     return _then(_$DashboardStateImpl(
@@ -168,6 +177,10 @@ class __$$DashboardStateImplCopyWithImpl<$Res>
           ? _value._nutritionGoals
           : nutritionGoals // ignore: cast_nullable_to_non_nullable
               as Map<String, GoalItem>,
+      dailyGoals: null == dailyGoals
+          ? _value._dailyGoals
+          : dailyGoals // ignore: cast_nullable_to_non_nullable
+              as Map<String, GoalItem>,
       recentMeals: null == recentMeals
           ? _value._recentMeals
           : recentMeals // ignore: cast_nullable_to_non_nullable
@@ -186,8 +199,10 @@ class _$DashboardStateImpl implements _DashboardState {
       required this.caloriesConsumed,
       required this.dailyCalorieGoal,
       required final Map<String, GoalItem> nutritionGoals,
+      required final Map<String, GoalItem> dailyGoals,
       required final List<FoodEntry> recentMeals})
       : _nutritionGoals = nutritionGoals,
+        _dailyGoals = dailyGoals,
         _recentMeals = recentMeals;
 
   @override
@@ -208,6 +223,14 @@ class _$DashboardStateImpl implements _DashboardState {
     return EqualUnmodifiableMapView(_nutritionGoals);
   }
 
+  final Map<String, GoalItem> _dailyGoals;
+  @override
+  Map<String, GoalItem> get dailyGoals {
+    if (_dailyGoals is EqualUnmodifiableMapView) return _dailyGoals;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_dailyGoals);
+  }
+
   final List<FoodEntry> _recentMeals;
   @override
   List<FoodEntry> get recentMeals {
@@ -218,7 +241,7 @@ class _$DashboardStateImpl implements _DashboardState {
 
   @override
   String toString() {
-    return 'DashboardState(isLoading: $isLoading, greeting: $greeting, userName: $userName, caloriesConsumed: $caloriesConsumed, dailyCalorieGoal: $dailyCalorieGoal, nutritionGoals: $nutritionGoals, recentMeals: $recentMeals)';
+    return 'DashboardState(isLoading: $isLoading, greeting: $greeting, userName: $userName, caloriesConsumed: $caloriesConsumed, dailyCalorieGoal: $dailyCalorieGoal, nutritionGoals: $nutritionGoals, dailyGoals: $dailyGoals, recentMeals: $recentMeals)';
   }
 
   @override
@@ -239,6 +262,8 @@ class _$DashboardStateImpl implements _DashboardState {
             const DeepCollectionEquality()
                 .equals(other._nutritionGoals, _nutritionGoals) &&
             const DeepCollectionEquality()
+                .equals(other._dailyGoals, _dailyGoals) &&
+            const DeepCollectionEquality()
                 .equals(other._recentMeals, _recentMeals));
   }
 
@@ -251,6 +276,7 @@ class _$DashboardStateImpl implements _DashboardState {
       caloriesConsumed,
       dailyCalorieGoal,
       const DeepCollectionEquality().hash(_nutritionGoals),
+      const DeepCollectionEquality().hash(_dailyGoals),
       const DeepCollectionEquality().hash(_recentMeals));
 
   /// Create a copy of DashboardState
@@ -271,6 +297,7 @@ abstract class _DashboardState implements DashboardState {
       required final int caloriesConsumed,
       required final int dailyCalorieGoal,
       required final Map<String, GoalItem> nutritionGoals,
+      required final Map<String, GoalItem> dailyGoals,
       required final List<FoodEntry> recentMeals}) = _$DashboardStateImpl;
 
   @override
@@ -285,6 +312,8 @@ abstract class _DashboardState implements DashboardState {
   int get dailyCalorieGoal;
   @override
   Map<String, GoalItem> get nutritionGoals;
+  @override
+  Map<String, GoalItem> get dailyGoals;
   @override
   List<FoodEntry> get recentMeals;
 

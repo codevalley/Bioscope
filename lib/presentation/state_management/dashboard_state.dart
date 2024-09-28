@@ -13,6 +13,7 @@ class DashboardState with _$DashboardState {
     required int caloriesConsumed,
     required int dailyCalorieGoal,
     required Map<String, GoalItem> nutritionGoals,
+    required Map<String, GoalItem> dailyGoals,
     required List<FoodEntry> recentMeals,
   }) = _DashboardState;
 
@@ -23,6 +24,7 @@ class DashboardState with _$DashboardState {
         caloriesConsumed: 0,
         dailyCalorieGoal: 2000,
         nutritionGoals: {},
+        dailyGoals: {},
         recentMeals: [],
       );
 }
