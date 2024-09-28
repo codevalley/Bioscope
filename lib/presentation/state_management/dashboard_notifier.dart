@@ -29,7 +29,6 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         print("User profile updated: $userProfile"); // Debug print
         if (userProfile != null) {
           _updateDashboardWithUserProfile(userProfile);
-          _setupDailyGoalsListener(userProfile.id);
         } else {
           state = DashboardState.initial().copyWith(isLoading: false);
         }
@@ -49,12 +48,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         print("Error in food entries stream: $error"); // Debug print
       },
     );
-  }
 
-  void _setupDailyGoalsListener(String userId) {
-    _dailyGoalsSubscription?.cancel();
     _dailyGoalsSubscription =
-        _dailyGoalsRepository.watchDailyGoals(userId, DateTime.now()).listen(
+        _dailyGoalsRepository.watchDailyGoals(_getCurrentDate()).listen(
       (dailyGoals) {
         if (dailyGoals != null) {
           state = state.copyWith(
@@ -67,6 +63,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         print("Error in daily goals stream: $error");
       },
     );
+  }
+
+  DateTime _getCurrentDate() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
   }
 
   void _updateDashboardWithUserProfile(UserProfile userProfile) {
@@ -113,15 +114,13 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       if (userProfile != null) {
         _updateDashboardWithUserProfile(userProfile);
         _updateDashboardWithFoodEntries(foodEntries);
-        var dailyGoals =
-            await _dailyGoalsRepository.getDailyGoals(userProfile.id, dateOnly);
+        var dailyGoals = await _dailyGoalsRepository.getDailyGoals(dateOnly);
         dailyGoals ??= await _createDefaultDailyGoals(userProfile, dateOnly);
         _updateDashboardWithDailyGoals(dailyGoals);
       }
     } catch (e, stackTrace) {
       print('Error refreshing dashboard: $e');
       print('Stack trace: $stackTrace');
-      state = state.copyWith(isLoading: false);
     } finally {
       state = state.copyWith(isLoading: false);
     }
@@ -164,7 +163,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> addFoodEntry(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);
-    // await _updateDailyGoals(entry);
+    await _updateDailyGoals(entry);
     await refreshDashboard();
   }
 
@@ -174,8 +173,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
     final dateOnly =
         DateTime(entry.date.year, entry.date.month, entry.date.day);
-    var dailyGoals =
-        await _dailyGoalsRepository.getDailyGoals(userProfile.id, dateOnly);
+    var dailyGoals = await _dailyGoalsRepository.getDailyGoals(dateOnly);
 
     dailyGoals ??= await _createDefaultDailyGoals(userProfile, dateOnly);
 

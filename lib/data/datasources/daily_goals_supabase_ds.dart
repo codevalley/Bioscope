@@ -8,6 +8,8 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
 
   DailyGoalsSupabaseDs(this._supabaseClient);
 
+  String get _currentUserId => _supabaseClient.auth.currentUser?.id ?? '';
+
   @override
   Future<void> initialize() async {
     try {
@@ -19,11 +21,19 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
   }
 
   @override
-  Future<List<DailyGoalsModel>> getAll() async {
-    final response = await _supabaseClient
-        .from(_tableName)
-        .select()
-        .order('date', ascending: false);
+  Future<List<DailyGoalsModel>> getAll(
+      {DateTime? startDate, DateTime? endDate}) async {
+    var query =
+        _supabaseClient.from(_tableName).select().eq('user_id', _currentUserId);
+
+    if (startDate != null) {
+      query = query.gte('date', startDate.toIso8601String().split('T')[0]);
+    }
+    if (endDate != null) {
+      query = query.lte('date', endDate.toIso8601String().split('T')[0]);
+    }
+
+    final response = await query.order('date', ascending: false);
     return (response as List)
         .map((item) => DailyGoalsModel.fromJson(item))
         .toList();
@@ -31,17 +41,20 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
 
   @override
   Future<DailyGoalsModel?> getById(String id) async {
-    final response =
-        await _supabaseClient.from(_tableName).select().eq('id', id).single();
-    return response.isNotEmpty ? DailyGoalsModel.fromJson(response) : null;
-  }
-
-  Future<DailyGoalsModel?> getByUserAndDate(
-      String userId, DateTime date) async {
     final response = await _supabaseClient
         .from(_tableName)
         .select()
-        .eq('user_id', userId)
+        .eq('id', id)
+        .eq('user_id', _currentUserId)
+        .single();
+    return response.isNotEmpty ? DailyGoalsModel.fromJson(response) : null;
+  }
+
+  Future<DailyGoalsModel?> getByDate(DateTime date) async {
+    final response = await _supabaseClient
+        .from(_tableName)
+        .select()
+        .eq('user_id', _currentUserId)
         .eq('date', date.toIso8601String().split('T')[0])
         .maybeSingle();
     return response != null ? DailyGoalsModel.fromJson(response) : null;
@@ -49,26 +62,29 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
 
   @override
   Future<void> create(DailyGoalsModel item) async {
-    final existingItem = await getByUserAndDate(item.userId, item.date);
-    if (existingItem != null) {
-      await update(item);
-    } else {
-      await _supabaseClient.from(_tableName).insert(item.toJson());
-    }
+    final dataToInsert = item.toJson();
+    dataToInsert['user_id'] = _currentUserId;
+    await _supabaseClient.from(_tableName).insert(dataToInsert);
   }
 
   @override
   Future<void> update(DailyGoalsModel item) async {
+    final dataToUpdate = item.toJson();
+    dataToUpdate['user_id'] = _currentUserId;
     await _supabaseClient
         .from(_tableName)
-        .update(item.toJson())
-        .eq('user_id', item.userId)
+        .update(dataToUpdate)
+        .eq('user_id', _currentUserId)
         .eq('date', item.date.toIso8601String().split('T')[0]);
   }
 
   @override
   Future<void> delete(String id) async {
-    await _supabaseClient.from(_tableName).delete().eq('id', id);
+    await _supabaseClient
+        .from(_tableName)
+        .delete()
+        .eq('id', id)
+        .eq('user_id', _currentUserId);
   }
 
   @override
@@ -76,10 +92,21 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
     return _supabaseClient
         .from(_tableName)
         .stream(primaryKey: ['id'])
+        .eq('user_id', _currentUserId)
         .order('date', ascending: false)
         .map((event) =>
             event.map((item) => DailyGoalsModel.fromJson(item)).toList());
   }
+
+  // Stream<DailyGoalsModel?> watchByDate(DateTime date) {
+  //   return _supabaseClient
+  //       .from(_tableName)
+  //       .stream(primaryKey: ['id'])
+  //       .eq('user_id', _currentUserId)
+  //       .eq('date', date.toIso8601String().split('T')[0])
+  //       .map((event) =>
+  //           event.isNotEmpty ? DailyGoalsModel.fromJson(event.first) : null);
+  // }
 
   @override
   Stream<DailyGoalsModel?> watchById(String id) {
@@ -96,6 +123,7 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
     _supabaseClient
         .from(_tableName)
         .stream(primaryKey: ['id'])
+        .eq('user_id', _currentUserId)
         .order('date', ascending: false)
         .listen((event) {
           final updatedData =
@@ -105,16 +133,12 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
   }
 
   @override
-  Future<void> recalculate(String id, DateTime date) async {
-    // Implement if needed for Supabase
-  }
-
-  Future<void> recalculateDailyGoals(String userId, DateTime date) async {
+  Future<void> recalculate(DateTime date) async {
     try {
       final response = await _supabaseClient.functions.invoke(
         'recalculate-daily-goals',
         body: {
-          'userId': userId,
+          'userId': _currentUserId,
           'date': date.toIso8601String().split('T')[0],
         },
       );

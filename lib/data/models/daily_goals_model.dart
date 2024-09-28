@@ -35,7 +35,7 @@ class DailyGoalsModel extends DailyGoals {
     return {
       'id': id,
       'user_id': userId,
-      'date': date.toIso8601String(),
+      'date': date.toIso8601String().split('T')[0],
       'goals': goals.map(
         (key, value) => MapEntry(
           key,
@@ -53,5 +53,35 @@ class DailyGoalsModel extends DailyGoals {
     };
   }
 
-  DailyGoals toDomain() => this;
+  DailyGoals toDomain() {
+    return DailyGoals(
+      id: id,
+      userId: userId,
+      date: date,
+      goals: goals,
+    );
+  }
+
+  static DailyGoalsModel fromDomain(DailyGoals dailyGoals) {
+    return DailyGoalsModel(
+      id: dailyGoals.id,
+      userId: dailyGoals.userId,
+      date: dailyGoals.date,
+      goals: dailyGoals.goals,
+    );
+  }
+
+  DailyGoalsModel copyWith({
+    String? id,
+    String? userId,
+    DateTime? date,
+    Map<String, GoalItem>? goals,
+  }) {
+    return DailyGoalsModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      date: date ?? this.date,
+      goals: goals ?? this.goals,
+    );
+  }
 }

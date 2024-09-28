@@ -1,5 +1,5 @@
-import '../../domain/entities/daily_goals.dart';
 import '../../domain/repositories/daily_goals_repository.dart';
+import '../../domain/entities/daily_goals.dart';
 import '../../core/interfaces/data_source.dart';
 import '../models/daily_goals_model.dart';
 
@@ -8,6 +8,7 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
 
   DailyGoalsRepositoryImpl(this._dataSource);
 
+  // Helper method to compare dates without time
   bool _isSameDate(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
@@ -15,75 +16,69 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
   }
 
   @override
-  Future<DailyGoals?> getDailyGoals(String userId, DateTime date) async {
+  Future<DailyGoals?> getDailyGoals(DateTime date) async {
     final allGoals = await _dataSource.getAll();
-    final dailyGoals = allGoals
-        .where(
-            (goals) => goals.userId == userId && _isSameDate(goals.date, date))
-        .toList();
-
-    if (dailyGoals.isEmpty) {
-      return null;
+    if (allGoals.isEmpty) {
+      return null; // Return null if no goals are found
     }
-    return dailyGoals.first.toDomain();
+    final goalForDate = allGoals.firstWhere(
+      (goal) => _isSameDate(goal.date, date),
+    );
+    return goalForDate.toDomain();
   }
 
   @override
   Future<void> saveDailyGoals(DailyGoals dailyGoals) async {
-    // Check if a record for this date already exists
-    final existingGoals =
-        await getDailyGoals(dailyGoals.userId, dailyGoals.date);
+    final existingGoals = await getDailyGoals(dailyGoals.date);
+    final dailyGoalsModel = DailyGoalsModel.fromDomain(dailyGoals);
+
     if (existingGoals != null) {
-      // If it exists, update it instead of creating a new one
-      await updateDailyGoals(dailyGoals);
+      // If a record exists, update it
+      await _dataSource.update(dailyGoalsModel.copyWith(id: existingGoals.id));
     } else {
-      // If it doesn't exist, create a new one
-      await _dataSource.create(DailyGoalsModel(
-        id: dailyGoals.id,
-        userId: dailyGoals.userId,
-        date: DateTime(
-            dailyGoals.date.year, dailyGoals.date.month, dailyGoals.date.day),
-        goals: dailyGoals.goals,
-      ));
+      // If no record exists, create a new one
+      await _dataSource.create(dailyGoalsModel);
     }
   }
 
   @override
   Future<void> updateDailyGoals(DailyGoals dailyGoals) async {
-    await _dataSource.update(DailyGoalsModel(
-      id: dailyGoals.id,
-      userId: dailyGoals.userId,
-      date: DateTime(
-          dailyGoals.date.year, dailyGoals.date.month, dailyGoals.date.day),
-      goals: dailyGoals.goals,
-    ));
+    await _dataSource.update(DailyGoalsModel.fromDomain(dailyGoals));
   }
 
   @override
-  Future<List<DailyGoals>> getUserDailyGoals(String userId,
+  Future<List<DailyGoals>> getUserDailyGoals(
       {DateTime? startDate, DateTime? endDate}) async {
     final allGoals = await _dataSource.getAll();
     return allGoals
-        .where((goals) =>
-            goals.userId == userId &&
-            (startDate == null || goals.date.isAfter(startDate)) &&
-            (endDate == null || goals.date.isBefore(endDate)))
+        .where((goal) =>
+            (startDate == null ||
+                _isSameDate(goal.date, startDate) ||
+                goal.date.isAfter(startDate)) &&
+            (endDate == null ||
+                _isSameDate(goal.date, endDate) ||
+                goal.date.isBefore(endDate)))
         .map((model) => model.toDomain())
         .toList();
   }
 
   @override
-  Stream<DailyGoals?> watchDailyGoals(String userId, DateTime date) {
-    return _dataSource.watchAll().map((dailyGoals) {
-      final targetDailyGoal = dailyGoals.firstWhere(
-        (dg) => dg.userId == userId && _isSameDate(dg.date, date),
+  Stream<DailyGoals?> watchDailyGoals(DateTime date) {
+    return _dataSource.watchAll().map((goals) {
+      final goalForDate = goals.firstWhere(
+        (goal) => _isSameDate(goal.date, date),
       );
-      return targetDailyGoal.toDomain();
+      return goalForDate.toDomain();
     });
   }
 
   @override
-  Future<void> recalculateDailyGoals(String userId, DateTime date) async {
-    await _dataSource.recalculate(userId, date);
+  Future<void> recalculateDailyGoals(DateTime date) async {
+    final goals = await getDailyGoals(date);
+    if (goals != null) {
+      // Perform recalculation logic here
+      // For now, we'll just update the existing goals
+      await updateDailyGoals(goals);
+    }
   }
 }

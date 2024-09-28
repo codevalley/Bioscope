@@ -8,7 +8,7 @@ class GetUserDailyGoals {
 
   Future<List<DailyGoals>> call(String userId,
       {DateTime? startDate, DateTime? endDate}) async {
-    return await repository.getUserDailyGoals(userId,
+    return await repository.getUserDailyGoals(
         startDate: startDate, endDate: endDate);
   }
 }

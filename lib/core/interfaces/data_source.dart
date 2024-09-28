@@ -8,5 +8,5 @@ abstract class DataSource<T> {
   Stream<List<T>> watchAll();
   Stream<T?> watchById(String id);
   void setupRealtimeListeners(Function(List<T>) onDataChanged);
-  Future<void> recalculate(String id, DateTime date);
+  Future<void> recalculate(DateTime date);
 }

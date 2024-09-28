@@ -96,7 +96,7 @@ class DailyGoalsSqliteDs implements DataSource<DailyGoalsModel> {
   }
 
   @override
-  Future<void> recalculate(String id, DateTime date) async {
+  Future<void> recalculate(DateTime date) async {
     // Implement if needed for SQLite
   }
 }

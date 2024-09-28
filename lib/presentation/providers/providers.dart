@@ -37,8 +37,8 @@ final userProfileProvider =
 
 final onboardingProvider =
     StateNotifierProvider<OnboardingNotifier, OnboardingState>((ref) {
-  return OnboardingNotifier(
-      ref.watch(userProfileRepositoryProvider), ref.watch(authServiceProvider));
+  return OnboardingNotifier(ref.watch(userProfileRepositoryProvider),
+      ref.watch(authServiceProvider), ref.watch(dailyGoalsRepositoryProvider));
 });
 
 final dashboardProvider =

@@ -134,7 +134,7 @@ class FoodEntrySupabaseDs implements DataSource<FoodEntryModel> {
   }
 
   @override
-  Future<void> recalculate(String id, DateTime date) async {
+  Future<void> recalculate(DateTime date) async {
     // TODO: implementation needed for Supabase
   }
 }

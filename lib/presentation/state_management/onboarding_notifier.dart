@@ -4,13 +4,19 @@ import '../../domain/repositories/user_profile_repository.dart';
 import 'onboarding_state.dart';
 import '../../domain/services/auth_service.dart';
 import '../../domain/entities/goal_item.dart';
+import '../../domain/repositories/daily_goals_repository.dart';
+import '../../domain/entities/daily_goals.dart';
 
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final IUserProfileRepository _userProfileRepository;
   final IAuthService _authService;
+  final IDailyGoalsRepository _dailyGoalsRepository; // Add this
 
-  OnboardingNotifier(this._userProfileRepository, this._authService)
-      : super(const OnboardingState.inProgress(
+  OnboardingNotifier(
+    this._userProfileRepository,
+    this._authService,
+    this._dailyGoalsRepository, // Add this
+  ) : super(const OnboardingState.inProgress(
           currentPage: 0,
           name: null,
           goals: null,
@@ -129,9 +135,18 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             );
             await _userProfileRepository.saveUserProfile(userProfile);
 
+            // Create initial DailyGoals for today
+            final today = DateTime.now();
+            final dailyGoals = DailyGoals(
+              userId: userId,
+              date: DateTime(today.year, today.month, today.day),
+              goals: nutritionGoals.map(
+                  (key, value) => MapEntry(key, value.copyWith(actual: 0))),
+            );
+
             // Force refresh the user profile
             await _userProfileRepository.getUserProfile();
-
+            await _dailyGoalsRepository.saveDailyGoals(dailyGoals);
             state = const OnboardingState.complete();
           } catch (e) {
             print('Error completing onboarding: $e');

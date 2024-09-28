@@ -63,7 +63,7 @@ class UserProfileRemoteDs implements DataSource<UserProfileModel> {
   }
 
   @override
-  Future<void> recalculate(String id, DateTime date) async {
+  Future<void> recalculate(DateTime date) async {
     // No implementation needed for mock
   }
 }

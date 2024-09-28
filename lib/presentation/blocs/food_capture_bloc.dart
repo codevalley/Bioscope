@@ -71,8 +71,7 @@ class FoodCaptureBloc extends Bloc<FoodCaptureEvent, FoodCaptureState> {
 
     final dateOnly =
         DateTime(entry.date.year, entry.date.month, entry.date.day);
-    var dailyGoals =
-        await _dailyGoalsRepository.getDailyGoals(userProfile.id, dateOnly);
+    var dailyGoals = await _dailyGoalsRepository.getDailyGoals(dateOnly);
 
     dailyGoals ??= DailyGoals(
       userId: userProfile.id,

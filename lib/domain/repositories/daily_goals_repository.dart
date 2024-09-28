@@ -1,12 +1,11 @@
-// In domain/repositories/daily_goal_log_repository.dart
 import '../entities/daily_goals.dart';
 
 abstract class IDailyGoalsRepository {
-  Future<DailyGoals?> getDailyGoals(String userId, DateTime date);
-  Future<void> saveDailyGoals(DailyGoals dailyGoalLog);
-  Future<void> updateDailyGoals(DailyGoals dailyGoalLog);
-  Future<List<DailyGoals>> getUserDailyGoals(String userId,
+  Future<DailyGoals?> getDailyGoals(DateTime date);
+  Future<void> saveDailyGoals(DailyGoals dailyGoals);
+  Future<void> updateDailyGoals(DailyGoals dailyGoals);
+  Future<List<DailyGoals>> getUserDailyGoals(
       {DateTime? startDate, DateTime? endDate});
-  Stream<DailyGoals?> watchDailyGoals(String userId, DateTime date);
-  Future<void> recalculateDailyGoals(String userId, DateTime date);
+  Stream<DailyGoals?> watchDailyGoals(DateTime date);
+  Future<void> recalculateDailyGoals(DateTime date);
 }
