@@ -5,6 +5,7 @@ class NutritionIndicator extends StatelessWidget {
   final String value;
   final double progress;
   final double size;
+  final Color progressColor;
 
   const NutritionIndicator({
     Key? key,
@@ -12,10 +13,12 @@ class NutritionIndicator extends StatelessWidget {
     required this.value,
     required this.progress,
     this.size = 60,
+    required this.progressColor,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SizedBox(
       width: size,
       child: Column(
@@ -42,17 +45,16 @@ class NutritionIndicator extends StatelessWidget {
                   child: CircularProgressIndicator(
                     value: progress,
                     backgroundColor: Colors.transparent,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFFED764A)), // Orange progress bar
+                    valueColor: AlwaysStoppedAnimation<Color>(progressColor),
                     strokeWidth: 4,
                   ),
                 ),
                 Text(
                   '${(progress * 100).toInt()}%',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -60,16 +62,16 @@ class NutritionIndicator extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.black,
-                ),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.black,
+            ),
             textAlign: TextAlign.center,
           ),
           Text(
             value,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.black,
-                ),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.black,
+            ),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
           ),

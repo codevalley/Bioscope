@@ -16,6 +16,11 @@ ThemeData buildAppTheme() {
     primaryColor: const Color(0xFFFAFAF7),
     scaffoldBackgroundColor: const Color(0xFFFAFAF7),
     fontFamily: 'Manrope',
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFFFFF3E0),
+      primary: const Color(0xFFFFF3E0),
+      secondary: const Color(0xFFED764A),
+    ),
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 24,

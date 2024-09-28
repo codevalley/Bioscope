@@ -24,6 +24,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     });
   }
 
+  Future<void> _refreshDashboard() async {
+    await ref.read(dashboardProvider.notifier).refreshDashboard();
+  }
+
   @override
   Widget build(BuildContext context) {
     final dashboardState = ref.watch(dashboardProvider);
@@ -59,35 +63,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
           body: RefreshIndicator(
-            onRefresh: () async {
-              await ref.read(dashboardProvider.notifier).refreshDashboard();
-            },
-            child: dashboardState.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : CustomScrollView(
-                    slivers: [
-                      SliverPersistentHeader(
-                        delegate: DashboardHeaderDelegate(
-                          DashboardTopSection(
-                            greeting: dashboardState.greeting,
-                            name: dashboardState.userName,
-                            dailyGoals: dashboardState.dailyGoals,
-                          ),
-                        ),
-                        pinned: true,
-                      ),
-                      SliverToBoxAdapter(
-                        child: RecentHistory(
-                            recentMeals: dashboardState.recentMeals),
-                      ),
-                    ],
+            onRefresh: _refreshDashboard,
+            child: CustomScrollView(
+              slivers: [
+                SliverPersistentHeader(
+                  delegate: DashboardHeaderDelegate(
+                    DashboardTopSection(
+                      greeting: dashboardState.greeting,
+                      name: dashboardState.userName,
+                      dailyGoals: dashboardState.dailyGoals,
+                    ),
                   ),
+                  pinned: true,
+                ),
+                SliverToBoxAdapter(
+                  child: RecentHistory(
+                    recentMeals: dashboardState.recentMeals,
+                  ),
+                ),
+                if (dashboardState.isLoading)
+                  const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+              ],
+            ),
           ),
           bottomNavigationBar: DashboardBottomBar(
             onAddMealPressed: () => _navigateToAddFoodEntry(context, ref),
-            onHomePressed: () {
-              ref.read(dashboardProvider.notifier).refreshDashboard();
-            },
+            onHomePressed: _refreshDashboard,
             onEditGoalsPressed: () => _navigateToEditNutritionGoals(context),
           ),
         );

@@ -14,13 +14,8 @@ class DashboardTopSection extends StatelessWidget {
     required this.dailyGoals,
   }) : super(key: key);
 
-  String _getCalorieEmoji(double actual, double target) {
-    final ratio = actual / target;
-    if (ratio < 0.25) return '🥗';
-    if (ratio < 0.5) return '🍽️';
-    if (ratio < 0.75) return '🍔';
-    if (ratio < 1) return '🍕';
-    return '🍰';
+  Color _getProgressColor(double progress, BuildContext context) {
+    return progress > 1.0 ? Colors.red : const Color(0xFFED764A);
   }
 
   @override
@@ -28,6 +23,7 @@ class DashboardTopSection extends StatelessWidget {
     final caloriesGoal = dailyGoals['Calories'];
     final caloriesConsumed = caloriesGoal?.actual.toInt() ?? 0;
     final dailyCalorieGoal = caloriesGoal?.target.toInt() ?? 2000;
+    final calorieProgress = caloriesConsumed / dailyCalorieGoal;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -56,16 +52,23 @@ class DashboardTopSection extends StatelessWidget {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        children: dailyGoals.entries.map((entry) {
+                        children: dailyGoals.entries
+                            .where((entry) => entry.key != 'Calories')
+                            .map((entry) {
                           final goalItem = entry.value;
                           final progress = goalItem.actual / goalItem.target;
                           return Padding(
                             padding: const EdgeInsets.only(right: 16),
-                            child: NutritionIndicator(
-                              label: goalItem.name,
-                              value:
-                                  '${goalItem.actual.toInt()} / ${goalItem.target.toInt()} ${goalItem.unit}',
-                              progress: progress,
+                            child: SizedBox(
+                              height: 76,
+                              child: NutritionIndicator(
+                                label: goalItem.name,
+                                value:
+                                    '${goalItem.actual.toInt()} / ${goalItem.target.toInt()} ${goalItem.unit}',
+                                progress: progress,
+                                progressColor:
+                                    _getProgressColor(progress, context),
+                              ),
                             ),
                           );
                         }).toList(),
@@ -85,12 +88,19 @@ class DashboardTopSection extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        '${_getCalorieEmoji(caloriesConsumed.toDouble(), dailyCalorieGoal.toDouble())} Today: $caloriesConsumed / $dailyCalorieGoal kcal',
+                        'Today: $caloriesConsumed / $dailyCalorieGoal kcal',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                       ),
+                    ),
+                    LinearProgressIndicator(
+                      value: calorieProgress.clamp(0.0, 1.0),
+                      backgroundColor: Colors.grey[300],
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          _getProgressColor(calorieProgress, context)),
+                      minHeight: 2,
                     ),
                     Container(
                       height: 1,
