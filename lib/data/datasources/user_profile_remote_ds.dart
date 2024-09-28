@@ -61,4 +61,9 @@ class UserProfileRemoteDs implements DataSource<UserProfileModel> {
   void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
     // No implementation needed for mock
   }
+
+  @override
+  Future<void> recalculate(String id, DateTime date) async {
+    // No implementation needed for mock
+  }
 }

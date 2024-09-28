@@ -11,7 +11,7 @@ import '../../data/models/user_profile_model.dart';
 import '../../data/models/food_entry_model.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../config/supabase_config.dart';
-import '../../domain/services/IAuthService.dart';
+import '../../domain/services/auth_service.dart';
 import '../../data/services/supabase_auth_service.dart';
 import "../../data/datasources/food_entry_supabase_ds.dart";
 import "../../data/datasources/user_profile_supabase_ds.dart";
@@ -63,7 +63,10 @@ Future<void> setupDependencies() async {
         getIt<DataSource<UserProfileModel>>(), getIt<IAuthService>()),
   );
   getIt.registerLazySingleton<IFoodEntryRepository>(
-    () => FoodEntryRepositoryImpl(getIt<DataSource<FoodEntryModel>>()),
+    () => FoodEntryRepositoryImpl(
+      getIt<DataSource<FoodEntryModel>>(),
+      getIt<IDailyGoalsRepository>(),
+    ),
   );
 // Setup for DailyGoalLog
   getIt.registerLazySingleton<DataSource<DailyGoalsModel>>(

@@ -1,5 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../domain/services/IAuthService.dart';
+import '../../domain/services/auth_service.dart';
 
 class SupabaseAuthService implements IAuthService {
   final SupabaseClient _supabaseClient;
@@ -49,5 +49,13 @@ class SupabaseAuthService implements IAuthService {
   @override
   Future<void> signOut() async {
     await _supabaseClient.auth.signOut();
+  }
+
+  @override
+  void onAuthStateChange(Function(String?) listener) {
+    _supabaseClient.auth.onAuthStateChange.listen((data) {
+      final String? userId = data.session?.user.id;
+      listener(userId);
+    });
   }
 }

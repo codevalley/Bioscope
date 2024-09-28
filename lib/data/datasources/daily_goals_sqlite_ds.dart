@@ -94,4 +94,9 @@ class DailyGoalsSqliteDs implements DataSource<DailyGoalsModel> {
   void setupRealtimeListeners(Function(List<DailyGoalsModel>) onDataChanged) {
     // Implement if needed for SQLite
   }
+
+  @override
+  Future<void> recalculate(String id, DateTime date) async {
+    // Implement if needed for SQLite
+  }
 }

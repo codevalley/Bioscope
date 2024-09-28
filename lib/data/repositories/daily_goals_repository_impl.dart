@@ -17,9 +17,10 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
   @override
   Future<DailyGoals?> getDailyGoals(String userId, DateTime date) async {
     final allGoals = await _dataSource.getAll();
-    final dailyGoals = allGoals.where(
-            (goals) => goals.userId == userId && _isSameDate(goals.date, date)
-    ).toList();
+    final dailyGoals = allGoals
+        .where(
+            (goals) => goals.userId == userId && _isSameDate(goals.date, date))
+        .toList();
 
     if (dailyGoals.isEmpty) {
       return null;
@@ -27,11 +28,11 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
     return dailyGoals.first.toDomain();
   }
 
-
   @override
   Future<void> saveDailyGoals(DailyGoals dailyGoals) async {
     // Check if a record for this date already exists
-    final existingGoals = await getDailyGoals(dailyGoals.userId, dailyGoals.date);
+    final existingGoals =
+        await getDailyGoals(dailyGoals.userId, dailyGoals.date);
     if (existingGoals != null) {
       // If it exists, update it instead of creating a new one
       await updateDailyGoals(dailyGoals);
@@ -40,7 +41,8 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
       await _dataSource.create(DailyGoalsModel(
         id: dailyGoals.id,
         userId: dailyGoals.userId,
-        date: DateTime(dailyGoals.date.year, dailyGoals.date.month, dailyGoals.date.day),
+        date: DateTime(
+            dailyGoals.date.year, dailyGoals.date.month, dailyGoals.date.day),
         goals: dailyGoals.goals,
       ));
     }
@@ -51,7 +53,8 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
     await _dataSource.update(DailyGoalsModel(
       id: dailyGoals.id,
       userId: dailyGoals.userId,
-      date: DateTime(dailyGoals.date.year, dailyGoals.date.month, dailyGoals.date.day),
+      date: DateTime(
+          dailyGoals.date.year, dailyGoals.date.month, dailyGoals.date.day),
       goals: dailyGoals.goals,
     ));
   }
@@ -67,5 +70,10 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
             (endDate == null || goals.date.isBefore(endDate)))
         .map((model) => model.toDomain())
         .toList();
+  }
+
+  @override
+  Future<void> recalculateDailyGoals(String userId, DateTime date) async {
+    await _dataSource.recalculate(userId, date);
   }
 }

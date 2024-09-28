@@ -97,4 +97,28 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
           onDataChanged(updatedData);
         });
   }
+
+  @override
+  Future<void> recalculate(String id, DateTime date) async {
+    // Implement if needed for Supabase
+  }
+
+  Future<void> recalculateDailyGoals(String userId, DateTime date) async {
+    try {
+      final response = await _supabaseClient.functions.invoke(
+        'recalculate-daily-goals',
+        body: {
+          'userId': userId,
+          'date': date.toIso8601String().split('T')[0],
+        },
+      );
+
+      if (response.status != 200) {
+        throw Exception('Failed to recalculate daily goals: ${response.data}');
+      }
+    } catch (e) {
+      print('Error triggering daily goals recalculation: $e');
+      // Handle error (e.g., retry, log, notify user)
+    }
+  }
 }

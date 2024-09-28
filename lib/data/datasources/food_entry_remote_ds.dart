@@ -63,4 +63,9 @@ class FoodEntryRemoteDs implements DataSource<FoodEntryModel> {
   void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
     // No implementation needed for mock
   }
+
+  @override
+  Future<void> recalculate(String id, DateTime date) async {
+    // No implementation needed for mock
+  }
 }

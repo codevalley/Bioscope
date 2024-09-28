@@ -97,4 +97,9 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
   void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
     // TODO: implementation needed for SQLite
   }
+
+  @override
+  Future<void> recalculate(String id, DateTime date) async {
+    // TODO: implementation needed for SQLite
+  }
 }

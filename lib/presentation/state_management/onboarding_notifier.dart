@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import 'onboarding_state.dart';
-import '../../domain/services/IAuthService.dart';
+import '../../domain/services/auth_service.dart';
 import '../../domain/entities/goal_item.dart';
 
 class OnboardingNotifier extends StateNotifier<OnboardingState> {

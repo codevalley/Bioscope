@@ -2,7 +2,7 @@ import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import '../../core/interfaces/data_source.dart';
 import '../models/user_profile_model.dart';
-import '../../domain/services/IAuthService.dart';
+import '../../domain/services/auth_service.dart';
 import 'dart:async';
 
 class UserProfileRepositoryImpl implements IUserProfileRepository {
@@ -19,11 +19,21 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
     _dataSource.setupRealtimeListeners((updatedData) async {
       final userId = await _authService.getCurrentUserId();
       if (userId != null && updatedData.isNotEmpty) {
-        final userProfile =
-            updatedData.firstWhere((profile) => profile.id == userId);
+        final userProfile = updatedData.first;
         _userProfileController.add(userProfile.toDomain());
       } else {
         _userProfileController.add(null);
+      }
+    });
+    // Listen to auth state changes
+    _authService.onAuthStateChange((userId) {
+      if (userId == null) {
+        _userProfileController.add(null);
+      } else {
+        // Trigger a refresh of the user profile when a new user logs in
+        getUserProfile().then((profile) {
+          _userProfileController.add(profile);
+        });
       }
     });
   }
@@ -68,8 +78,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
 
   @override
   Future<bool> isOnboardingCompleted() async {
-    final profile = await getUserProfile();
-    return profile != null;
+    return await getUserProfile() != null;
   }
 
   void dispose() {

@@ -141,16 +141,29 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
 
   @override
   void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
+    final currentUser = _supabaseClient.auth.currentUser;
+    if (currentUser == null) {
+      print('No user logged in. Skipping real-time listener setup.');
+      onDataChanged([]); // Notify with an empty list when no user is logged in
+      return;
+    }
+
     _supabaseClient
         .from(_tableName)
         .stream(primaryKey: ['id'])
-        .eq('id', _currentUserId)
+        .eq('id', currentUser.id) // Only listen to the current user's profile
         .listen((event) {
           final updatedData =
               event.map((item) => UserProfileModel.fromJson(item)).toList();
           onDataChanged(updatedData);
         }, onError: (error) {
           print('Error in realtime listener: $error');
+          onDataChanged([]); // Notify with an empty list in case of error
         });
+  }
+
+  @override
+  Future<void> recalculate(String id, DateTime date) async {
+    // TODO: implementation needed for Supabase
   }
 }

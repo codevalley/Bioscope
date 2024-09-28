@@ -5,7 +5,7 @@ import '../state_management/user_profile_notifier.dart';
 import '../state_management/onboarding_notifier.dart';
 import '../../domain/repositories/food_entry_repository.dart';
 import '../../domain/repositories/user_profile_repository.dart';
-import '../../domain/services/IAuthService.dart';
+import '../../domain/services/auth_service.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../application/di/dependency_injection.dart';
 import '../state_management/onboarding_state.dart';

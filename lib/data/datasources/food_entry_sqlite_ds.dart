@@ -141,4 +141,9 @@ class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
   void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
     // TODO: implementation needed for SQLite
   }
+
+  @override
+  Future<void> recalculate(String id, DateTime date) async {
+    // TODO: implementation needed for SQLite
+  }
 }

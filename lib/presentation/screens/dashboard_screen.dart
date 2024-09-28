@@ -6,6 +6,7 @@ import '../widgets/recent_history.dart';
 import '../widgets/dashboard_bottom_bar.dart';
 import 'add_food_entry_screen.dart';
 import 'edit_user_goals_screen.dart';
+import 'welcome_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -28,26 +29,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final dashboardState = ref.watch(dashboardProvider);
     final userProfileState = ref.watch(userProfileProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('BIOSCOPE'),
-        centerTitle: true,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.black, width: 1),
-            borderRadius: BorderRadius.circular(3),
+    return userProfileState.when(
+      data: (userProfile) {
+        if (userProfile == null) {
+          // If user profile is null, navigate to OnboardingScreen
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+            );
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // If user profile exists, show the dashboard
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('BIOSCOPE'),
+            centerTitle: true,
+            leading: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.black, width: 1),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Image.network("https://via.placeholder.com/30x30"),
+            ),
           ),
-          child: Image.network("https://via.placeholder.com/30x30"),
-        ),
-      ),
-      body: userProfileState.when(
-        data: (userProfile) {
-          if (userProfile == null) {
-            return const Center(child: Text('😕 User profile not found'));
-          }
-          return RefreshIndicator(
+          body: RefreshIndicator(
             onRefresh: () async {
               await ref.read(dashboardProvider.notifier).refreshDashboard();
             },
@@ -73,17 +84,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ],
                   ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('😢 Error: $error')),
+          ),
+          bottomNavigationBar: DashboardBottomBar(
+            onAddMealPressed: () => _navigateToAddFoodEntry(context, ref),
+            onHomePressed: () {
+              ref.read(dashboardProvider.notifier).refreshDashboard();
+            },
+            onEditGoalsPressed: () => _navigateToEditNutritionGoals(context),
+          ),
+        );
+      },
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       ),
-      bottomNavigationBar: DashboardBottomBar(
-        onAddMealPressed: () => _navigateToAddFoodEntry(context, ref),
-        onHomePressed: () {
-          ref.read(dashboardProvider.notifier).refreshDashboard();
-        },
-        onEditGoalsPressed: () => _navigateToEditNutritionGoals(context),
+      error: (error, stack) => Scaffold(
+        body: Center(child: Text('😢 Error: $error')),
       ),
     );
   }

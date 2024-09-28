@@ -3,13 +3,16 @@ import '../../domain/repositories/food_entry_repository.dart';
 import '../../core/interfaces/data_source.dart';
 import '../models/food_entry_model.dart';
 import 'dart:async';
+import 'package:bioscope/domain/repositories/daily_goals_repository.dart';
 
 class FoodEntryRepositoryImpl implements IFoodEntryRepository {
   final DataSource<FoodEntryModel> _dataSource;
   final StreamController<List<FoodEntry>> _foodEntriesController =
       StreamController<List<FoodEntry>>.broadcast();
 
-  FoodEntryRepositoryImpl(this._dataSource) {
+  final IDailyGoalsRepository _dailyGoalsRepository;
+
+  FoodEntryRepositoryImpl(this._dataSource, this._dailyGoalsRepository) {
     _setupRealtimeListeners();
   }
 
@@ -48,6 +51,9 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
       date: entry.date,
       imagePath: entry.imagePath,
     ));
+
+    // replace entry.id with user's id
+    // await _dailyGoalsRepository.recalculateDailyGoals(entry.id, entry.date);
   }
 
   @override
