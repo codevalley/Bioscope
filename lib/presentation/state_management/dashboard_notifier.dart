@@ -55,7 +55,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         if (dailyGoals != null) {
           state = state.copyWith(
             dailyGoals: Map.from(dailyGoals.goals),
-            caloriesConsumed: dailyGoals.goals['calories']?.actual.toInt() ?? 0,
+            isLoading: false,
           );
         }
       },
@@ -75,20 +75,14 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       isLoading: false,
       greeting: _getGreeting(),
       userName: userProfile.name,
-      dailyCalorieGoal:
-          userProfile.nutritionGoals['Calories']?.target.toInt() ?? 2000,
       nutritionGoals: userProfile.nutritionGoals,
     );
   }
 
   void _updateDashboardWithFoodEntries(List<FoodEntry> foodEntries) {
     final recentMeals = foodEntries.take(5).toList();
-    final caloriesConsumed = foodEntries.fold<int>(
-        0, (sum, entry) => sum + entry.nutritionInfo.calories);
-
     state = state.copyWith(
       recentMeals: recentMeals,
-      caloriesConsumed: caloriesConsumed,
     );
   }
 
@@ -154,9 +148,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   void _updateDashboardWithDailyGoals(DailyGoals dailyGoals) {
     state = state.copyWith(
-      dailyGoals: Map.from(dailyGoals
-          .goals), // Create a new map to ensure state change is detected
-      caloriesConsumed: dailyGoals.goals['Calories']?.actual.toInt() ?? 0,
+      dailyGoals: Map.from(dailyGoals.goals),
       isLoading: false,
     );
   }

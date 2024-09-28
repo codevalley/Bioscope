@@ -19,8 +19,6 @@ mixin _$DashboardState {
   bool get isLoading => throw _privateConstructorUsedError;
   String get greeting => throw _privateConstructorUsedError;
   String get userName => throw _privateConstructorUsedError;
-  int get caloriesConsumed => throw _privateConstructorUsedError;
-  int get dailyCalorieGoal => throw _privateConstructorUsedError;
   Map<String, GoalItem> get nutritionGoals =>
       throw _privateConstructorUsedError;
   Map<String, GoalItem> get dailyGoals => throw _privateConstructorUsedError;
@@ -43,8 +41,6 @@ abstract class $DashboardStateCopyWith<$Res> {
       {bool isLoading,
       String greeting,
       String userName,
-      int caloriesConsumed,
-      int dailyCalorieGoal,
       Map<String, GoalItem> nutritionGoals,
       Map<String, GoalItem> dailyGoals,
       List<FoodEntry> recentMeals});
@@ -68,8 +64,6 @@ class _$DashboardStateCopyWithImpl<$Res, $Val extends DashboardState>
     Object? isLoading = null,
     Object? greeting = null,
     Object? userName = null,
-    Object? caloriesConsumed = null,
-    Object? dailyCalorieGoal = null,
     Object? nutritionGoals = null,
     Object? dailyGoals = null,
     Object? recentMeals = null,
@@ -87,14 +81,6 @@ class _$DashboardStateCopyWithImpl<$Res, $Val extends DashboardState>
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
               as String,
-      caloriesConsumed: null == caloriesConsumed
-          ? _value.caloriesConsumed
-          : caloriesConsumed // ignore: cast_nullable_to_non_nullable
-              as int,
-      dailyCalorieGoal: null == dailyCalorieGoal
-          ? _value.dailyCalorieGoal
-          : dailyCalorieGoal // ignore: cast_nullable_to_non_nullable
-              as int,
       nutritionGoals: null == nutritionGoals
           ? _value.nutritionGoals
           : nutritionGoals // ignore: cast_nullable_to_non_nullable
@@ -123,8 +109,6 @@ abstract class _$$DashboardStateImplCopyWith<$Res>
       {bool isLoading,
       String greeting,
       String userName,
-      int caloriesConsumed,
-      int dailyCalorieGoal,
       Map<String, GoalItem> nutritionGoals,
       Map<String, GoalItem> dailyGoals,
       List<FoodEntry> recentMeals});
@@ -146,8 +130,6 @@ class __$$DashboardStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? greeting = null,
     Object? userName = null,
-    Object? caloriesConsumed = null,
-    Object? dailyCalorieGoal = null,
     Object? nutritionGoals = null,
     Object? dailyGoals = null,
     Object? recentMeals = null,
@@ -165,14 +147,6 @@ class __$$DashboardStateImplCopyWithImpl<$Res>
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
               as String,
-      caloriesConsumed: null == caloriesConsumed
-          ? _value.caloriesConsumed
-          : caloriesConsumed // ignore: cast_nullable_to_non_nullable
-              as int,
-      dailyCalorieGoal: null == dailyCalorieGoal
-          ? _value.dailyCalorieGoal
-          : dailyCalorieGoal // ignore: cast_nullable_to_non_nullable
-              as int,
       nutritionGoals: null == nutritionGoals
           ? _value._nutritionGoals
           : nutritionGoals // ignore: cast_nullable_to_non_nullable
@@ -196,8 +170,6 @@ class _$DashboardStateImpl implements _DashboardState {
       {required this.isLoading,
       required this.greeting,
       required this.userName,
-      required this.caloriesConsumed,
-      required this.dailyCalorieGoal,
       required final Map<String, GoalItem> nutritionGoals,
       required final Map<String, GoalItem> dailyGoals,
       required final List<FoodEntry> recentMeals})
@@ -211,10 +183,6 @@ class _$DashboardStateImpl implements _DashboardState {
   final String greeting;
   @override
   final String userName;
-  @override
-  final int caloriesConsumed;
-  @override
-  final int dailyCalorieGoal;
   final Map<String, GoalItem> _nutritionGoals;
   @override
   Map<String, GoalItem> get nutritionGoals {
@@ -241,7 +209,7 @@ class _$DashboardStateImpl implements _DashboardState {
 
   @override
   String toString() {
-    return 'DashboardState(isLoading: $isLoading, greeting: $greeting, userName: $userName, caloriesConsumed: $caloriesConsumed, dailyCalorieGoal: $dailyCalorieGoal, nutritionGoals: $nutritionGoals, dailyGoals: $dailyGoals, recentMeals: $recentMeals)';
+    return 'DashboardState(isLoading: $isLoading, greeting: $greeting, userName: $userName, nutritionGoals: $nutritionGoals, dailyGoals: $dailyGoals, recentMeals: $recentMeals)';
   }
 
   @override
@@ -255,10 +223,6 @@ class _$DashboardStateImpl implements _DashboardState {
                 other.greeting == greeting) &&
             (identical(other.userName, userName) ||
                 other.userName == userName) &&
-            (identical(other.caloriesConsumed, caloriesConsumed) ||
-                other.caloriesConsumed == caloriesConsumed) &&
-            (identical(other.dailyCalorieGoal, dailyCalorieGoal) ||
-                other.dailyCalorieGoal == dailyCalorieGoal) &&
             const DeepCollectionEquality()
                 .equals(other._nutritionGoals, _nutritionGoals) &&
             const DeepCollectionEquality()
@@ -273,8 +237,6 @@ class _$DashboardStateImpl implements _DashboardState {
       isLoading,
       greeting,
       userName,
-      caloriesConsumed,
-      dailyCalorieGoal,
       const DeepCollectionEquality().hash(_nutritionGoals),
       const DeepCollectionEquality().hash(_dailyGoals),
       const DeepCollectionEquality().hash(_recentMeals));
@@ -294,8 +256,6 @@ abstract class _DashboardState implements DashboardState {
       {required final bool isLoading,
       required final String greeting,
       required final String userName,
-      required final int caloriesConsumed,
-      required final int dailyCalorieGoal,
       required final Map<String, GoalItem> nutritionGoals,
       required final Map<String, GoalItem> dailyGoals,
       required final List<FoodEntry> recentMeals}) = _$DashboardStateImpl;
@@ -306,10 +266,6 @@ abstract class _DashboardState implements DashboardState {
   String get greeting;
   @override
   String get userName;
-  @override
-  int get caloriesConsumed;
-  @override
-  int get dailyCalorieGoal;
   @override
   Map<String, GoalItem> get nutritionGoals;
   @override
