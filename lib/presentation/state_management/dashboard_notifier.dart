@@ -15,7 +15,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   final IDailyGoalsRepository _dailyGoalsRepository;
   StreamSubscription? _userProfileSubscription;
   StreamSubscription? _foodEntriesSubscription;
-  StreamSubscription? _dailyGoalsSubscription;
+  //StreamSubscription? _dailyGoalsSubscription;
 
   DashboardNotifier(this._foodEntryRepository, this._userProfileRepository,
       this._dailyGoalsRepository)
@@ -88,14 +88,15 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       state = state.copyWith(isLoading: true);
       final userProfile = await _userProfileRepository.getUserProfile();
       final foodEntries = await _foodEntryRepository.getAllFoodEntries();
-      final today = DateTime.now().toLocal();
+      final today = DateTime.now();
+      final dateOnly = DateTime(today.year, today.month, today.day);
 
       if (userProfile != null) {
         _updateDashboardWithUserProfile(userProfile);
         _updateDashboardWithFoodEntries(foodEntries);
         var dailyGoals =
-            await _dailyGoalsRepository.getDailyGoals(userProfile.id, today);
-        dailyGoals ??= await _createDefaultDailyGoals(userProfile);
+            await _dailyGoalsRepository.getDailyGoals(userProfile.id, dateOnly);
+        dailyGoals ??= await _createDefaultDailyGoals(userProfile,dateOnly);
         _updateDashboardWithDailyGoals(dailyGoals);
       }
     } catch (e, stackTrace) {
@@ -107,8 +108,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     }
   }
 
-  Future<DailyGoals> _createDefaultDailyGoals(UserProfile userProfile) async {
-    final today = DateTime.now();
+  Future<DailyGoals> _createDefaultDailyGoals(UserProfile userProfile, DateTime dateOnly) async {
     final defaultGoals = userProfile.nutritionGoals.map(
       (key, value) => MapEntry(
           key,
@@ -119,13 +119,13 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
             actual: 0,
             isPublic: value.isPublic,
             unit: value.unit,
-            timestamp: today,
+            timestamp: dateOnly,
           )),
     );
 
     final defaultDailyGoals = DailyGoals(
       userId: userProfile.id,
-      date: today,
+      date: dateOnly,
       goals: defaultGoals,
     );
 
@@ -136,6 +136,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   void _updateDashboardWithDailyGoals(DailyGoals dailyGoals) {
     state = state.copyWith(
       dailyGoals: dailyGoals.goals,
+      caloriesConsumed: dailyGoals.goals['Calories']?.actual.toInt() ?? 0,
       isLoading: false,
     );
   }
@@ -150,11 +151,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     final userProfile = await _userProfileRepository.getUserProfile();
     if (userProfile == null) return;
 
-    final today = DateTime.now();
+    final dateOnly = DateTime(entry.date.year, entry.date.month, entry.date.day);
     var dailyGoals =
-        await _dailyGoalsRepository.getDailyGoals(userProfile.id, today);
+        await _dailyGoalsRepository.getDailyGoals(userProfile.id, dateOnly);
 
-    dailyGoals ??= await _createDefaultDailyGoals(userProfile);
+    dailyGoals ??= await _createDefaultDailyGoals(userProfile, dateOnly);
 
     // Update actual values based on the new food entry
     for (var component in entry.nutritionInfo.nutrition) {
@@ -167,6 +168,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     }
 
     await _dailyGoalsRepository.updateDailyGoals(dailyGoals);
+    _updateDashboardWithDailyGoals(dailyGoals);
   }
 
   @override

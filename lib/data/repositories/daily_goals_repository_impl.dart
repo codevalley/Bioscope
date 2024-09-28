@@ -8,29 +8,42 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
 
   DailyGoalsRepositoryImpl(this._dataSource);
 
+  bool _isSameDate(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
   @override
   Future<DailyGoals?> getDailyGoals(String userId, DateTime date) async {
     final allGoals = await _dataSource.getAll();
     final dailyGoals = allGoals.where(
-            (goals) => goals.userId == userId && goals.date.isAtSameMomentAs(date)
+            (goals) => goals.userId == userId && _isSameDate(goals.date, date)
     ).toList();
 
     if (dailyGoals.isEmpty) {
       return null;
     }
-
     return dailyGoals.first.toDomain();
   }
 
 
   @override
   Future<void> saveDailyGoals(DailyGoals dailyGoals) async {
-    await _dataSource.create(DailyGoalsModel(
-      id: dailyGoals.id,
-      userId: dailyGoals.userId,
-      date: dailyGoals.date,
-      goals: dailyGoals.goals,
-    ));
+    // Check if a record for this date already exists
+    final existingGoals = await getDailyGoals(dailyGoals.userId, dailyGoals.date);
+    if (existingGoals != null) {
+      // If it exists, update it instead of creating a new one
+      await updateDailyGoals(dailyGoals);
+    } else {
+      // If it doesn't exist, create a new one
+      await _dataSource.create(DailyGoalsModel(
+        id: dailyGoals.id,
+        userId: dailyGoals.userId,
+        date: DateTime(dailyGoals.date.year, dailyGoals.date.month, dailyGoals.date.day),
+        goals: dailyGoals.goals,
+      ));
+    }
   }
 
   @override
@@ -38,7 +51,7 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
     await _dataSource.update(DailyGoalsModel(
       id: dailyGoals.id,
       userId: dailyGoals.userId,
-      date: dailyGoals.date,
+      date: DateTime(dailyGoals.date.year, dailyGoals.date.month, dailyGoals.date.day),
       goals: dailyGoals.goals,
     ));
   }

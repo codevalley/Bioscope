@@ -7,7 +7,7 @@ class DashboardTopSection extends StatelessWidget {
   final String name;
   final int caloriesConsumed;
   final int dailyCalorieGoal;
-  final Map<String, GoalItem> nutritionGoals;
+  final Map<String, GoalItem> dailyGoals;
 
   const DashboardTopSection({
     Key? key,
@@ -15,7 +15,7 @@ class DashboardTopSection extends StatelessWidget {
     required this.name,
     required this.caloriesConsumed,
     required this.dailyCalorieGoal,
-    required this.nutritionGoals,
+    required this.dailyGoals,
   }) : super(key: key);
 
   String _getCalorieEmoji(int caloriesConsumed, int dailyCalorieGoal) {
@@ -56,7 +56,7 @@ class DashboardTopSection extends StatelessWidget {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        children: nutritionGoals.entries.map((entry) {
+                        children: dailyGoals.entries.map((entry) {
                           final goalItem = entry.value;
                           final progress = goalItem.actual / goalItem.target;
                           return Padding(
