@@ -1,6 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bioscope/data/services/nutrition_service.dart';
 import 'package:bioscope/domain/entities/nutrition_info.dart';
+import 'package:bioscope/domain/repositories/food_entry_repository.dart';
+import 'package:bioscope/domain/repositories/daily_goals_repository.dart';
+import 'package:bioscope/domain/repositories/user_profile_repository.dart';
+import 'package:bioscope/domain/entities/food_entry.dart';
+import 'package:bioscope/domain/entities/daily_goals.dart';
 
 // Events
 abstract class FoodCaptureEvent {}
@@ -30,8 +35,16 @@ class FoodCaptureFailure extends FoodCaptureState {
 
 class FoodCaptureBloc extends Bloc<FoodCaptureEvent, FoodCaptureState> {
   final NutritionService _nutritionService;
+  final IFoodEntryRepository _foodEntryRepository;
+  final IDailyGoalsRepository _dailyGoalsRepository;
+  final IUserProfileRepository _userProfileRepository;
 
-  FoodCaptureBloc(this._nutritionService) : super(FoodCaptureInitial()) {
+  FoodCaptureBloc(
+    this._nutritionService,
+    this._foodEntryRepository,
+    this._dailyGoalsRepository,
+    this._userProfileRepository,
+  ) : super(FoodCaptureInitial()) {
     on<AnalyzeImage>(_onAnalyzeImage);
   }
 
@@ -45,5 +58,45 @@ class FoodCaptureBloc extends Bloc<FoodCaptureEvent, FoodCaptureState> {
     } catch (e) {
       emit(FoodCaptureFailure(e.toString()));
     }
+  }
+
+  Future<void> addFoodEntryAndUpdateGoals(FoodEntry entry) async {
+    await _foodEntryRepository.addFoodEntry(entry);
+    await _updateDailyGoals(entry);
+  }
+
+  Future<void> _updateDailyGoals(FoodEntry entry) async {
+    final userProfile = await _userProfileRepository.getUserProfile();
+    if (userProfile == null) return;
+
+    final dateOnly =
+        DateTime(entry.date.year, entry.date.month, entry.date.day);
+    var dailyGoals =
+        await _dailyGoalsRepository.getDailyGoals(userProfile.id, dateOnly);
+
+    dailyGoals ??= DailyGoals(
+      userId: userProfile.id,
+      date: dateOnly,
+      goals: Map.fromEntries(
+        userProfile.nutritionGoals.entries.map(
+          (e) => MapEntry(
+            e.key,
+            e.value.copyWith(actual: 0),
+          ),
+        ),
+      ),
+    );
+
+    // Update actual values based on the new food entry
+    for (var component in entry.nutritionInfo.nutrition) {
+      if (dailyGoals.goals.containsKey(component.component)) {
+        var goal = dailyGoals.goals[component.component]!;
+        dailyGoals.goals[component.component] = goal.copyWith(
+          actual: goal.actual + component.value,
+        );
+      }
+    }
+
+    await _dailyGoalsRepository.saveDailyGoals(dailyGoals);
   }
 }

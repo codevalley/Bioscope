@@ -96,7 +96,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         _updateDashboardWithFoodEntries(foodEntries);
         var dailyGoals =
             await _dailyGoalsRepository.getDailyGoals(userProfile.id, dateOnly);
-        dailyGoals ??= await _createDefaultDailyGoals(userProfile,dateOnly);
+        dailyGoals ??= await _createDefaultDailyGoals(userProfile, dateOnly);
         _updateDashboardWithDailyGoals(dailyGoals);
       }
     } catch (e, stackTrace) {
@@ -108,7 +108,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     }
   }
 
-  Future<DailyGoals> _createDefaultDailyGoals(UserProfile userProfile, DateTime dateOnly) async {
+  Future<DailyGoals> _createDefaultDailyGoals(
+      UserProfile userProfile, DateTime dateOnly) async {
     final defaultGoals = userProfile.nutritionGoals.map(
       (key, value) => MapEntry(
           key,
@@ -143,7 +144,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> addFoodEntry(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);
-    await _updateDailyGoals(entry);
+    // await _updateDailyGoals(entry);
     await refreshDashboard();
   }
 
@@ -151,7 +152,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     final userProfile = await _userProfileRepository.getUserProfile();
     if (userProfile == null) return;
 
-    final dateOnly = DateTime(entry.date.year, entry.date.month, entry.date.day);
+    final dateOnly =
+        DateTime(entry.date.year, entry.date.month, entry.date.day);
     var dailyGoals =
         await _dailyGoalsRepository.getDailyGoals(userProfile.id, dateOnly);
 

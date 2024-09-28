@@ -33,7 +33,7 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
   Future<DailyGoalsModel?> getById(String id) async {
     final response =
         await _supabaseClient.from(_tableName).select().eq('id', id).single();
-    return response != null ? DailyGoalsModel.fromJson(response) : null;
+    return response.isNotEmpty ? DailyGoalsModel.fromJson(response) : null;
   }
 
   Future<DailyGoalsModel?> getByUserAndDate(

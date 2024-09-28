@@ -7,6 +7,8 @@ import 'package:bioscope/domain/entities/food_entry.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:bioscope/domain/repositories/food_entry_repository.dart';
 import 'package:bioscope/application/di/dependency_injection.dart';
+import 'package:bioscope/domain/repositories/daily_goals_repository.dart';
+import 'package:bioscope/domain/repositories/user_profile_repository.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
 import '../widgets/nutrition_info.dart';
@@ -17,7 +19,12 @@ class AddFoodEntryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FoodCaptureBloc(NutritionService()),
+      create: (context) => FoodCaptureBloc(
+        NutritionService(),
+        getIt<IFoodEntryRepository>(),
+        getIt<IDailyGoalsRepository>(),
+        getIt<IUserProfileRepository>(),
+      ),
       child: const AddFoodEntryView(),
     );
   }
@@ -279,12 +286,13 @@ class AddFoodEntryViewState extends State<AddFoodEntryView> {
     );
 
     try {
-      final IFoodEntryRepository repository = getIt<IFoodEntryRepository>();
-      await repository.addFoodEntry(foodEntry);
+      final foodCaptureBloc = context.read<FoodCaptureBloc>();
+      await foodCaptureBloc.addFoodEntryAndUpdateGoals(foodEntry);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Food entry saved successfully'),
+            content: Text('Food entry saved and goals updated successfully'),
             backgroundColor: Colors.green,
           ),
         );
