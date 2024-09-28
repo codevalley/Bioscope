@@ -2,6 +2,7 @@ import '../../domain/repositories/daily_goals_repository.dart';
 import '../../domain/entities/daily_goals.dart';
 import '../../core/interfaces/data_source.dart';
 import '../models/daily_goals_model.dart';
+import 'package:collection/collection.dart'; // Add this import
 
 class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
   final DataSource<DailyGoalsModel> _dataSource;
@@ -21,10 +22,10 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
     if (allGoals.isEmpty) {
       return null; // Return null if no goals are found
     }
-    final goalForDate = allGoals.firstWhere(
+    final goalForDate = allGoals.firstWhereOrNull(
       (goal) => _isSameDate(goal.date, date),
     );
-    return goalForDate.toDomain();
+    return goalForDate?.toDomain();
   }
 
   @override

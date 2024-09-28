@@ -128,8 +128,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
           GoalItem(
             name: value.name,
             description: value.description,
-            target: value.target,
-            actual: 0,
+            target: value.target.toDouble(), // Ensure this is a double
+            actual: 0.0, // Use 0.0 instead of 0
             isPublic: value.isPublic,
             unit: value.unit,
             timestamp: dateOnly,

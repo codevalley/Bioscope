@@ -20,8 +20,8 @@ class DailyGoalsModel extends DailyGoals {
           GoalItem(
             name: value['name'],
             description: value['description'],
-            target: value['target'],
-            actual: value['actual'],
+            target: (value['target'] as num).toDouble(), // Convert to double
+            actual: (value['actual'] as num).toDouble(), // Convert to double
             isPublic: value['isPublic'],
             unit: value['unit'],
             timestamp: DateTime.parse(value['timestamp']),
