@@ -73,6 +73,16 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
   }
 
   @override
+  Stream<DailyGoals?> watchDailyGoals(String userId, DateTime date) {
+    return _dataSource.watchAll().map((dailyGoals) {
+      final targetDailyGoal = dailyGoals.firstWhere(
+        (dg) => dg.userId == userId && _isSameDate(dg.date, date),
+      );
+      return targetDailyGoal.toDomain();
+    });
+  }
+
+  @override
   Future<void> recalculateDailyGoals(String userId, DateTime date) async {
     await _dataSource.recalculate(userId, date);
   }

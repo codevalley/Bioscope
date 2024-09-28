@@ -10,6 +10,7 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
   final StreamController<List<FoodEntry>> _foodEntriesController =
       StreamController<List<FoodEntry>>.broadcast();
 
+  // don't remove, to be used for recalculating daily goals (future)
   final IDailyGoalsRepository _dailyGoalsRepository;
 
   FoodEntryRepositoryImpl(this._dataSource, this._dailyGoalsRepository) {

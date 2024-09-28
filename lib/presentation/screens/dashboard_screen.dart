@@ -71,8 +71,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           DashboardTopSection(
                             greeting: dashboardState.greeting,
                             name: dashboardState.userName,
-                            caloriesConsumed: dashboardState.caloriesConsumed,
-                            dailyCalorieGoal: dashboardState.dailyCalorieGoal,
                             dailyGoals: dashboardState.dailyGoals,
                           ),
                         ),

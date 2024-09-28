@@ -121,13 +121,17 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             final userProfile = UserProfile(
               id: userId,
               name: name,
-              age: 0, // Default value, can be updated later
-              height: 0, // Default value, can be updated later
-              weight: 0, // Default value, can be updated later
-              gender: '', // Default value, can be updated later
+              age: 0,
+              height: 0,
+              weight: 0,
+              gender: '',
               nutritionGoals: nutritionGoals,
             );
             await _userProfileRepository.saveUserProfile(userProfile);
+
+            // Force refresh the user profile
+            await _userProfileRepository.getUserProfile();
+
             state = const OnboardingState.complete();
           } catch (e) {
             print('Error completing onboarding: $e');
@@ -150,25 +154,25 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       'Carbs': GoalItem(
         name: 'Carbs',
         description: 'Daily carbohydrate intake',
-        target: goals['Carbs'] ?? 0.5,
+        target: goals['Carbs'] ?? 250,
         unit: 'g',
       ),
       'Proteins': GoalItem(
         name: 'Proteins',
         description: 'Daily protein intake',
-        target: goals['Proteins'] ?? 0.5,
+        target: goals['Proteins'] ?? 50,
         unit: 'g',
       ),
       'Fats': GoalItem(
         name: 'Fats',
         description: 'Daily fat intake',
-        target: goals['Fats'] ?? 0.5,
+        target: goals['Fats'] ?? 70,
         unit: 'g',
       ),
       'Fiber': GoalItem(
         name: 'Fiber',
         description: 'Daily fiber intake',
-        target: goals['Fiber'] ?? 0.5,
+        target: goals['Fiber'] ?? 25,
         unit: 'g',
       ),
     };

@@ -110,21 +110,26 @@ class OnboardingScreen extends ConsumerWidget {
 
   Widget _buildGoalSlider(BuildContext context, OnboardingNotifier notifier,
       String goalType, double value) {
-    String displayValue;
+    double maxValue;
+    double step;
     switch (goalType) {
       case 'Calories':
-        displayValue = '${(value * 2000).round()} kcal';
+        maxValue = 4000;
+        step = 50;
         break;
       case 'Carbs':
       case 'Proteins':
       case 'Fats':
-        displayValue = '${(value * 100).round()}g';
+        maxValue = 300;
+        step = 5;
         break;
       case 'Fiber':
-        displayValue = '${(value * 50).round()}g';
+        maxValue = 50;
+        step = 1;
         break;
       default:
-        displayValue = '${(value * 100).round()}%';
+        maxValue = 100;
+        step = 1;
     }
 
     return Column(
@@ -136,12 +141,16 @@ class OnboardingScreen extends ConsumerWidget {
             Expanded(
               child: Slider(
                 value: value,
+                min: 0,
+                max: maxValue,
+                divisions: (maxValue / step).round(),
+                label: value.round().toString(),
                 onChanged: (newValue) {
                   notifier.setGoal(goalType, newValue);
                 },
               ),
             ),
-            Text(displayValue),
+            Text('${value.round()} ${goalType == 'Calories' ? 'kcal' : 'g'}'),
           ],
         ),
       ],

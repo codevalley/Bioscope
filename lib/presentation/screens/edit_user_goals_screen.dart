@@ -68,6 +68,28 @@ class _EditNutritionGoalsScreenState
   }
 
   Widget _buildGoalSlider(BuildContext context, GoalItem goalItem) {
+    double maxValue;
+    double step;
+    switch (goalItem.name) {
+      case 'Calories':
+        maxValue = 4000;
+        step = 50;
+        break;
+      case 'Carbs':
+      case 'Proteins':
+      case 'Fats':
+        maxValue = 300;
+        step = 5;
+        break;
+      case 'Fiber':
+        maxValue = 50;
+        step = 1;
+        break;
+      default:
+        maxValue = 100;
+        step = 1;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -78,33 +100,20 @@ class _EditNutritionGoalsScreenState
               child: Slider(
                 value: goalItem.target,
                 min: 0,
-                max: _getMaxValueForGoal(goalItem.name),
+                max: maxValue,
+                divisions: (maxValue / step).round(),
+                label: goalItem.target.round().toString(),
                 onChanged: (newValue) {
                   _updateLocalGoal(
                       goalItem.name, goalItem.copyWith(target: newValue));
                 },
               ),
             ),
-            Text('${goalItem.target.toInt()} ${goalItem.unit}'),
+            Text('${goalItem.target.round()} ${goalItem.unit}'),
           ],
         ),
       ],
     );
-  }
-
-  double _getMaxValueForGoal(String goalName) {
-    switch (goalName) {
-      case 'Calories':
-        return 5000;
-      case 'Carbs':
-      case 'Proteins':
-      case 'Fats':
-        return 300;
-      case 'Fiber':
-        return 100;
-      default:
-        return 100;
-    }
   }
 
   void _saveGoals(BuildContext context) {

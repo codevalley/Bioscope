@@ -5,21 +5,17 @@ import '../../domain/entities/goal_item.dart';
 class DashboardTopSection extends StatelessWidget {
   final String greeting;
   final String name;
-  final int caloriesConsumed;
-  final int dailyCalorieGoal;
   final Map<String, GoalItem> dailyGoals;
 
   const DashboardTopSection({
     Key? key,
     required this.greeting,
     required this.name,
-    required this.caloriesConsumed,
-    required this.dailyCalorieGoal,
     required this.dailyGoals,
   }) : super(key: key);
 
-  String _getCalorieEmoji(int caloriesConsumed, int dailyCalorieGoal) {
-    final ratio = caloriesConsumed / dailyCalorieGoal;
+  String _getCalorieEmoji(double actual, double target) {
+    final ratio = actual / target;
     if (ratio < 0.25) return '🥗';
     if (ratio < 0.5) return '🍽️';
     if (ratio < 0.75) return '🍔';
@@ -29,6 +25,10 @@ class DashboardTopSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final caloriesGoal = dailyGoals['Calories'];
+    final caloriesConsumed = caloriesGoal?.actual.toInt() ?? 0;
+    final dailyCalorieGoal = caloriesGoal?.target.toInt() ?? 2000;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final double expandRatio = (constraints.maxHeight - 70) / (200 - 70);
@@ -85,7 +85,7 @@ class DashboardTopSection extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        '${_getCalorieEmoji(caloriesConsumed, dailyCalorieGoal)} Today: $caloriesConsumed / $dailyCalorieGoal kcal',
+                        '${_getCalorieEmoji(caloriesConsumed.toDouble(), dailyCalorieGoal.toDouble())} Today: $caloriesConsumed / $dailyCalorieGoal kcal',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,

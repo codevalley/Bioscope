@@ -77,21 +77,24 @@ class FoodCaptureBloc extends Bloc<FoodCaptureEvent, FoodCaptureState> {
     dailyGoals ??= DailyGoals(
       userId: userProfile.id,
       date: dateOnly,
-      goals: Map.fromEntries(
-        userProfile.nutritionGoals.entries.map(
-          (e) => MapEntry(
-            e.key,
-            e.value.copyWith(actual: 0),
-          ),
-        ),
-      ),
+      goals: Map.from(userProfile.nutritionGoals),
     );
+
+    // Define a mapping between nutrition info keys and daily goals keys
+    final nutritionToGoalMapping = {
+      'Calories': 'Calories',
+      'Total Fat': 'Fats',
+      'Total Carbohydrates': 'Carbs',
+      'Dietary Fiber': 'Fiber',
+      'Protein': 'Proteins',
+    };
 
     // Update actual values based on the new food entry
     for (var component in entry.nutritionInfo.nutrition) {
-      if (dailyGoals.goals.containsKey(component.component)) {
-        var goal = dailyGoals.goals[component.component]!;
-        dailyGoals.goals[component.component] = goal.copyWith(
+      final goalKey = nutritionToGoalMapping[component.component];
+      if (goalKey != null && dailyGoals.goals.containsKey(goalKey)) {
+        var goal = dailyGoals.goals[goalKey]!;
+        dailyGoals.goals[goalKey] = goal.copyWith(
           actual: goal.actual + component.value,
         );
       }

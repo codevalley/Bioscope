@@ -15,7 +15,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   final IDailyGoalsRepository _dailyGoalsRepository;
   StreamSubscription? _userProfileSubscription;
   StreamSubscription? _foodEntriesSubscription;
-  //StreamSubscription? _dailyGoalsSubscription;
+  StreamSubscription? _dailyGoalsSubscription;
 
   DashboardNotifier(this._foodEntryRepository, this._userProfileRepository,
       this._dailyGoalsRepository)
@@ -29,6 +29,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         print("User profile updated: $userProfile"); // Debug print
         if (userProfile != null) {
           _updateDashboardWithUserProfile(userProfile);
+          _setupDailyGoalsListener(userProfile.id);
         } else {
           state = DashboardState.initial().copyWith(isLoading: false);
         }
@@ -46,6 +47,24 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       },
       onError: (error) {
         print("Error in food entries stream: $error"); // Debug print
+      },
+    );
+  }
+
+  void _setupDailyGoalsListener(String userId) {
+    _dailyGoalsSubscription?.cancel();
+    _dailyGoalsSubscription =
+        _dailyGoalsRepository.watchDailyGoals(userId, DateTime.now()).listen(
+      (dailyGoals) {
+        if (dailyGoals != null) {
+          state = state.copyWith(
+            dailyGoals: Map.from(dailyGoals.goals),
+            caloriesConsumed: dailyGoals.goals['calories']?.actual.toInt() ?? 0,
+          );
+        }
+      },
+      onError: (error) {
+        print("Error in daily goals stream: $error");
       },
     );
   }
@@ -136,7 +155,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   void _updateDashboardWithDailyGoals(DailyGoals dailyGoals) {
     state = state.copyWith(
-      dailyGoals: dailyGoals.goals,
+      dailyGoals: Map.from(dailyGoals
+          .goals), // Create a new map to ensure state change is detected
       caloriesConsumed: dailyGoals.goals['Calories']?.actual.toInt() ?? 0,
       isLoading: false,
     );
@@ -177,6 +197,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   void dispose() {
     _userProfileSubscription?.cancel();
     _foodEntriesSubscription?.cancel();
+    _dailyGoalsSubscription?.cancel();
     super.dispose();
   }
 }

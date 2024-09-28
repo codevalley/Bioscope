@@ -49,7 +49,12 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
 
   @override
   Future<void> create(DailyGoalsModel item) async {
-    await _supabaseClient.from(_tableName).insert(item.toJson());
+    final existingItem = await getByUserAndDate(item.userId, item.date);
+    if (existingItem != null) {
+      await update(item);
+    } else {
+      await _supabaseClient.from(_tableName).insert(item.toJson());
+    }
   }
 
   @override
@@ -57,7 +62,8 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
     await _supabaseClient
         .from(_tableName)
         .update(item.toJson())
-        .eq('id', item.id);
+        .eq('user_id', item.userId)
+        .eq('date', item.date.toIso8601String().split('T')[0]);
   }
 
   @override
