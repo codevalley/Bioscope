@@ -8,6 +8,7 @@ import '../../domain/repositories/daily_goals_repository.dart';
 import '../../domain/entities/daily_goals.dart';
 import 'dart:async';
 import '../../domain/entities/goal_item.dart';
+import '../../core/utils/logger.dart';
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
   final IFoodEntryRepository _foodEntryRepository;
@@ -26,7 +27,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   void _initializeListeners() {
     _userProfileSubscription = _userProfileRepository.watchUserProfile().listen(
       (userProfile) {
-        print("User profile updated: $userProfile"); // Debug print
+        Logger.log("User profile updated: $userProfile"); // Debug print
         if (userProfile != null) {
           _updateDashboardWithUserProfile(userProfile);
         } else {
@@ -34,18 +35,19 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         }
       },
       onError: (error) {
-        print("Error in user profile stream: $error"); // Debug print
+        Logger.log("Error in user profile stream: $error"); // Debug print
       },
     );
 
     _foodEntriesSubscription =
         _foodEntryRepository.watchAllFoodEntries().listen(
       (foodEntries) {
-        print("Food entries updated: ${foodEntries.length}"); // Debug print
+        Logger.log(
+            "Food entries updated: ${foodEntries.length}"); // Debug print
         _updateDashboardWithFoodEntries(foodEntries);
       },
       onError: (error) {
-        print("Error in food entries stream: $error"); // Debug print
+        Logger.log("Error in food entries stream: $error"); // Debug print
       },
     );
 
@@ -60,7 +62,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         }
       },
       onError: (error) {
-        print("Error in daily goals stream: $error");
+        Logger.log("Error in daily goals stream: $error");
       },
     );
   }
@@ -113,8 +115,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         _updateDashboardWithDailyGoals(dailyGoals);
       }
     } catch (e, stackTrace) {
-      print('Error refreshing dashboard: $e');
-      print('Stack trace: $stackTrace');
+      Logger.log('Error refreshing dashboard: $e');
+      Logger.log('Stack trace: $stackTrace');
     } finally {
       state = state.copyWith(isLoading: false);
     }

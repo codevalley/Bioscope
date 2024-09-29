@@ -3,6 +3,7 @@ import 'package:bioscope/data/models/food_entry_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:convert';
+import '../../core/utils/logger.dart';
 
 class FoodEntrySqliteDs implements FoodEntryDataSource {
   final Database _database;
@@ -30,7 +31,7 @@ class FoodEntrySqliteDs implements FoodEntryDataSource {
         final entries = await getAll();
         _controller.add(entries);
       } catch (e) {
-        print('Error in _startWatching: $e');
+        Logger.log('Error in _startWatching: $e');
       }
     });
   }
@@ -43,8 +44,8 @@ class FoodEntrySqliteDs implements FoodEntryDataSource {
       try {
         return FoodEntryModel.fromJson(maps[i]);
       } catch (e) {
-        print('Error parsing FoodEntryModel: $e');
-        print('Problematic data: ${maps[i]}');
+        Logger.log('Error parsing FoodEntryModel: $e');
+        Logger.log('Problematic data: ${maps[i]}');
         return FoodEntryModel
             .empty(); // Return an empty model or handle the error as appropriate
       }
@@ -62,8 +63,8 @@ class FoodEntrySqliteDs implements FoodEntryDataSource {
       try {
         return FoodEntryModel.fromJson(maps.first);
       } catch (e) {
-        print('Error parsing FoodEntryModel: $e');
-        print('Problematic data: ${maps.first}');
+        Logger.log('Error parsing FoodEntryModel: $e');
+        Logger.log('Problematic data: ${maps.first}');
         return null;
       }
     }
@@ -85,8 +86,8 @@ class FoodEntrySqliteDs implements FoodEntryDataSource {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
-      print('Error creating FoodEntryModel: $e');
-      print('Problematic item: $item');
+      Logger.log('Error creating FoodEntryModel: $e');
+      Logger.log('Problematic item: $item');
       rethrow;
     }
   }
@@ -131,9 +132,9 @@ class FoodEntrySqliteDs implements FoodEntryDataSource {
   Future<void> debugPrintAllEntries() async {
     final List<Map<String, dynamic>> maps =
         await _database.query('food_entries');
-    print('All entries in food_entries table:');
+    Logger.log('All entries in food_entries table:');
     for (var map in maps) {
-      print(map);
+      Logger.log(map.toString());
     }
   }
 

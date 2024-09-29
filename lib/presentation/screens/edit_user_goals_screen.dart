@@ -9,11 +9,11 @@ class EditNutritionGoalsScreen extends ConsumerStatefulWidget {
   const EditNutritionGoalsScreen({Key? key}) : super(key: key);
 
   @override
-  _EditNutritionGoalsScreenState createState() =>
-      _EditNutritionGoalsScreenState();
+  EditNutritionGoalsScreenState createState() =>
+      EditNutritionGoalsScreenState();
 }
 
-class _EditNutritionGoalsScreenState
+class EditNutritionGoalsScreenState
     extends ConsumerState<EditNutritionGoalsScreen> {
   late Map<String, GoalItem> _localNutritionGoals;
   Timer? _debounce;

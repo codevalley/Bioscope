@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/interfaces/daily_goals_datasource.dart';
 import '../models/daily_goals_model.dart';
+import '../../core/utils/logger.dart';
 
 class DailyGoalsSupabaseDs implements DailyGoalsDataSource {
   final SupabaseClient _supabaseClient;
@@ -15,7 +16,7 @@ class DailyGoalsSupabaseDs implements DailyGoalsDataSource {
     try {
       await _supabaseClient.from(_tableName).select().limit(1);
     } catch (e) {
-      print(
+      Logger.log(
           'Warning: $_tableName table might not exist in Supabase. Error: $e');
     }
   }
@@ -150,7 +151,7 @@ class DailyGoalsSupabaseDs implements DailyGoalsDataSource {
         throw Exception('Failed to recalculate daily goals: ${response.data}');
       }
     } catch (e) {
-      print('Error triggering daily goals recalculation: $e');
+      Logger.log('Error triggering daily goals recalculation: $e');
       // Handle error (e.g., retry, log, notify user)
     }
   }

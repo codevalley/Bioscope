@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class DateFormatter {
   static String getRelativeTime(DateTime dateTime) {
     final now = DateTime.now();
@@ -29,6 +31,19 @@ class DateFormatter {
         'Dec'
       ][dateTime.month - 1];
       return '${dateTime.day} $monthName';
+    }
+  }
+
+  static String formatDetailDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      return 'Today at ${DateFormat('h:mm a').format(date)}';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday at ${DateFormat('h:mm a').format(date)}';
+    } else {
+      return DateFormat('MMMM d, y \'at\' h:mm a').format(date);
     }
   }
 

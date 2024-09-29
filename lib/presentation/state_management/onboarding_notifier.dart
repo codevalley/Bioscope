@@ -6,6 +6,7 @@ import '../../domain/services/auth_service.dart';
 import '../../domain/entities/goal_item.dart';
 import '../../domain/repositories/daily_goals_repository.dart';
 import '../../domain/entities/daily_goals.dart';
+import '../../core/utils/logger.dart';
 
 class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final IUserProfileRepository _userProfileRepository;
@@ -149,7 +150,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             await _dailyGoalsRepository.saveDailyGoals(dailyGoals);
             state = const OnboardingState.complete();
           } catch (e) {
-            print('Error completing onboarding: $e');
+            Logger.log('Error completing onboarding: $e');
             state = OnboardingState.error(e.toString());
           }
         }

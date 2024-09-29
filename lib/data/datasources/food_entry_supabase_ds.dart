@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/interfaces/food_entry_datasource.dart';
 import '../models/food_entry_model.dart';
+import '../../core/utils/logger.dart';
 import 'dart:async';
 
 class FoodEntrySupabaseDs extends FoodEntryDataSource {
@@ -16,7 +17,7 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     try {
       await _supabaseClient.from(_tableName).select().limit(1);
     } catch (e) {
-      print(
+      Logger.log(
           'Warning: $_tableName table might not exist in Supabase. Error: $e');
     }
   }
@@ -32,7 +33,7 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
           .map((item) => FoodEntryModel.fromJson(item))
           .toList();
     } catch (e) {
-      print('Error fetching all food entries: $e');
+      Logger.log('Error fetching all food entries: $e');
       return [];
     }
   }
@@ -48,7 +49,7 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
           .single();
       return FoodEntryModel.fromJson(response);
     } catch (e) {
-      print('Error fetching food entry by ID: $e');
+      Logger.log('Error fetching food entry by ID: $e');
       return null;
     }
   }
@@ -71,7 +72,7 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
       dataToInsert['userid'] = _currentUserId;
       await _supabaseClient.from(_tableName).insert(dataToInsert);
     } catch (e) {
-      print('Error creating food entry: $e');
+      Logger.log('Error creating food entry: $e');
       throw Exception('Failed to create food entry: $e');
     }
   }
@@ -87,7 +88,7 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
           .eq('id', item.id)
           .eq('userid', _currentUserId);
     } catch (e) {
-      print('Error updating food entry: $e');
+      Logger.log('Error updating food entry: $e');
       throw Exception('Failed to update food entry: $e');
     }
   }
@@ -101,7 +102,7 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
           .eq('id', id)
           .eq('userid', _currentUserId);
     } catch (e) {
-      print('Error deleting food entry: $e');
+      Logger.log('Error deleting food entry: $e');
       throw Exception('Failed to delete food entry: $e');
     }
   }

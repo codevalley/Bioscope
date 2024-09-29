@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:bioscope/core/interfaces/user_profile_datasource.dart';
 import 'package:bioscope/data/models/user_profile_model.dart';
+import 'package:bioscope/core/utils/logger.dart';
 
 class UserProfileSupabaseDs implements UserProfileDataSource {
   final SupabaseClient _supabaseClient;
@@ -15,7 +16,7 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
     try {
       await _supabaseClient.from(_tableName).select().limit(1);
     } catch (e) {
-      print(
+      Logger.log(
           'Warning: $_tableName table might not exist in Supabase. Error: $e');
     }
   }
@@ -33,7 +34,7 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
           .maybeSingle();
       return response != null ? UserProfileModel.fromJson(response) : null;
     } catch (e) {
-      print('Error fetching user profile by ID: $e');
+      Logger.log('Error fetching user profile by ID: $e');
       return null;
     }
   }
@@ -52,15 +53,16 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
 
       if (response.isEmpty) {
         // If response is null or empty, but no error was thrown, assume success
-        print('User profile created successfully, but no response received');
+        Logger.log(
+            'User profile created successfully, but no response received');
         return;
       }
 
       // If we reach here, we have a response, so we can parse it
       final createdProfile = UserProfileModel.fromJson(response.first);
-      print('User profile created successfully: ${createdProfile.id}');
+      Logger.log('User profile created successfully: ${createdProfile.id}');
     } catch (e) {
-      print('Error creating user profile: $e');
+      Logger.log('Error creating user profile: $e');
       throw Exception('Failed to create user profile: $e');
     }
   }
@@ -76,7 +78,7 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
           .update(item.toJson())
           .eq('id', item.id);
     } catch (e) {
-      print('Error updating user profile: $e');
+      Logger.log('Error updating user profile: $e');
       throw Exception('Failed to update user profile: $e');
     }
   }
@@ -89,7 +91,7 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
     try {
       await _supabaseClient.from(_tableName).delete().eq('id', id);
     } catch (e) {
-      print('Error deleting user profile: $e');
+      Logger.log('Error deleting user profile: $e');
       throw Exception('Failed to delete user profile: $e');
     }
   }
@@ -104,7 +106,7 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
         .stream(primaryKey: ['id'])
         .eq('id', id)
         .handleError((error) {
-          print('Error in watchById stream: $error');
+          Logger.log('Error in watchById stream: $error');
         })
         .map((event) =>
             event.isNotEmpty ? UserProfileModel.fromJson(event.first) : null);
@@ -114,7 +116,7 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
   void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
     final currentUser = _supabaseClient.auth.currentUser;
     if (currentUser == null) {
-      print('No user logged in. Skipping real-time listener setup.');
+      Logger.log('No user logged in. Skipping real-time listener setup.');
       onDataChanged([]); // Notify with an empty list when no user is logged in
       return;
     }
@@ -128,7 +130,7 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
               event.map((item) => UserProfileModel.fromJson(item)).toList();
           onDataChanged(updatedData);
         }, onError: (error) {
-          print('Error in realtime listener: $error');
+          Logger.log('Error in realtime listener: $error');
           onDataChanged([]); // Notify with an empty list in case of error
         });
   }

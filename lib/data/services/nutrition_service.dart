@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:bioscope/config/api_config.dart';
 import 'package:bioscope/domain/entities/nutrition_info.dart';
+import 'package:bioscope/core/utils/logger.dart';
 
 class NutritionService {
   Future<NutritionInfo> analyzeImage(String? imagePath, String context) async {
@@ -21,21 +22,21 @@ class NutritionService {
       var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        print('API Response: ${response.body}'); // Debug log
+        Logger.log('API Response: ${response.body}'); // Debug log
         final jsonResponse = json.decode(response.body);
         try {
           return NutritionInfo.fromJson(jsonResponse);
         } catch (e) {
-          print('Error parsing NutritionInfo: $e'); // Debug log
+          Logger.log('Error parsing NutritionInfo: $e'); // Debug log
           rethrow;
         }
       } else {
-        print('API Error: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        Logger.log('API Error: ${response.statusCode}');
+        Logger.log('Response body: ${response.body}');
         throw Exception('Failed to analyze food: ${response.reasonPhrase}');
       }
     } catch (e) {
-      print('Exception in analyzeImage: $e');
+      Logger.log('Exception in analyzeImage: $e');
       throw Exception('Failed to analyze food: $e');
     }
   }

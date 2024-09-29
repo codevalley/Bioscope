@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'welcome_screen.dart';
 import 'dashboard_screen.dart';
 import '../../presentation/providers/providers.dart';
+import '../../core/utils/logger.dart';
 
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -27,7 +28,7 @@ class SplashScreen extends ConsumerWidget {
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, stackTrace) {
-        print('Error fetching user profile: $error');
+        Logger.log('Error fetching user profile: $error');
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => const WelcomeScreen()),

@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/services/auth_service.dart';
+import '../../core/utils/logger.dart';
 
 class SupabaseAuthService implements IAuthService {
   final SupabaseClient _supabaseClient;
@@ -8,11 +9,11 @@ class SupabaseAuthService implements IAuthService {
     _supabaseClient.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
       final Session? session = data.session;
-      print('Auth state changed: $event');
+      Logger.log('Auth state changed: $event');
       if (session != null) {
-        print('User ID: ${session.user.id}');
+        Logger.log('User ID: ${session.user.id}');
       } else {
-        print('No user session');
+        Logger.log('No user session');
       }
     });
   }
@@ -20,7 +21,7 @@ class SupabaseAuthService implements IAuthService {
   @override
   Future<String?> getCurrentUserId() async {
     final userId = _supabaseClient.auth.currentUser?.id;
-    print('Current user ID: $userId');
+    Logger.log('Current user ID: $userId');
     return userId;
   }
 

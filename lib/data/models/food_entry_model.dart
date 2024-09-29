@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../domain/entities/food_entry.dart';
+import '../../core/utils/logger.dart';
 import '../../domain/entities/nutrition_info.dart';
 
 class FoodEntryModel extends FoodEntry {
@@ -28,8 +29,8 @@ class FoodEntryModel extends FoodEntry {
         imagePath: json['imagePath'] as String?,
       );
     } catch (e) {
-      print('Error in FoodEntryModel.fromJson: $e');
-      print('Problematic JSON: $json');
+      Logger.log('Error in FoodEntryModel.fromJson: $e');
+      Logger.log('Problematic JSON: $json');
       rethrow;
     }
   }

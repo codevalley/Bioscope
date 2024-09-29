@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // Add this import
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bioscope/presentation/screens/splash_screen.dart';
 import 'package:bioscope/application/di/dependency_injection.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:bioscope/core/utils/logger.dart';
 
 void main() async {
+  // Add async keyword here
+  // Enable logging for debug mode, disable for release
+  if (kDebugMode) {
+    Logger.enable();
+  } else {
+    Logger.disable();
+  }
+
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   await setupDependencies();
