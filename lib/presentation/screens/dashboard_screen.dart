@@ -36,12 +36,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return userProfileState.when(
       data: (userProfile) {
         if (userProfile == null) {
-          // If user profile is null, navigate to OnboardingScreen
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-            );
-          });
+          // If user profile is null, show loading indicator
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );

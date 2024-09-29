@@ -4,6 +4,8 @@ import '../state_management/onboarding_notifier.dart';
 import '../widgets/custom_button.dart';
 import 'dashboard_screen.dart';
 import '../providers/providers.dart';
+import 'package:bioscope/domain/entities/goal_item.dart';
+import 'package:bioscope/domain/entities/daily_goals.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -275,24 +277,76 @@ class OnboardingScreen extends ConsumerWidget {
 
   Future<void> _completeOnboardingAndNavigate(
       BuildContext context, OnboardingNotifier notifier, WidgetRef ref) async {
-    await notifier.completeOnboarding();
-    if (!context.mounted) return;
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(child: CircularProgressIndicator());
+        },
+      );
 
-    final onboardingState = ref.read(onboardingProvider);
-    onboardingState.maybeWhen(
-      complete: () {
+      // Complete onboarding
+      await notifier.completeOnboarding();
+
+      // Force refresh the user profile
+      final userProfileNotifier = ref.read(userProfileProvider.notifier);
+      await userProfileNotifier.refreshUserProfile();
+
+      // Get the updated user profile
+      final userProfile = ref.read(userProfileProvider).value;
+
+      if (userProfile != null) {
+        // Create default daily goals
+        final dailyGoalsRepository = ref.read(dailyGoalsRepositoryProvider);
+        final today = DateTime.now();
+        final dateOnly = DateTime(today.year, today.month, today.day);
+
+        final defaultGoals = userProfile.nutritionGoals.map(
+          (key, value) => MapEntry(
+            key,
+            GoalItem(
+              name: value.name,
+              description: value.description,
+              target: value.target.toDouble(),
+              actual: 0.0,
+              isPublic: value.isPublic,
+              unit: value.unit,
+              timestamp: dateOnly,
+            ),
+          ),
+        );
+
+        final defaultDailyGoals = DailyGoals(
+          userId: userProfile.id,
+          date: dateOnly,
+          goals: defaultGoals,
+        );
+
+        await dailyGoalsRepository.saveDailyGoals(defaultDailyGoals);
+      }
+
+      // Dismiss loading indicator and navigate
+      if (context.mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
           (route) => false,
         );
-      },
-      error: (message) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $message')),
-        );
-      },
-      orElse: () {},
-    );
+      }
+    } catch (e) {
+      // Dismiss loading indicator if it's showing
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      if (!context.mounted) return;
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error completing onboarding: $e')),
+      );
+    }
   }
 }
 

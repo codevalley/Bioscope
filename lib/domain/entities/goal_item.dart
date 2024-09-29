@@ -17,7 +17,7 @@ class GoalItem {
     this.isPublic = true,
     required this.unit,
     DateTime? timestamp,
-  }) : this.timestamp = timestamp ?? DateTime.now();
+  }) : timestamp = timestamp ?? DateTime.now();
 
   GoalItem copyWith({
     String? name,

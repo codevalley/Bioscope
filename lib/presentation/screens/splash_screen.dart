@@ -22,20 +22,11 @@ class SplashScreen extends ConsumerWidget {
             ),
           );
         });
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
       },
-      loading: () => const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, stackTrace) {
-        // You might want to handle errors differently, perhaps showing an error message
-        // or retrying the user profile fetch
         print('Error fetching user profile: $error');
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.of(context).pushReplacement(
@@ -43,10 +34,7 @@ class SplashScreen extends ConsumerWidget {
           );
         });
         return const Scaffold(
-          body: Center(
-            child: Text('Error loading user data'),
-          ),
-        );
+            body: Center(child: Text('Error loading user data')));
       },
     );
   }
