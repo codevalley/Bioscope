@@ -12,15 +12,17 @@ class DashboardState with _$DashboardState {
     required String userName,
     required Map<String, GoalItem> nutritionGoals,
     required Map<String, GoalItem> dailyGoals,
-    required List<FoodEntry> recentMeals,
+    required List<FoodEntry> foodEntries,
+    required DateTime currentDate,
   }) = _DashboardState;
 
-  factory DashboardState.initial() => const DashboardState(
+  factory DashboardState.initial() => DashboardState(
         isLoading: true,
         greeting: '',
         userName: '',
         nutritionGoals: {},
         dailyGoals: {},
-        recentMeals: [],
+        foodEntries: [],
+        currentDate: DateTime.now(),
       );
 }

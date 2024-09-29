@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/food_entry.dart';
-import '../screens/food_entry_detail_screen.dart'; // Add this import
+import '../screens/food_entry_detail_screen.dart';
 import 'food_entry_item.dart';
 
 class RecentHistory extends StatelessWidget {
-  final List<FoodEntry> recentMeals;
+  final List<FoodEntry> foodEntries;
 
-  const RecentHistory({Key? key, required this.recentMeals}) : super(key: key);
+  const RecentHistory({Key? key, required this.foodEntries}) : super(key: key);
 
   String _getFoodEmoji(int calories) {
     if (calories < 200) return '🥗';
@@ -24,19 +24,19 @@ class RecentHistory extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
-            "Today's progress",
+            "Today's Meals",
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
-        if (recentMeals.isEmpty)
+        if (foodEntries.isEmpty)
           _buildEmptyState(context)
         else
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: recentMeals.length,
+            itemCount: foodEntries.length,
             itemBuilder: (context, index) {
-              final meal = recentMeals[index];
+              final meal = foodEntries[index];
               return GestureDetector(
                 onTap: () => _showFoodEntryDetail(context, meal),
                 child: FoodEntryItem(
@@ -67,14 +67,14 @@ class RecentHistory extends StatelessWidget {
           Icon(Icons.no_meals, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'No recent meals',
+            'No meals recorded today',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Add your first meal to see it here!',
+            'Add a meal to see it here!',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.grey[500],
                 ),
