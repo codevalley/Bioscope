@@ -1,9 +1,9 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../core/interfaces/data_source.dart';
+import '../../core/interfaces/food_entry_datasource.dart';
 import '../models/food_entry_model.dart';
 import 'dart:async';
 
-class FoodEntrySupabaseDs implements DataSource<FoodEntryModel> {
+class FoodEntrySupabaseDs extends FoodEntryDataSource {
   final SupabaseClient _supabaseClient;
   static const String _tableName = 'food_entries';
 
@@ -51,6 +51,17 @@ class FoodEntrySupabaseDs implements DataSource<FoodEntryModel> {
       print('Error fetching food entry by ID: $e');
       return null;
     }
+  }
+
+  @override
+  Future<List<FoodEntryModel>> getByDate(DateTime date) async {
+    final response = await _supabaseClient
+        .from('food_entries')
+        .select()
+        .eq('date', date.toIso8601String().split('T')[0]);
+    return (response as List)
+        .map((item) => FoodEntryModel.fromJson(item))
+        .toList();
   }
 
   @override
@@ -131,10 +142,5 @@ class FoodEntrySupabaseDs implements DataSource<FoodEntryModel> {
           },
         )
         .subscribe();
-  }
-
-  @override
-  Future<void> recalculate(DateTime date) async {
-    // TODO: implementation needed for Supabase
   }
 }

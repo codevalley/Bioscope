@@ -34,6 +34,16 @@ class FoodEntryModel extends FoodEntry {
     }
   }
 
+  FoodEntryModel toDomain() {
+    return FoodEntryModel(
+      id: id,
+      name: name,
+      nutritionInfo: nutritionInfo,
+      date: date,
+      imagePath: imagePath,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

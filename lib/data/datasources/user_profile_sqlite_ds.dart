@@ -1,9 +1,9 @@
 import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
-import '../../core/interfaces/data_source.dart';
+import 'package:bioscope/core/interfaces/user_profile_datasource.dart';
 import '../models/user_profile_model.dart';
 
-class UserProfileSqliteDs implements DataSource<UserProfileModel> {
+class UserProfileSqliteDs implements UserProfileDataSource {
   final Database _database;
 
   UserProfileSqliteDs(this._database);
@@ -21,17 +21,6 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
         nutritionGoals TEXT
       )
     ''');
-  }
-
-  @override
-  Future<List<UserProfileModel>> getAll() async {
-    final List<Map<String, dynamic>> maps =
-        await _database.query('user_profiles');
-    return List.generate(maps.length, (i) {
-      var map = maps[i];
-      map['nutritionGoals'] = jsonDecode(map['nutritionGoals'] as String);
-      return UserProfileModel.fromJson(map);
-    });
   }
 
   @override
@@ -82,12 +71,6 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
   }
 
   @override
-  Stream<List<UserProfileModel>> watchAll() {
-    // Implement watching all user profiles if needed
-    return Stream.fromFuture(getAll());
-  }
-
-  @override
   Stream<UserProfileModel?> watchById(String id) {
     // Implement watching a specific user profile if needed
     return Stream.fromFuture(getById(id));
@@ -95,11 +78,6 @@ class UserProfileSqliteDs implements DataSource<UserProfileModel> {
 
   @override
   void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
-    // TODO: implementation needed for SQLite
-  }
-
-  @override
-  Future<void> recalculate(DateTime date) async {
     // TODO: implementation needed for SQLite
   }
 }

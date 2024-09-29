@@ -1,19 +1,19 @@
 import '../../domain/entities/food_entry.dart';
 import '../../domain/repositories/food_entry_repository.dart';
-import '../../core/interfaces/data_source.dart';
+import '../../core/interfaces/food_entry_datasource.dart';
 import '../models/food_entry_model.dart';
 import 'dart:async';
-import 'package:bioscope/domain/repositories/daily_goals_repository.dart';
+//import 'package:bioscope/domain/repositories/daily_goals_repository.dart';
 
 class FoodEntryRepositoryImpl implements IFoodEntryRepository {
-  final DataSource<FoodEntryModel> _dataSource;
+  final FoodEntryDataSource _dataSource;
   final StreamController<List<FoodEntry>> _foodEntriesController =
       StreamController<List<FoodEntry>>.broadcast();
 
   // don't remove, to be used for recalculating daily goals (future)
-  final IDailyGoalsRepository _dailyGoalsRepository;
+  // final IDailyGoalsRepository _dailyGoalsRepository;
 
-  FoodEntryRepositoryImpl(this._dataSource, this._dailyGoalsRepository) {
+  FoodEntryRepositoryImpl(this._dataSource /*, this._dailyGoalsRepository*/) {
     _setupRealtimeListeners();
   }
 
@@ -41,6 +41,12 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
   Future<List<FoodEntry>> getRecentFoodEntries() async {
     final allEntries = await getAllFoodEntries();
     return allEntries.take(5).toList();
+  }
+
+  @override
+  Future<List<FoodEntry>> getEntriesByDate(DateTime date) async {
+    final foodEntryModels = await _dataSource.getByDate(date);
+    return foodEntryModels.map((model) => model.toDomain()).toList();
   }
 
   @override

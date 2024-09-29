@@ -7,8 +7,7 @@ import '../../data/repositories/user_profile_repository_impl.dart';
 import '../../data/repositories/food_entry_repository_impl.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 import '../../domain/repositories/food_entry_repository.dart';
-import '../../data/models/user_profile_model.dart';
-import '../../data/models/food_entry_model.dart';
+import '../../domain/repositories/daily_goals_repository.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../config/supabase_config.dart';
 import '../../domain/services/auth_service.dart';
@@ -19,7 +18,9 @@ import "../../data/datasources/daily_goals_supabase_ds.dart";
 import "../../data/repositories/daily_goals_repository_impl.dart";
 import "../../data/models/daily_goals_model.dart";
 import "../../data/datasources/daily_goals_sqlite_ds.dart";
-import '../../domain/repositories/daily_goals_repository.dart';
+import '../../core/interfaces/daily_goals_datasource.dart';
+import '../../core/interfaces/food_entry_datasource.dart';
+import '../../core/interfaces/user_profile_datasource.dart';
 
 final getIt = GetIt.instance;
 
@@ -41,31 +42,34 @@ Future<void> setupDependencies() async {
 
   // Data Sources
   if (useSupabase) {
-    getIt.registerLazySingleton<DataSource<UserProfileModel>>(
+    getIt.registerLazySingleton<UserProfileDataSource>(
       () => UserProfileSupabaseDs(getIt<SupabaseClient>()),
     );
-    getIt.registerLazySingleton<DataSource<FoodEntryModel>>(
+    getIt.registerLazySingleton<FoodEntryDataSource>(
       () => FoodEntrySupabaseDs(getIt<SupabaseClient>()),
+    );
+    getIt.registerLazySingleton<DailyGoalsDataSource>(
+      () => DailyGoalsSupabaseDs(getIt<SupabaseClient>()),
     );
   } else {
     // SQLite setup
     final database = await openDatabase('app_database.db', version: 1);
     getIt.registerSingleton<Database>(database);
-    getIt.registerLazySingleton<DataSource<UserProfileModel>>(
+    getIt.registerLazySingleton<UserProfileDataSource>(
         () => UserProfileSqliteDs(getIt<Database>()));
-    getIt.registerLazySingleton<DataSource<FoodEntryModel>>(
+    getIt.registerLazySingleton<FoodEntryDataSource>(
         () => FoodEntrySqliteDs(getIt<Database>()));
   }
 
   // Repositories
   getIt.registerLazySingleton<IUserProfileRepository>(
     () => UserProfileRepositoryImpl(
-        getIt<DataSource<UserProfileModel>>(), getIt<IAuthService>()),
+        getIt<UserProfileDataSource>(), getIt<IAuthService>()),
   );
   getIt.registerLazySingleton<IFoodEntryRepository>(
     () => FoodEntryRepositoryImpl(
-      getIt<DataSource<FoodEntryModel>>(),
-      getIt<IDailyGoalsRepository>(),
+      getIt<FoodEntryDataSource>(),
+      //getIt<IDailyGoalsRepository>(),
     ),
   );
 // Setup for DailyGoalLog
@@ -76,15 +80,15 @@ Future<void> setupDependencies() async {
   );
 
   getIt.registerLazySingleton<IDailyGoalsRepository>(
-    () => DailyGoalsRepositoryImpl(getIt<DataSource<DailyGoalsModel>>()),
+    () => DailyGoalsRepositoryImpl(getIt<DailyGoalsDataSource>()),
   );
 
   // Initialize data sources
 
   // Initialize data sources
-  getIt<DataSource<DailyGoalsModel>>().initialize();
-  await getIt<DataSource<UserProfileModel>>().initialize();
-  await getIt<DataSource<FoodEntryModel>>().initialize();
+  getIt<DailyGoalsDataSource>().initialize();
+  await getIt<UserProfileDataSource>().initialize();
+  await getIt<FoodEntryDataSource>().initialize();
 }
 
 // Flag to determine which data source to use

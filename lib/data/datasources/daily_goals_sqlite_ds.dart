@@ -1,9 +1,9 @@
 import 'package:sqflite/sqflite.dart';
-import '../../core/interfaces/data_source.dart';
 import '../models/daily_goals_model.dart';
+import '../../core/interfaces/daily_goals_datasource.dart';
 import 'dart:convert';
 
-class DailyGoalsSqliteDs implements DataSource<DailyGoalsModel> {
+class DailyGoalsSqliteDs implements DailyGoalsDataSource {
   final Database _database;
 
   DailyGoalsSqliteDs(this._database);
@@ -42,6 +42,19 @@ class DailyGoalsSqliteDs implements DataSource<DailyGoalsModel> {
       var map = maps.first;
       map['goals'] = jsonDecode(map['goals'] as String);
       return DailyGoalsModel.fromJson(map);
+    }
+    return null;
+  }
+
+  @override
+  Future<DailyGoalsModel?> getByDate(DateTime date) async {
+    final List<Map<String, dynamic>> maps = await _database.query(
+      'daily_goals',
+      where: 'date = ?',
+      whereArgs: [date.toIso8601String().split('T')[0]],
+    );
+    if (maps.isNotEmpty) {
+      return DailyGoalsModel.fromJson(maps.first);
     }
     return null;
   }

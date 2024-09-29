@@ -1,8 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../core/interfaces/data_source.dart';
+import '../../core/interfaces/daily_goals_datasource.dart';
 import '../models/daily_goals_model.dart';
 
-class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
+class DailyGoalsSupabaseDs implements DailyGoalsDataSource {
   final SupabaseClient _supabaseClient;
   static const String _tableName = 'daily_goals';
 
@@ -50,14 +50,17 @@ class DailyGoalsSupabaseDs implements DataSource<DailyGoalsModel> {
     return response.isNotEmpty ? DailyGoalsModel.fromJson(response) : null;
   }
 
+  @override
   Future<DailyGoalsModel?> getByDate(DateTime date) async {
     final response = await _supabaseClient
-        .from(_tableName)
+        .from('daily_goals')
         .select()
-        .eq('user_id', _currentUserId)
         .eq('date', date.toIso8601String().split('T')[0])
         .maybeSingle();
-    return response != null ? DailyGoalsModel.fromJson(response) : null;
+    if (response != null) {
+      return DailyGoalsModel.fromJson(response);
+    }
+    return null;
   }
 
   @override

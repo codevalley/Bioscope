@@ -7,5 +7,6 @@ abstract class IDailyGoalsRepository {
   Future<List<DailyGoals>> getUserDailyGoals(
       {DateTime? startDate, DateTime? endDate});
   Stream<DailyGoals?> watchDailyGoals(DateTime date);
+  Future<DailyGoals?> getGoalsByDate(DateTime date);
   Future<void> recalculateDailyGoals(DateTime date);
 }

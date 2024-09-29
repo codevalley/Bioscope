@@ -1,10 +1,10 @@
-import 'package:bioscope/core/interfaces/data_source.dart';
+import 'package:bioscope/core/interfaces/food_entry_datasource.dart';
 import 'package:bioscope/data/models/food_entry_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:convert';
 
-class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
+class FoodEntrySqliteDs implements FoodEntryDataSource {
   final Database _database;
   final _controller = StreamController<List<FoodEntryModel>>.broadcast();
 
@@ -141,9 +141,13 @@ class FoodEntrySqliteDs implements DataSource<FoodEntryModel> {
   void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
     // TODO: implementation needed for SQLite
   }
-
   @override
-  Future<void> recalculate(DateTime date) async {
-    // TODO: implementation needed for SQLite
+  Future<List<FoodEntryModel>> getByDate(DateTime date) async {
+    final List<Map<String, dynamic>> maps = await _database.query(
+      'food_entries',
+      where: 'date = ?',
+      whereArgs: [date.toIso8601String().split('T')[0]],
+    );
+    return List.generate(maps.length, (i) => FoodEntryModel.fromJson(maps[i]));
   }
 }

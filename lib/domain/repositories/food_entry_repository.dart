@@ -7,5 +7,6 @@ abstract class IFoodEntryRepository {
   Future<void> updateFoodEntry(FoodEntry entry);
   Future<void> deleteFoodEntry(String id);
   Future<int> getTotalCaloriesConsumed();
+  Future<List<FoodEntry>> getEntriesByDate(DateTime date);
   Stream<List<FoodEntry>> watchAllFoodEntries();
 }

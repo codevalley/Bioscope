@@ -1,7 +1,7 @@
-import '../../core/interfaces/data_source.dart';
+import '../../core/interfaces/food_entry_datasource.dart';
 import '../models/food_entry_model.dart';
 
-class FoodEntryRemoteDs implements DataSource<FoodEntryModel> {
+class FoodEntryRemoteDs implements FoodEntryDataSource {
   // This is a mock implementation. In a real scenario, this would interact with an API.
 
   final List<FoodEntryModel> _entries = [];
@@ -25,6 +25,12 @@ class FoodEntryRemoteDs implements DataSource<FoodEntryModel> {
       (entry) => entry.id == id,
       orElse: () => FoodEntryModel.empty(),
     );
+  }
+
+  @override
+  Future<List<FoodEntryModel>> getByDate(DateTime date) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return _entries.where((entry) => entry.date == date).toList();
   }
 
   @override
@@ -61,11 +67,6 @@ class FoodEntryRemoteDs implements DataSource<FoodEntryModel> {
 
   @override
   void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
-    // No implementation needed for mock
-  }
-
-  @override
-  Future<void> recalculate(DateTime date) async {
     // No implementation needed for mock
   }
 }

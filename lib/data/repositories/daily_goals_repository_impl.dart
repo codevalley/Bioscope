@@ -1,11 +1,11 @@
 import '../../domain/repositories/daily_goals_repository.dart';
 import '../../domain/entities/daily_goals.dart';
-import '../../core/interfaces/data_source.dart';
+import '../../core/interfaces/daily_goals_datasource.dart';
 import '../models/daily_goals_model.dart';
-import 'package:collection/collection.dart'; // Add this import
+import 'package:collection/collection.dart';
 
 class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
-  final DataSource<DailyGoalsModel> _dataSource;
+  final DailyGoalsDataSource _dataSource;
 
   DailyGoalsRepositoryImpl(this._dataSource);
 
@@ -61,6 +61,12 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
                 goal.date.isBefore(endDate)))
         .map((model) => model.toDomain())
         .toList();
+  }
+
+  @override
+  Future<DailyGoals?> getGoalsByDate(DateTime date) async {
+    final dailyGoalsModel = await _dataSource.getByDate(date);
+    return dailyGoalsModel?.toDomain();
   }
 
   @override

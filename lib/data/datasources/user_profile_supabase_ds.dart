@@ -1,8 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../core/interfaces/data_source.dart';
-import '../models/user_profile_model.dart';
+import 'package:bioscope/core/interfaces/user_profile_datasource.dart';
+import 'package:bioscope/data/models/user_profile_model.dart';
 
-class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
+class UserProfileSupabaseDs implements UserProfileDataSource {
   final SupabaseClient _supabaseClient;
   static const String _tableName = 'user_profiles';
 
@@ -17,22 +17,6 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
     } catch (e) {
       print(
           'Warning: $_tableName table might not exist in Supabase. Error: $e');
-    }
-  }
-
-  @override
-  Future<List<UserProfileModel>> getAll() async {
-    try {
-      final response = await _supabaseClient
-          .from(_tableName)
-          .select()
-          .eq('id', _currentUserId);
-      return (response as List)
-          .map((item) => UserProfileModel.fromJson(item))
-          .toList();
-    } catch (e) {
-      print('Error fetching user profile: $e');
-      return [];
     }
   }
 
@@ -111,19 +95,6 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
   }
 
   @override
-  Stream<List<UserProfileModel>> watchAll() {
-    return _supabaseClient
-        .from(_tableName)
-        .stream(primaryKey: ['id'])
-        .eq('id', _currentUserId)
-        .handleError((error) {
-          print('Error in watchAll stream: $error');
-        })
-        .map((event) =>
-            event.map((item) => UserProfileModel.fromJson(item)).toList());
-  }
-
-  @override
   Stream<UserProfileModel?> watchById(String id) {
     if (id != _currentUserId) {
       throw Exception('Unauthorized access to user profile stream');
@@ -160,10 +131,5 @@ class UserProfileSupabaseDs implements DataSource<UserProfileModel> {
           print('Error in realtime listener: $error');
           onDataChanged([]); // Notify with an empty list in case of error
         });
-  }
-
-  @override
-  Future<void> recalculate(DateTime date) async {
-    // TODO: implementation needed for Supabase
   }
 }

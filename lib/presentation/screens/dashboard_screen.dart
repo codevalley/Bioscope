@@ -6,7 +6,6 @@ import '../widgets/recent_history.dart';
 import '../widgets/dashboard_bottom_bar.dart';
 import 'add_food_entry_screen.dart';
 import 'edit_user_goals_screen.dart';
-import 'welcome_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
