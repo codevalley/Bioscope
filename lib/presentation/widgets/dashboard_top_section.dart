@@ -37,8 +37,7 @@ class DashboardTopSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                16, 19, 16, 16), // Increased top padding by 1px
+            padding: const EdgeInsets.fromLTRB(16, 19, 16, 16),
             child: Text(
               '$greeting, $name',
               style: Theme.of(context).textTheme.titleLarge,
@@ -61,7 +60,7 @@ class DashboardTopSection extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                         child: SizedBox(
                           width: 66,
-                          height: 89, // Increased by 2px
+                          height: 89,
                           child: NutritionIndicator(
                             label: goalItem.name,
                             value:
@@ -79,9 +78,9 @@ class DashboardTopSection extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 11), // Increased vertical padding by 1px
+            color: const Color(
+                0xFFFFF3E0), // Same color as nutrition indicator background
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
