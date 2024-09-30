@@ -15,34 +15,41 @@ class DashboardScreen extends ConsumerWidget {
     final dashboardState = ref.watch(dashboardProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('BIOSCOPE'),
-        centerTitle: true,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.black, width: 1),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: Image.network("https://via.placeholder.com/30x30"),
-        ),
-      ),
       body: RefreshIndicator(
         onRefresh: () =>
             ref.read(dashboardProvider.notifier).refreshDashboard(),
         child: CustomScrollView(
           slivers: [
+            SliverAppBar(
+              pinned: true,
+              expandedHeight: 60.0,
+              title: const Text('BIOSCOPE'),
+              centerTitle: true,
+              leading: Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black, width: 1),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: Image.network("https://via.placeholder.com/30x30"),
+              ),
+            ),
             SliverPersistentHeader(
-              delegate: DashboardHeaderDelegate(
-                DashboardTopSection(
+              pinned: true,
+              delegate: _SliverAppBarDelegate(
+                minHeight: 50.0, // Height of the "Today" row
+                maxHeight:
+                    200.0, // Total height including greeting and nutrition indicators
+                child: (shrinkOffset, height) => DashboardTopSection(
                   greeting: dashboardState.greeting,
                   name: dashboardState.userName,
                   dailyGoals: dashboardState.dailyGoals,
                   date: DateTime.now(),
+                  shrinkOffset: shrinkOffset,
+                  height: height,
                 ),
               ),
-              pinned: true,
             ),
             SliverToBoxAdapter(
               child: RecentHistory(
@@ -79,25 +86,33 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverAppBarDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
 
-  DashboardHeaderDelegate(this.child);
+  final double minHeight;
+  final double maxHeight;
+  final Widget Function(double shrinkOffset, double height) child;
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => maxHeight;
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return child;
+    return SizedBox.expand(child: child(shrinkOffset, maxHeight));
   }
 
   @override
-  double get maxExtent => 200;
-
-  @override
-  double get minExtent => 70;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }
