@@ -8,7 +8,7 @@
 PRODUCT_NAME = bioscope
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.bioscope
+PRODUCT_BUNDLE_IDENTIFIER = com.less.bioscope
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 com.less. All rights reserved.
