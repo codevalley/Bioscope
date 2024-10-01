@@ -4,8 +4,6 @@ import '../state_management/onboarding_notifier.dart';
 import '../widgets/custom_button.dart';
 import 'dashboard_screen.dart';
 import '../providers/providers.dart';
-import 'package:bioscope/domain/entities/goal_item.dart';
-import 'package:bioscope/domain/entities/daily_goals.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -226,6 +224,7 @@ class OnboardingScreen extends ConsumerWidget {
 
   Widget _buildCompletionScreen(
       BuildContext context, OnboardingNotifier notifier, WidgetRef ref) {
+    Navigator.of(context).pop(); // Dismiss the loading indicator
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -236,7 +235,13 @@ class OnboardingScreen extends ConsumerWidget {
         const SizedBox(height: 24),
         CustomButton(
           onPressed: () {
-            _completeOnboardingAndNavigate(context, notifier, ref);
+            // Navigate to dashboard
+            if (context.mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                (route) => false,
+              );
+            }
           },
           child: const Text('Start your journey'),
         ),
@@ -287,61 +292,17 @@ class OnboardingScreen extends ConsumerWidget {
         },
       );
 
-      // Complete onboarding
+      // Add a small delay to ensure the loading indicator is visible
+      // await Future.delayed(const Duration(milliseconds: 300));
+
+      // Complete onboarding first
       await notifier.completeOnboarding();
-
-      // Force refresh the user profile
-      final userProfileNotifier = ref.read(userProfileProvider.notifier);
-      await userProfileNotifier.refreshUserProfile();
-
-      // Get the updated user profile
-      final userProfile = ref.read(userProfileProvider).value;
-
-      if (userProfile != null) {
-        // Create default daily goals
-        final dailyGoalsRepository = ref.read(dailyGoalsRepositoryProvider);
-        final today = DateTime.now();
-        final dateOnly = DateTime(today.year, today.month, today.day);
-
-        final defaultGoals = userProfile.nutritionGoals.map(
-          (key, value) => MapEntry(
-            key,
-            GoalItem(
-              name: value.name,
-              description: value.description,
-              target: value.target.toDouble(),
-              actual: 0.0,
-              isPublic: value.isPublic,
-              unit: value.unit,
-              timestamp: dateOnly,
-            ),
-          ),
-        );
-
-        final defaultDailyGoals = DailyGoals(
-          userId: userProfile.id,
-          date: dateOnly,
-          goals: defaultGoals,
-        );
-
-        await dailyGoalsRepository.saveDailyGoals(defaultDailyGoals);
-      }
-
-      // Dismiss loading indicator and navigate
-      if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const DashboardScreen()),
-          (route) => false,
-        );
-      }
     } catch (e) {
       // Dismiss loading indicator if it's showing
       if (context.mounted) {
         Navigator.of(context).pop();
       }
-
       if (!context.mounted) return;
-
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error completing onboarding: $e')),
