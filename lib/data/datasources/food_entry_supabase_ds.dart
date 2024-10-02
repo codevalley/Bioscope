@@ -56,12 +56,15 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
 
   @override
   Future<List<FoodEntryModel>> getByDate(DateTime date) async {
-    final startOfDay = DateTime(date.year, date.month, date.day).toIso8601String();
-    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999).toIso8601String();
+    final startOfDay =
+        DateTime(date.year, date.month, date.day).toIso8601String();
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999)
+        .toIso8601String();
 
     final response = await _supabaseClient
         .from('food_entries')
         .select()
+        .eq('userid', _currentUserId)
         .gte('date', startOfDay)
         .lt('date', endOfDay);
 
