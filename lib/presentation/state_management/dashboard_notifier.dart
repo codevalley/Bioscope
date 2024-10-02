@@ -27,10 +27,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> _loadInitialData() async {
     try {
-      final userProfile = await _userProfileRepository.getUserProfile();
-      final foodEntries = await _foodEntryRepository.getAllFoodEntries();
       final today = DateTime.now();
       final dateOnly = DateTime(today.year, today.month, today.day);
+      final userProfile = await _userProfileRepository.getUserProfile();
+      final foodEntries = await _foodEntryRepository.getEntriesByDate(dateOnly);
       final dailyGoals = await _dailyGoalsRepository.getDailyGoals(dateOnly);
 
       if (userProfile != null) {

@@ -19,8 +19,11 @@ mixin _$OnboardingState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(int currentPage, String? name,
-            Map<String, double>? goals, List<String>? dietaryPreferences)
+    required TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)
         inProgress,
     required TResult Function() complete,
     required TResult Function(String message) error,
@@ -29,8 +32,11 @@ mixin _$OnboardingState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
-    TResult? Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult? Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult? Function()? complete,
     TResult? Function(String message)? error,
@@ -39,8 +45,11 @@ mixin _$OnboardingState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult Function()? complete,
     TResult Function(String message)? error,
@@ -137,8 +146,11 @@ class _$InitialImpl implements _Initial {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(int currentPage, String? name,
-            Map<String, double>? goals, List<String>? dietaryPreferences)
+    required TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)
         inProgress,
     required TResult Function() complete,
     required TResult Function(String message) error,
@@ -150,8 +162,11 @@ class _$InitialImpl implements _Initial {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
-    TResult? Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult? Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult? Function()? complete,
     TResult? Function(String message)? error,
@@ -163,8 +178,11 @@ class _$InitialImpl implements _Initial {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult Function()? complete,
     TResult Function(String message)? error,
@@ -227,8 +245,8 @@ abstract class _$$InProgressImplCopyWith<$Res> {
   $Res call(
       {int currentPage,
       String? name,
-      Map<String, double>? goals,
-      List<String>? dietaryPreferences});
+      EmailVerificationStatus emailVerificationStatus,
+      Map<String, double>? goals});
 }
 
 /// @nodoc
@@ -246,8 +264,8 @@ class __$$InProgressImplCopyWithImpl<$Res>
   $Res call({
     Object? currentPage = null,
     Object? name = freezed,
+    Object? emailVerificationStatus = null,
     Object? goals = freezed,
-    Object? dietaryPreferences = freezed,
   }) {
     return _then(_$InProgressImpl(
       currentPage: null == currentPage
@@ -258,14 +276,14 @@ class __$$InProgressImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String?,
+      emailVerificationStatus: null == emailVerificationStatus
+          ? _value.emailVerificationStatus
+          : emailVerificationStatus // ignore: cast_nullable_to_non_nullable
+              as EmailVerificationStatus,
       goals: freezed == goals
           ? _value._goals
           : goals // ignore: cast_nullable_to_non_nullable
               as Map<String, double>?,
-      dietaryPreferences: freezed == dietaryPreferences
-          ? _value._dietaryPreferences
-          : dietaryPreferences // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
     ));
   }
 }
@@ -276,15 +294,16 @@ class _$InProgressImpl implements _InProgress {
   const _$InProgressImpl(
       {required this.currentPage,
       this.name,
-      final Map<String, double>? goals,
-      final List<String>? dietaryPreferences})
-      : _goals = goals,
-        _dietaryPreferences = dietaryPreferences;
+      required this.emailVerificationStatus,
+      final Map<String, double>? goals})
+      : _goals = goals;
 
   @override
   final int currentPage;
   @override
   final String? name;
+  @override
+  final EmailVerificationStatus emailVerificationStatus;
   final Map<String, double>? _goals;
   @override
   Map<String, double>? get goals {
@@ -295,20 +314,9 @@ class _$InProgressImpl implements _InProgress {
     return EqualUnmodifiableMapView(value);
   }
 
-  final List<String>? _dietaryPreferences;
-  @override
-  List<String>? get dietaryPreferences {
-    final value = _dietaryPreferences;
-    if (value == null) return null;
-    if (_dietaryPreferences is EqualUnmodifiableListView)
-      return _dietaryPreferences;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
   @override
   String toString() {
-    return 'OnboardingState.inProgress(currentPage: $currentPage, name: $name, goals: $goals, dietaryPreferences: $dietaryPreferences)';
+    return 'OnboardingState.inProgress(currentPage: $currentPage, name: $name, emailVerificationStatus: $emailVerificationStatus, goals: $goals)';
   }
 
   @override
@@ -319,18 +327,15 @@ class _$InProgressImpl implements _InProgress {
             (identical(other.currentPage, currentPage) ||
                 other.currentPage == currentPage) &&
             (identical(other.name, name) || other.name == name) &&
-            const DeepCollectionEquality().equals(other._goals, _goals) &&
-            const DeepCollectionEquality()
-                .equals(other._dietaryPreferences, _dietaryPreferences));
+            (identical(
+                    other.emailVerificationStatus, emailVerificationStatus) ||
+                other.emailVerificationStatus == emailVerificationStatus) &&
+            const DeepCollectionEquality().equals(other._goals, _goals));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      currentPage,
-      name,
-      const DeepCollectionEquality().hash(_goals),
-      const DeepCollectionEquality().hash(_dietaryPreferences));
+  int get hashCode => Object.hash(runtimeType, currentPage, name,
+      emailVerificationStatus, const DeepCollectionEquality().hash(_goals));
 
   /// Create a copy of OnboardingState
   /// with the given fields replaced by the non-null parameter values.
@@ -344,41 +349,50 @@ class _$InProgressImpl implements _InProgress {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(int currentPage, String? name,
-            Map<String, double>? goals, List<String>? dietaryPreferences)
+    required TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)
         inProgress,
     required TResult Function() complete,
     required TResult Function(String message) error,
   }) {
-    return inProgress(currentPage, name, goals, dietaryPreferences);
+    return inProgress(currentPage, name, emailVerificationStatus, goals);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
-    TResult? Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult? Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult? Function()? complete,
     TResult? Function(String message)? error,
   }) {
-    return inProgress?.call(currentPage, name, goals, dietaryPreferences);
+    return inProgress?.call(currentPage, name, emailVerificationStatus, goals);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult Function()? complete,
     TResult Function(String message)? error,
     required TResult orElse(),
   }) {
     if (inProgress != null) {
-      return inProgress(currentPage, name, goals, dietaryPreferences);
+      return inProgress(currentPage, name, emailVerificationStatus, goals);
     }
     return orElse();
   }
@@ -425,13 +439,13 @@ abstract class _InProgress implements OnboardingState {
   const factory _InProgress(
       {required final int currentPage,
       final String? name,
-      final Map<String, double>? goals,
-      final List<String>? dietaryPreferences}) = _$InProgressImpl;
+      required final EmailVerificationStatus emailVerificationStatus,
+      final Map<String, double>? goals}) = _$InProgressImpl;
 
   int get currentPage;
   String? get name;
+  EmailVerificationStatus get emailVerificationStatus;
   Map<String, double>? get goals;
-  List<String>? get dietaryPreferences;
 
   /// Create a copy of OnboardingState
   /// with the given fields replaced by the non-null parameter values.
@@ -482,8 +496,11 @@ class _$CompleteImpl implements _Complete {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(int currentPage, String? name,
-            Map<String, double>? goals, List<String>? dietaryPreferences)
+    required TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)
         inProgress,
     required TResult Function() complete,
     required TResult Function(String message) error,
@@ -495,8 +512,11 @@ class _$CompleteImpl implements _Complete {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
-    TResult? Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult? Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult? Function()? complete,
     TResult? Function(String message)? error,
@@ -508,8 +528,11 @@ class _$CompleteImpl implements _Complete {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult Function()? complete,
     TResult Function(String message)? error,
@@ -632,8 +655,11 @@ class _$ErrorImpl implements _Error {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function(int currentPage, String? name,
-            Map<String, double>? goals, List<String>? dietaryPreferences)
+    required TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)
         inProgress,
     required TResult Function() complete,
     required TResult Function(String message) error,
@@ -645,8 +671,11 @@ class _$ErrorImpl implements _Error {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
-    TResult? Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult? Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult? Function()? complete,
     TResult? Function(String message)? error,
@@ -658,8 +687,11 @@ class _$ErrorImpl implements _Error {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function(int currentPage, String? name, Map<String, double>? goals,
-            List<String>? dietaryPreferences)?
+    TResult Function(
+            int currentPage,
+            String? name,
+            EmailVerificationStatus emailVerificationStatus,
+            Map<String, double>? goals)?
         inProgress,
     TResult Function()? complete,
     TResult Function(String message)? error,

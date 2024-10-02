@@ -4,6 +4,7 @@ import '../state_management/onboarding_notifier.dart';
 import '../widgets/custom_button.dart';
 import 'dashboard_screen.dart';
 import '../providers/providers.dart';
+import '../state_management/onboarding_state.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -26,15 +27,13 @@ class OnboardingScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(24.0),
           child: onboardingState.when(
             initial: () => _buildNameScreen(context, notifier),
-            inProgress: (currentPage, name, goals, dietaryPreferences) {
+            inProgress: (currentPage, name, emailVerificationStatus, goals) {
               switch (currentPage) {
                 case 0:
-                  return _buildNameScreen(context, notifier, name);
+                  return _buildNameScreen(
+                      context, notifier, name, emailVerificationStatus);
                 case 1:
                   return _buildGoalsScreen(context, notifier, goals);
-                case 2:
-                  return _buildDietaryPreferencesScreen(
-                      context, notifier, dietaryPreferences);
                 default:
                   return const SizedBox.shrink();
               }
@@ -48,7 +47,7 @@ class OnboardingScreen extends ConsumerWidget {
   }
 
   Widget _buildNameScreen(BuildContext context, OnboardingNotifier notifier,
-      [String? name]) {
+      [String? name, EmailVerificationStatus? emailVerificationStatus]) {
     return ListView(
       children: [
         Text(
@@ -70,6 +69,15 @@ class OnboardingScreen extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(height: 24),
+        if (emailVerificationStatus != EmailVerificationStatus.verified)
+          CustomButton(
+            onPressed: () =>
+                _showEmailVerificationBottomSheet(context, notifier),
+            child: const Text('Verify Email'),
+          )
+        else
+          Text('Email verified', style: Theme.of(context).textTheme.bodyLarge),
         const SizedBox(height: 24),
         CustomButton(
           onPressed: () {
@@ -99,10 +107,10 @@ class OnboardingScreen extends ConsumerWidget {
         CustomButton(
           onPressed: () {
             if (notifier.canMoveToNextPage()) {
-              notifier.nextPage();
+              notifier.completeOnboarding();
             }
           },
-          child: const Text('Next'),
+          child: const Text('Complete'),
         ),
       ],
     );
@@ -157,74 +165,8 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDietaryPreferencesScreen(BuildContext context,
-      OnboardingNotifier notifier, List<String>? dietaryPreferences) {
-    final allPreferences = [
-      'Vegetarian',
-      'Vegan',
-      'Gluten-free',
-      'Dairy-free',
-      'Keto',
-      'Paleo'
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Choose your preferences',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        const SizedBox(height: 24),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: allPreferences.map((pref) {
-            final isSelected = dietaryPreferences?.contains(pref) ?? false;
-            return FilterChip(
-              label: Text(pref),
-              selected: isSelected,
-              onSelected: (selected) {
-                notifier.toggleDietaryPreference(pref);
-              },
-              backgroundColor: Colors.grey[200],
-              selectedColor: const Color(0xFFED764A),
-              checkmarkColor: Colors.white,
-            );
-          }).toList(),
-        ),
-        const Spacer(),
-        Consumer(
-          builder: (context, ref, child) {
-            final isLoading = ref.watch(onboardingProvider).maybeWhen(
-                  inProgress: (_, __, ___, ____) => false,
-                  orElse: () => true,
-                );
-            return CustomButton(
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      if (context.mounted) {
-                        await _completeOnboardingAndNavigate(
-                            context, notifier, ref);
-                      }
-                    },
-              child: isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('Finish'),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
   Widget _buildCompletionScreen(
       BuildContext context, OnboardingNotifier notifier, WidgetRef ref) {
-    Navigator.of(context).pop(); // Dismiss the loading indicator
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -235,13 +177,10 @@ class OnboardingScreen extends ConsumerWidget {
         const SizedBox(height: 24),
         CustomButton(
           onPressed: () {
-            // Navigate to dashboard
-            if (context.mounted) {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const DashboardScreen()),
-                (route) => false,
-              );
-            }
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+              (route) => false,
+            );
           },
           child: const Text('Start your journey'),
         ),
@@ -280,33 +219,105 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _completeOnboardingAndNavigate(
-      BuildContext context, OnboardingNotifier notifier, WidgetRef ref) async {
-    try {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(child: CircularProgressIndicator());
-        },
-      );
+  void _showEmailVerificationBottomSheet(
+      BuildContext context, OnboardingNotifier notifier) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return EmailVerificationBottomSheet(notifier: notifier);
+      },
+    );
+  }
+}
 
-      // Add a small delay to ensure the loading indicator is visible
-      // await Future.delayed(const Duration(milliseconds: 300));
+class EmailVerificationBottomSheet extends StatefulWidget {
+  final OnboardingNotifier notifier;
 
-      // Complete onboarding first
-      await notifier.completeOnboarding();
-    } catch (e) {
-      // Dismiss loading indicator if it's showing
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-      if (!context.mounted) return;
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error completing onboarding: $e')),
-      );
+  const EmailVerificationBottomSheet({Key? key, required this.notifier})
+      : super(key: key);
+
+  @override
+  _EmailVerificationBottomSheetState createState() =>
+      _EmailVerificationBottomSheetState();
+}
+
+class _EmailVerificationBottomSheetState
+    extends State<EmailVerificationBottomSheet> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+  bool _isEmailSent = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: 24,
+        right: 24,
+        top: 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            _isEmailSent ? 'Enter OTP' : 'Enter your email',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          if (!_isEmailSent)
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                hintText: 'Email address',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
+            )
+          else
+            TextField(
+              controller: _otpController,
+              decoration: const InputDecoration(
+                hintText: 'Enter OTP',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          const SizedBox(height: 16),
+          CustomButton(
+            onPressed: _isEmailSent ? _verifyOtp : _sendOtp,
+            child: Text(_isEmailSent ? 'Verify OTP' : 'Send OTP'),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  void _sendOtp() async {
+    final email = _emailController.text.trim();
+    if (email.isNotEmpty) {
+      await widget.notifier.startEmailVerification(email);
+      setState(() {
+        _isEmailSent = true;
+      });
+    }
+  }
+
+  void _verifyOtp() async {
+    final email = _emailController.text.trim();
+    final otp = _otpController.text.trim();
+    if (email.isNotEmpty && otp.isNotEmpty) {
+      await widget.notifier.verifyOtp(email, otp);
+      Navigator.of(context).pop();
     }
   }
 }
