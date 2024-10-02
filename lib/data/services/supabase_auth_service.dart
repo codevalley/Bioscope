@@ -59,4 +59,28 @@ class SupabaseAuthService implements IAuthService {
       listener(userId);
     });
   }
+
+  // New methods for Email OTP
+  @override
+  Future<void> signInWithOtp(String email) async {
+    await _supabaseClient.auth.signInWithOtp(
+      email: email,
+      emailRedirectTo: 'io.supabase.flutterquickstart://login-callback/',
+    );
+  }
+
+  @override
+  Future<bool> verifyOtp(String email, String otp) async {
+    try {
+      final AuthResponse res = await _supabaseClient.auth.verifyOTP(
+        email: email,
+        token: otp,
+        type: OtpType.magiclink,
+      );
+      return res.session != null;
+    } catch (e) {
+      Logger.log('Error verifying OTP: $e');
+      return false;
+    }
+  }
 }

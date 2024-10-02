@@ -6,4 +6,7 @@ abstract class IAuthService {
   Future<void> signIn(String email, String password);
   Future<void> signOut();
   void onAuthStateChange(Function(String?) listener);
+
+  Future<void> signInWithOtp(String email);
+  Future<bool> verifyOtp(String email, String otp);
 }
