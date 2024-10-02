@@ -71,13 +71,37 @@ class OnboardingScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         if (emailVerificationStatus != EmailVerificationStatus.verified)
-          CustomButton(
+          TextButton(
             onPressed: () =>
                 _showEmailVerificationBottomSheet(context, notifier),
-            child: const Text('Verify Email'),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.secondary,
+            ),
+            child: const Text('Sign in or recover your history (optional)'),
           )
         else
-          Text('Email verified', style: Theme.of(context).textTheme.bodyLarge),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.green, width: 1),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  notifier.verifiedEmail ?? 'Email verified',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.green),
+                ),
+              ],
+            ),
+          ),
         const SizedBox(height: 24),
         CustomButton(
           onPressed: () {

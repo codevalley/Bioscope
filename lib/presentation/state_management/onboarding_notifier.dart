@@ -12,6 +12,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final IUserProfileRepository _userProfileRepository;
   final IAuthService _authService;
   final IDailyGoalsRepository _dailyGoalsRepository;
+  String? verifiedEmail;
 
   OnboardingNotifier(
     this._userProfileRepository,
@@ -53,6 +54,9 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       inProgress: (currentPage, name, _, goals) async {
         try {
           final isVerified = await _authService.verifyOtp(email, otp);
+          if (isVerified) {
+            verifiedEmail = email; // Store the verified email
+          }
           state = OnboardingState.inProgress(
             currentPage: currentPage,
             name: name,
