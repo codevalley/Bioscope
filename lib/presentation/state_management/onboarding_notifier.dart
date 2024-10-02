@@ -56,21 +56,69 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
           final isVerified = await _authService.verifyOtp(email, otp);
           if (isVerified) {
             verifiedEmail = email; // Store the verified email
+
+            // Check if user profile exists
+            final userId = await _authService.getCurrentUserId();
+            if (userId != null) {
+              final existingProfile =
+                  await _userProfileRepository.getUserProfile();
+              if (existingProfile != null) {
+                // Existing user, fetch daily goals and complete onboarding
+                await _fetchDailyGoalsAndComplete(userId);
+                return;
+              }
+            }
+
+            // New user, continue with normal flow
+            state = OnboardingState.inProgress(
+              currentPage: currentPage,
+              name: name,
+              emailVerificationStatus: EmailVerificationStatus.verified,
+              goals: goals,
+            );
+          } else {
+            state = OnboardingState.inProgress(
+              currentPage: currentPage,
+              name: name,
+              emailVerificationStatus: EmailVerificationStatus.failed,
+              goals: goals,
+            );
           }
-          state = OnboardingState.inProgress(
-            currentPage: currentPage,
-            name: name,
-            emailVerificationStatus: isVerified
-                ? EmailVerificationStatus.verified
-                : EmailVerificationStatus.failed,
-            goals: goals,
-          );
         } catch (e) {
           state = OnboardingState.error(e.toString());
         }
       },
       orElse: () {},
     );
+  }
+
+  Future<void> _fetchDailyGoalsAndComplete(String userId) async {
+    try {
+      final today = DateTime.now();
+      final dailyGoals = await _dailyGoalsRepository.getDailyGoals(
+        DateTime(today.year, today.month, today.day),
+      );
+
+      if (dailyGoals == null) {
+        // If no daily goals exist for today, create new ones
+        final userProfile = await _userProfileRepository.getUserProfile();
+        if (userProfile != null) {
+          final newDailyGoals = DailyGoals(
+            userId: userId,
+            date: DateTime(today.year, today.month, today.day),
+            goals: userProfile.nutritionGoals.map(
+              (key, value) => MapEntry(key, value.copyWith(actual: 0)),
+            ),
+          );
+          await _dailyGoalsRepository.saveDailyGoals(newDailyGoals);
+        }
+      }
+
+      state = const OnboardingState.complete();
+    } catch (e) {
+      Logger.log('Error fetching daily goals and completing onboarding: $e');
+      state = OnboardingState.error(e.toString());
+    }
   }
 
   void setName(String name) {
@@ -146,30 +194,24 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             final userId = await _authService.getCurrentUserId();
             if (userId == null) throw Exception('Failed to get user ID');
 
-            final nutritionGoals = _createNutritionGoals(goals);
+            final existingProfile =
+                await _userProfileRepository.getUserProfile();
+            if (existingProfile == null) {
+              // Only save user profile for new users
+              final nutritionGoals = _createNutritionGoals(goals);
+              final userProfile = UserProfile(
+                id: userId,
+                name: name,
+                age: 0,
+                height: 0,
+                weight: 0,
+                gender: '',
+                nutritionGoals: nutritionGoals,
+              );
+              await _userProfileRepository.saveUserProfile(userProfile);
+            }
 
-            final userProfile = UserProfile(
-              id: userId,
-              name: name,
-              age: 0,
-              height: 0,
-              weight: 0,
-              gender: '',
-              nutritionGoals: nutritionGoals,
-            );
-            await _userProfileRepository.saveUserProfile(userProfile);
-
-            final today = DateTime.now();
-            final dailyGoals = DailyGoals(
-              userId: userId,
-              date: DateTime(today.year, today.month, today.day),
-              goals: nutritionGoals.map(
-                  (key, value) => MapEntry(key, value.copyWith(actual: 0))),
-            );
-
-            await _userProfileRepository.getUserProfile();
-            await _dailyGoalsRepository.saveDailyGoals(dailyGoals);
-            state = const OnboardingState.complete();
+            await _fetchDailyGoalsAndComplete(userId);
           } catch (e) {
             Logger.log('Error completing onboarding: $e');
             state = OnboardingState.error(e.toString());
