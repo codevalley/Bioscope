@@ -65,7 +65,6 @@ class SupabaseAuthService implements IAuthService {
   Future<void> signInWithOtp(String email) async {
     await _supabaseClient.auth.signInWithOtp(
       email: email,
-      emailRedirectTo: 'io.supabase.flutterquickstart://login-callback/',
     );
   }
 
@@ -75,7 +74,7 @@ class SupabaseAuthService implements IAuthService {
       final AuthResponse res = await _supabaseClient.auth.verifyOTP(
         email: email,
         token: otp,
-        type: OtpType.magiclink,
+        type: OtpType.email,
       );
       return res.session != null;
     } catch (e) {
