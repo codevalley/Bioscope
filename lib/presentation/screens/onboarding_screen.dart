@@ -262,11 +262,11 @@ class EmailVerificationBottomSheet extends StatefulWidget {
       : super(key: key);
 
   @override
-  _EmailVerificationBottomSheetState createState() =>
-      _EmailVerificationBottomSheetState();
+  EmailVerificationBottomSheetState createState() =>
+      EmailVerificationBottomSheetState();
 }
 
-class _EmailVerificationBottomSheetState
+class EmailVerificationBottomSheetState
     extends State<EmailVerificationBottomSheet> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
@@ -341,7 +341,9 @@ class _EmailVerificationBottomSheetState
     final otp = _otpController.text.trim();
     if (email.isNotEmpty && otp.isNotEmpty) {
       await widget.notifier.verifyOtp(email, otp);
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 }

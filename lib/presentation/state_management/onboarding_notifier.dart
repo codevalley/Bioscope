@@ -12,7 +12,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final IUserProfileRepository _userProfileRepository;
   final IAuthService _authService;
   final IDailyGoalsRepository _dailyGoalsRepository;
-  String? verifiedEmail;
+  String? verifiedEmail; // Retain this for UI display
 
   OnboardingNotifier(
     this._userProfileRepository,
@@ -31,65 +31,60 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   }
 
   Future<void> startEmailVerification(String email) async {
-    state.maybeWhen(
-      inProgress: (currentPage, name, _, goals) async {
-        try {
-          await _authService.signInWithOtp(email);
-          state = OnboardingState.inProgress(
-            currentPage: currentPage,
-            name: name,
-            emailVerificationStatus: EmailVerificationStatus.inProgress,
-            goals: goals,
-          );
-        } catch (e) {
-          state = OnboardingState.error(e.toString());
-        }
-      },
-      orElse: () {},
-    );
+    try {
+      await _authService.signInWithOtp(email);
+      state = state.maybeWhen(
+        inProgress: (currentPage, name, _, goals) => OnboardingState.inProgress(
+          currentPage: currentPage,
+          name: name,
+          emailVerificationStatus: EmailVerificationStatus.inProgress,
+          goals: goals,
+        ),
+        orElse: () => state,
+      );
+    } catch (e) {
+      state = OnboardingState.error(e.toString());
+    }
   }
 
   Future<void> verifyOtp(String email, String otp) async {
-    state.maybeWhen(
-      inProgress: (currentPage, name, _, goals) async {
-        try {
-          final isVerified = await _authService.verifyOtp(email, otp);
-          if (isVerified) {
-            verifiedEmail = email; // Store the verified email
-
-            // Check if user profile exists
-            final userId = await _authService.getCurrentUserId();
-            if (userId != null) {
-              final existingProfile =
-                  await _userProfileRepository.getUserProfile();
-              if (existingProfile != null) {
-                // Existing user, fetch daily goals and complete onboarding
-                await _fetchDailyGoalsAndComplete(userId);
-                return;
-              }
-            }
-
-            // New user, continue with normal flow
-            state = OnboardingState.inProgress(
-              currentPage: currentPage,
-              name: name,
-              emailVerificationStatus: EmailVerificationStatus.verified,
-              goals: goals,
-            );
-          } else {
-            state = OnboardingState.inProgress(
-              currentPage: currentPage,
-              name: name,
-              emailVerificationStatus: EmailVerificationStatus.failed,
-              goals: goals,
-            );
+    try {
+      final isVerified = await _authService.verifyOtp(email, otp);
+      if (isVerified) {
+        verifiedEmail = email; // Set the verified email
+        final userId = await _authService.getCurrentUserId();
+        if (userId != null) {
+          final existingProfile = await _userProfileRepository.getUserProfile();
+          if (existingProfile != null) {
+            await _fetchDailyGoalsAndComplete(userId);
+            return;
           }
-        } catch (e) {
-          state = OnboardingState.error(e.toString());
         }
-      },
-      orElse: () {},
-    );
+        state = state.maybeWhen(
+          inProgress: (currentPage, name, _, goals) =>
+              OnboardingState.inProgress(
+            currentPage: currentPage,
+            name: name,
+            emailVerificationStatus: EmailVerificationStatus.verified,
+            goals: goals,
+          ),
+          orElse: () => state,
+        );
+      } else {
+        state = state.maybeWhen(
+          inProgress: (currentPage, name, _, goals) =>
+              OnboardingState.inProgress(
+            currentPage: currentPage,
+            name: name,
+            emailVerificationStatus: EmailVerificationStatus.failed,
+            goals: goals,
+          ),
+          orElse: () => state,
+        );
+      }
+    } catch (e) {
+      state = OnboardingState.error(e.toString());
+    }
   }
 
   Future<void> _fetchDailyGoalsAndComplete(String userId) async {
@@ -100,7 +95,6 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       );
 
       if (dailyGoals == null) {
-        // If no daily goals exist for today, create new ones
         final userProfile = await _userProfileRepository.getUserProfile();
         if (userProfile != null) {
           final newDailyGoals = DailyGoals(
@@ -122,60 +116,58 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   }
 
   void setName(String name) {
-    state.maybeWhen(
-      inProgress: (currentPage, _, emailVerificationStatus, goals) {
-        state = OnboardingState.inProgress(
-          currentPage: currentPage,
-          name: name,
-          emailVerificationStatus: emailVerificationStatus,
-          goals: goals,
-        );
-      },
-      orElse: () {},
+    state = state.maybeWhen(
+      inProgress: (currentPage, _, emailVerificationStatus, goals) =>
+          OnboardingState.inProgress(
+        currentPage: currentPage,
+        name: name,
+        emailVerificationStatus: emailVerificationStatus,
+        goals: goals,
+      ),
+      orElse: () => state,
     );
   }
 
   void setGoal(String goalType, double value) {
-    state.maybeWhen(
+    state = state.maybeWhen(
       inProgress: (currentPage, name, emailVerificationStatus, goals) {
         final updatedGoals = Map<String, double>.from(goals ?? {});
         updatedGoals[goalType] = value;
-        state = OnboardingState.inProgress(
+        return OnboardingState.inProgress(
           currentPage: currentPage,
           name: name,
           emailVerificationStatus: emailVerificationStatus,
           goals: updatedGoals,
         );
       },
-      orElse: () {},
+      orElse: () => state,
     );
   }
 
   void nextPage() {
-    state.maybeWhen(
-      inProgress: (currentPage, name, emailVerificationStatus, goals) {
-        if (canMoveToNextPage()) {
-          state = OnboardingState.inProgress(
-            currentPage: currentPage + 1,
-            name: name,
-            emailVerificationStatus: emailVerificationStatus,
-            goals: goals,
-          );
-        }
-      },
-      orElse: () {},
-    );
+    if (canMoveToNextPage()) {
+      state = state.maybeWhen(
+        inProgress: (currentPage, name, emailVerificationStatus, goals) =>
+            OnboardingState.inProgress(
+          currentPage: currentPage + 1,
+          name: name,
+          emailVerificationStatus: emailVerificationStatus,
+          goals: goals,
+        ),
+        orElse: () => state,
+      );
+    }
   }
 
   bool canMoveToNextPage() {
-    return state.maybeMap(
-      inProgress: (s) {
-        if (s.currentPage == 0) {
-          return s.name != null &&
-              s.name!.isNotEmpty &&
-              s.emailVerificationStatus == EmailVerificationStatus.verified;
-        } else if (s.currentPage == 1) {
-          return s.goals != null && s.goals!.isNotEmpty;
+    return state.maybeWhen(
+      inProgress: (currentPage, name, emailVerificationStatus, goals) {
+        if (currentPage == 0) {
+          return name != null &&
+              name.isNotEmpty &&
+              emailVerificationStatus == EmailVerificationStatus.verified;
+        } else if (currentPage == 1) {
+          return goals != null && goals.isNotEmpty;
         }
         return false;
       },
@@ -197,7 +189,6 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             final existingProfile =
                 await _userProfileRepository.getUserProfile();
             if (existingProfile == null) {
-              // Only save user profile for new users
               final nutritionGoals = _createNutritionGoals(goals);
               final userProfile = UserProfile(
                 id: userId,
