@@ -3,6 +3,9 @@ import '../../core/interfaces/food_entry_datasource.dart';
 import '../models/food_entry_model.dart';
 import '../../core/utils/logger.dart';
 import 'dart:async';
+import 'dart:io';
+import 'package:path/path.dart' as path;
+import 'package:uuid/uuid.dart';
 
 class FoodEntrySupabaseDs extends FoodEntryDataSource {
   final SupabaseClient _supabaseClient;
@@ -19,6 +22,43 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     } catch (e) {
       Logger.log(
           'Warning: $_tableName table might not exist in Supabase. Error: $e');
+    }
+  }
+
+  @override
+  Future<String> getAuthenticatedImageUrl(String imagePath) async {
+    try {
+      final response = await _supabaseClient.storage
+          .from('food_images')
+          .createSignedUrl(imagePath, 60 * 60); // URL valid for 1 hour
+
+      return response;
+    } catch (e) {
+      Logger.log('Error getting authenticated image URL: $e');
+      rethrow;
+    }
+  }
+
+  Future<String?> _uploadImage(String localPath) async {
+    try {
+      final file = File(localPath);
+      final fileExtension = path.extension(localPath);
+      final fileName = '${const Uuid().v4()}$fileExtension';
+
+      final urlpath = await _supabaseClient.storage
+          .from('food_images')
+          .upload(fileName, file);
+
+      if (urlpath.isNotEmpty) {
+        return _supabaseClient.storage
+            .from('food_images')
+            .getPublicUrl(fileName);
+      } else {
+        throw Exception('Failed to upload image');
+      }
+    } catch (e) {
+      Logger.log('Error uploading image: $e');
+      return null;
     }
   }
 
@@ -78,6 +118,10 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     try {
       final dataToInsert = item.toJson();
       dataToInsert['userid'] = _currentUserId;
+      if (item.imagePath != null) {
+        final imageUrl = await _uploadImage(item.imagePath!);
+        dataToInsert['imagePath'] = imageUrl;
+      }
       await _supabaseClient.from(_tableName).insert(dataToInsert);
     } catch (e) {
       Logger.log('Error creating food entry: $e');

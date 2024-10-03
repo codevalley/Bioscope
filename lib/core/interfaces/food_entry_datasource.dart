@@ -5,4 +5,5 @@ abstract class FoodEntryDataSource extends DataSource<FoodEntryModel> {
   Future<List<FoodEntryModel>> getAll();
   Stream<List<FoodEntryModel>> watchAll();
   Future<List<FoodEntryModel>> getByDate(DateTime date);
+  Future<String> getAuthenticatedImageUrl(String imagePath);
 }

@@ -69,4 +69,10 @@ class FoodEntryRemoteDs implements FoodEntryDataSource {
   void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
     // No implementation needed for mock
   }
+
+  @override
+  Future<String> getAuthenticatedImageUrl(String imagePath) async {
+    // In a real implementation, this would use an API to get the authenticated URL
+    return imagePath;
+  }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
+
 import '../../domain/entities/food_entry.dart';
 import 'package:bioscope/presentation/widgets/nutrition_info.dart';
 import 'package:bioscope/utils/date_formatter.dart';
@@ -61,8 +61,8 @@ class FoodEntryDetailScreen extends StatelessWidget {
           if (foodEntry.imagePath != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                File(foodEntry.imagePath!),
+              child: Image.network(
+                (foodEntry.imagePath!),
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 200,

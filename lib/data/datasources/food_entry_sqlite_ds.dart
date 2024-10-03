@@ -151,4 +151,9 @@ class FoodEntrySqliteDs implements FoodEntryDataSource {
     );
     return List.generate(maps.length, (i) => FoodEntryModel.fromJson(maps[i]));
   }
+
+  @override
+  Future<String> getAuthenticatedImageUrl(String imagePath) async {
+    return imagePath;
+  }
 }

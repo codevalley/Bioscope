@@ -91,6 +91,10 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
     return _foodEntriesController.stream;
   }
 
+  Future<String> getAuthenticatedImageUrl(String imagePath) async {
+    return await _dataSource.getAuthenticatedImageUrl(imagePath);
+  }
+
   // Don't forget to close the StreamController when it's no longer needed
   void dispose() {
     _foodEntriesController.close();
