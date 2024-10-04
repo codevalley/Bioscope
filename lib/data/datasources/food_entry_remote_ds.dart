@@ -71,8 +71,8 @@ class FoodEntryRemoteDs implements FoodEntryDataSource {
   }
 
   @override
-  Future<String> getAuthenticatedImageUrl(String imagePath) async {
+  Future<String> getAuthenticatedImageUrl(String fileName) async {
     // In a real implementation, this would use an API to get the authenticated URL
-    return imagePath;
+    return fileName;
   }
 }

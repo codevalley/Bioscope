@@ -9,5 +9,5 @@ abstract class IFoodEntryRepository {
   Future<int> getTotalCaloriesConsumed();
   Future<List<FoodEntry>> getEntriesByDate(DateTime date);
   Stream<List<FoodEntry>> watchAllFoodEntries();
-  Future<String> getAuthenticatedImageUrl(String imagePath);
+  Future<String> getAuthenticatedImageUrl(String fileName);
 }

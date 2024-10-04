@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/food_entry.dart';
 import 'package:bioscope/presentation/widgets/nutrition_info.dart';
-import 'package:bioscope/utils/date_formatter.dart';
+import 'package:bioscope/core/utils/date_formatter.dart';
 import 'package:bioscope/presentation/widgets/authenticated_image.dart';
 
 class FoodEntryDetailScreen extends StatelessWidget {

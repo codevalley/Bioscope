@@ -153,7 +153,7 @@ class FoodEntrySqliteDs implements FoodEntryDataSource {
   }
 
   @override
-  Future<String> getAuthenticatedImageUrl(String imagePath) async {
-    return imagePath;
+  Future<String> getAuthenticatedImageUrl(String fileName) async {
+    return fileName;
   }
 }

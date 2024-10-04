@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/food_entry.dart';
-import '../../utils/date_formatter.dart';
+import '../../core/utils/date_formatter.dart';
 import 'authenticated_image.dart';
 
 class FoodEntryItem extends StatelessWidget {
