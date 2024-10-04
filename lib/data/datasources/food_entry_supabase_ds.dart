@@ -28,14 +28,19 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
   @override
   Future<String> getAuthenticatedImageUrl(String imagePath) async {
     try {
+      // Extract the file name from the full URL
+      final uri = Uri.parse(imagePath);
+      final fileName = path.basename(uri.path);
+
       final response = await _supabaseClient.storage
           .from('food_images')
-          .createSignedUrl(imagePath, 60 * 60); // URL valid for 1 hour
+          .createSignedUrl(fileName, 60 * 60); // URL valid for 1 hour
 
       return response;
     } catch (e) {
       Logger.log('Error getting authenticated image URL: $e');
-      rethrow;
+      // Instead of rethrowing, return the original URL as a fallback
+      return imagePath;
     }
   }
 

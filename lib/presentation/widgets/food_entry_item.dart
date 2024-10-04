@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/food_entry.dart';
 import '../../utils/date_formatter.dart';
-import '../widgets/authenticated_image.dart';
+import 'authenticated_image.dart';
 
 class FoodEntryItem extends StatelessWidget {
   final FoodEntry entry;
@@ -67,10 +67,8 @@ class FoodEntryItem extends StatelessWidget {
           if (entry.imagePath != null)
             Padding(
               padding: const EdgeInsets.only(top: 16),
-              child: Image.network(
-                entry.imagePath!,
-                width: double.infinity,
-                height: 200,
+              child: AuthenticatedImage(
+                imagePath: entry.imagePath!,
                 fit: BoxFit.cover,
               ),
             ),

@@ -29,6 +29,7 @@ Future<void> setupDependencies() async {
   await Supabase.initialize(
     url: SupabaseConfig.url,
     anonKey: SupabaseConfig.anonKey,
+    //storageUrl: SupabaseConfig.storageUrl,
   );
 
   // Supabase client
