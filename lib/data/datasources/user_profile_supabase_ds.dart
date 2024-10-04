@@ -3,14 +3,23 @@ import 'package:bioscope/core/interfaces/user_profile_datasource.dart';
 import 'package:bioscope/data/models/user_profile_model.dart';
 import 'package:bioscope/core/utils/logger.dart';
 
+/// Supabase implementation of the [UserProfileDataSource] interface.
+///
+/// This class provides methods to interact with a Supabase backend
+/// for storing and retrieving user profiles.
 class UserProfileSupabaseDs implements UserProfileDataSource {
   final SupabaseClient _supabaseClient;
   static const String _tableName = 'user_profiles';
 
+  /// Creates a new instance of [UserProfileSupabaseDs].
+  ///
+  /// Requires a [SupabaseClient] instance to interact with Supabase.
   UserProfileSupabaseDs(this._supabaseClient);
 
+  /// Gets the current user's ID from Supabase authentication.
   String get _currentUserId => _supabaseClient.auth.currentUser?.id ?? '';
 
+  /// Initializes the Supabase connection and checks if the table exists.
   @override
   Future<void> initialize() async {
     try {
@@ -21,6 +30,10 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
     }
   }
 
+  /// Retrieves a user profile by its ID from Supabase.
+  ///
+  /// [id] The unique identifier of the user profile.
+  /// Returns a [Future] that completes with the [UserProfileModel] if found, or null otherwise.
   @override
   Future<UserProfileModel?> getById(String id) async {
     if (id != _currentUserId) {
@@ -39,6 +52,9 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
     }
   }
 
+  /// Creates a new user profile in Supabase.
+  ///
+  /// [item] The [UserProfileModel] to be created.
   @override
   Future<void> create(UserProfileModel item) async {
     if (_currentUserId.isEmpty) {
@@ -67,6 +83,9 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
     }
   }
 
+  /// Updates an existing user profile in Supabase.
+  ///
+  /// [item] The [UserProfileModel] to be updated.
   @override
   Future<void> update(UserProfileModel item) async {
     if (item.id != _currentUserId) {
@@ -83,6 +102,9 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
     }
   }
 
+  /// Deletes a user profile from Supabase.
+  ///
+  /// [id] The unique identifier of the user profile to be deleted.
   @override
   Future<void> delete(String id) async {
     if (id != _currentUserId) {
@@ -96,6 +118,10 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
     }
   }
 
+  /// Provides a stream of a specific user profile by its ID.
+  ///
+  /// [id] The unique identifier of the user profile to watch.
+  /// Returns a [Stream] that emits the updated [UserProfileModel] whenever it changes.
   @override
   Stream<UserProfileModel?> watchById(String id) {
     if (id != _currentUserId) {
@@ -112,6 +138,10 @@ class UserProfileSupabaseDs implements UserProfileDataSource {
             event.isNotEmpty ? UserProfileModel.fromJson(event.first) : null);
   }
 
+  /// Sets up real-time listeners for data changes in Supabase.
+  ///
+  /// [onDataChanged] A callback function that will be called with the updated list of items
+  /// whenever the data changes.
   @override
   void setupRealtimeListeners(Function(List<UserProfileModel>) onDataChanged) {
     final currentUser = _supabaseClient.auth.currentUser;

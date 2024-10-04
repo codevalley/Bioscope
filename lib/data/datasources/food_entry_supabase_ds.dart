@@ -7,14 +7,23 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 
+/// Supabase implementation of the [FoodEntryDataSource] interface.
+///
+/// This class provides methods to interact with a Supabase backend
+/// for storing and retrieving food entries.
 class FoodEntrySupabaseDs extends FoodEntryDataSource {
   final SupabaseClient _supabaseClient;
   static const String _tableName = 'food_entries';
 
+  /// Creates a new instance of [FoodEntrySupabaseDs].
+  ///
+  /// Requires a [SupabaseClient] instance to interact with Supabase.
   FoodEntrySupabaseDs(this._supabaseClient);
 
+  /// Gets the current user's ID from Supabase authentication.
   String get _currentUserId => _supabaseClient.auth.currentUser?.id ?? '';
 
+  /// Initializes the Supabase connection and checks if the table exists.
   @override
   Future<void> initialize() async {
     try {
@@ -25,6 +34,10 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     }
   }
 
+  /// Retrieves an authenticated URL for an image associated with a food entry.
+  ///
+  /// [fileName] The name of the image file.
+  /// Returns a [Future] that completes with the authenticated URL as a [String].
   @override
   Future<String> getAuthenticatedImageUrl(String fileName) async {
     try {
@@ -40,6 +53,10 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     }
   }
 
+  /// Uploads an image file to Supabase storage.
+  ///
+  /// [localPath] The local path of the image file to be uploaded.
+  /// Returns a [Future] that completes with the file name of the uploaded image, or null if the upload fails.
   Future<String?> _uploadImage(String localPath) async {
     try {
       final file = File(localPath);
@@ -61,6 +78,9 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     }
   }
 
+  /// Retrieves all food entries for the current user from Supabase.
+  ///
+  /// Returns a [Future] that completes with a list of [FoodEntryModel].
   @override
   Future<List<FoodEntryModel>> getAll() async {
     try {
@@ -77,6 +97,10 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     }
   }
 
+  /// Retrieves a specific food entry by its ID from Supabase.
+  ///
+  /// [id] The unique identifier of the food entry.
+  /// Returns a [Future] that completes with the [FoodEntryModel] if found, or null otherwise.
   @override
   Future<FoodEntryModel?> getById(String id) async {
     try {
@@ -93,6 +117,10 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     }
   }
 
+  /// Retrieves food entries for a specific date from Supabase.
+  ///
+  /// [date] The date for which to retrieve food entries.
+  /// Returns a [Future] that completes with a list of [FoodEntryModel] for the given date.
   @override
   Future<List<FoodEntryModel>> getByDate(DateTime date) async {
     final startOfDay =
@@ -112,6 +140,9 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
         .toList();
   }
 
+  /// Creates a new food entry in Supabase.
+  ///
+  /// [item] The [FoodEntryModel] to be created.
   @override
   Future<void> create(FoodEntryModel item) async {
     try {
@@ -128,6 +159,9 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     }
   }
 
+  /// Updates an existing food entry in Supabase.
+  ///
+  /// [item] The [FoodEntryModel] to be updated.
   @override
   Future<void> update(FoodEntryModel item) async {
     try {
@@ -144,6 +178,9 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     }
   }
 
+  /// Deletes a food entry from Supabase.
+  ///
+  /// [id] The unique identifier of the food entry to be deleted.
   @override
   Future<void> delete(String id) async {
     try {
@@ -158,6 +195,9 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     }
   }
 
+  /// Provides a stream of all food entries for the current user.
+  ///
+  /// Returns a [Stream] that emits a list of [FoodEntryModel] whenever the data changes.
   @override
   Stream<List<FoodEntryModel>> watchAll() {
     final stream = _supabaseClient
@@ -168,6 +208,10 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
         (event) => event.map((item) => FoodEntryModel.fromJson(item)).toList());
   }
 
+  /// Provides a stream of a specific food entry by its ID.
+  ///
+  /// [id] The unique identifier of the food entry to watch.
+  /// Returns a [Stream] that emits the updated [FoodEntryModel] whenever it changes.
   @override
   Stream<FoodEntryModel?> watchById(String id) {
     final stream = _supabaseClient
@@ -179,6 +223,10 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
         event.isNotEmpty ? FoodEntryModel.fromJson(event.first) : null);
   }
 
+  /// Sets up real-time listeners for data changes in Supabase.
+  ///
+  /// [onDataChanged] A callback function that will be called with the updated list of items
+  /// whenever the data changes.
   @override
   void setupRealtimeListeners(Function(List<FoodEntryModel>) onDataChanged) {
     _supabaseClient
