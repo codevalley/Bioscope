@@ -87,7 +87,8 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
       final response = await _supabaseClient
           .from(_tableName)
           .select()
-          .eq('userid', _currentUserId);
+          .eq('userid', _currentUserId)
+          .order('date', ascending: false); // Sort in descending order
       return (response as List)
           .map((item) => FoodEntryModel.fromJson(item))
           .toList();
@@ -133,7 +134,8 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
         .select()
         .eq('userid', _currentUserId)
         .gte('date', startOfDay)
-        .lt('date', endOfDay);
+        .lt('date', endOfDay)
+        .order('date', ascending: false); // Sort in descending order
 
     return (response as List)
         .map((item) => FoodEntryModel.fromJson(item))
@@ -202,7 +204,9 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
   Stream<List<FoodEntryModel>> watchAll() {
     final stream = _supabaseClient
         .from(_tableName)
-        .stream(primaryKey: ['id']).eq('userid', _currentUserId);
+        .stream(primaryKey: ['id'])
+        .eq('userid', _currentUserId)
+        .order('date', ascending: false); // Sort in descending order
 
     return stream.map(
         (event) => event.map((item) => FoodEntryModel.fromJson(item)).toList());

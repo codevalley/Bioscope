@@ -26,7 +26,7 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
       final foodEntries = updatedData
           .map((model) => model as FoodEntry)
           .toList()
-        ..sort((a, b) => b.date.compareTo(a.date));
+        ..sort((a, b) => b.date.compareTo(a.date)); // Sort in descending order
       _foodEntriesController.add(foodEntries);
     });
   }
@@ -38,7 +38,7 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
     final foodEntries = foodEntryModels
         .map((model) => model as FoodEntry)
         .toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+      ..sort((a, b) => b.date.compareTo(a.date)); // Sort in descending order
     return foodEntries;
   }
 
@@ -49,11 +49,12 @@ class FoodEntryRepositoryImpl implements IFoodEntryRepository {
     return allEntries.take(5).toList();
   }
 
-  /// Retrieves food entries for a specific date.
+  /// Retrieves food entries for a specific date, sorted in descending order.
   @override
   Future<List<FoodEntry>> getEntriesByDate(DateTime date) async {
     final foodEntryModels = await _dataSource.getByDate(date);
-    return foodEntryModels.map((model) => model.toDomain()).toList();
+    return foodEntryModels.map((model) => model.toDomain()).toList()
+      ..sort((a, b) => b.date.compareTo(a.date)); // Sort in descending order
   }
 
   /// Adds a new food entry.
