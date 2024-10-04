@@ -28,19 +28,17 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
   @override
   Future<String> getAuthenticatedImageUrl(String imagePath) async {
     try {
-      // Extract the file name from the full URL
-      final uri = Uri.parse(imagePath);
-      final fileName = path.basename(uri.path);
-
       final response = await _supabaseClient.storage
           .from('food_images')
-          .createSignedUrl(fileName, 60 * 60); // URL valid for 1 hour
+          .createSignedUrl(imagePath, 60 * 60); // URL valid for 1 hour
 
       return response;
     } catch (e) {
       Logger.log('Error getting authenticated image URL: $e');
-      // Instead of rethrowing, return the original URL as a fallback
-      return imagePath;
+      // Instead of returning the original URL, construct a public URL
+      return _supabaseClient.storage
+          .from('food_images')
+          .getPublicUrl(imagePath);
     }
   }
 
@@ -55,9 +53,7 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
           .upload(fileName, file);
 
       if (urlpath.isNotEmpty) {
-        return _supabaseClient.storage
-            .from('food_images')
-            .getPublicUrl(fileName);
+        return fileName; // Return only the file name
       } else {
         throw Exception('Failed to upload image');
       }
@@ -124,8 +120,8 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
       final dataToInsert = item.toJson();
       dataToInsert['userid'] = _currentUserId;
       if (item.imagePath != null) {
-        final imageUrl = await _uploadImage(item.imagePath!);
-        dataToInsert['imagePath'] = imageUrl;
+        final fileName = await _uploadImage(item.imagePath!);
+        dataToInsert['imagePath'] = fileName; // Store only the file name
       }
       await _supabaseClient.from(_tableName).insert(dataToInsert);
     } catch (e) {
