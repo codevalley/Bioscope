@@ -30,8 +30,8 @@ class FoodEntrySupabaseDs extends FoodEntryDataSource {
     try {
       final response = await _supabaseClient.storage
           .from('food_images')
-          .createSignedUrl(imagePath, 60 * 60); // URL valid for 1 hour
-
+          .createSignedUrl(
+              imagePath, 60 * 60 * 24 * 30); // URL valid for 30 days
       return response;
     } catch (e) {
       Logger.log('Error getting authenticated image URL: $e');

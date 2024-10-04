@@ -1,6 +1,6 @@
-// In a new file, e.g., authenticated_image.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/providers.dart';
 
 class AuthenticatedImage extends ConsumerWidget {
@@ -25,12 +25,11 @@ class AuthenticatedImage extends ConsumerWidget {
         } else if (snapshot.hasError) {
           return const Icon(Icons.error);
         } else if (snapshot.hasData) {
-          return Image.network(
-            snapshot.data!,
+          return CachedNetworkImage(
+            imageUrl: snapshot.data!,
             fit: fit,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(Icons.broken_image);
-            },
+            placeholder: (context, url) => const CircularProgressIndicator(),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
           );
         } else {
           return const Icon(Icons.image_not_supported);

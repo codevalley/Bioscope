@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/services/auth_service.dart';
 import '../../core/utils/logger.dart';
+import '../../core/utils/cache_manager.dart';
 
 class SupabaseAuthService implements IAuthService {
   final SupabaseClient _supabaseClient;
@@ -50,6 +51,7 @@ class SupabaseAuthService implements IAuthService {
   @override
   Future<void> signOut() async {
     await _supabaseClient.auth.signOut();
+    await CacheManager.clearCache();
   }
 
   @override
