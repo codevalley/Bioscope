@@ -1,7 +1,12 @@
 import '../../domain/entities/daily_goals.dart';
 import '../../domain/entities/goal_item.dart';
 
+/// Model class for daily goals, extending the [DailyGoals] entity.
+///
+/// This class provides additional functionality for JSON serialization and deserialization,
+/// as well as conversion between the model and domain entity.
 class DailyGoalsModel extends DailyGoals {
+  /// Creates a new [DailyGoalsModel] instance.
   DailyGoalsModel({
     required String id,
     required String userId,
@@ -9,6 +14,7 @@ class DailyGoalsModel extends DailyGoals {
     required Map<String, GoalItem> goals,
   }) : super(id: id, userId: userId, date: date, goals: goals);
 
+  /// Creates a [DailyGoalsModel] instance from a JSON map.
   factory DailyGoalsModel.fromJson(Map<String, dynamic> json) {
     return DailyGoalsModel(
       id: json['id'],
@@ -20,8 +26,8 @@ class DailyGoalsModel extends DailyGoals {
           GoalItem(
             name: value['name'],
             description: value['description'],
-            target: (value['target'] as num).toDouble(), // Convert to double
-            actual: (value['actual'] as num).toDouble(), // Convert to double
+            target: (value['target'] as num).toDouble(),
+            actual: (value['actual'] as num).toDouble(),
             isPublic: value['isPublic'],
             unit: value['unit'],
             timestamp: DateTime.parse(value['timestamp']),
@@ -31,6 +37,7 @@ class DailyGoalsModel extends DailyGoals {
     );
   }
 
+  /// Converts this [DailyGoalsModel] instance to a JSON map.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -53,6 +60,7 @@ class DailyGoalsModel extends DailyGoals {
     };
   }
 
+  /// Converts this [DailyGoalsModel] to a [DailyGoals] domain entity.
   DailyGoals toDomain() {
     return DailyGoals(
       id: id,
@@ -62,6 +70,7 @@ class DailyGoalsModel extends DailyGoals {
     );
   }
 
+  /// Creates a [DailyGoalsModel] from a [DailyGoals] domain entity.
   static DailyGoalsModel fromDomain(DailyGoals dailyGoals) {
     return DailyGoalsModel(
       id: dailyGoals.id,
@@ -71,6 +80,7 @@ class DailyGoalsModel extends DailyGoals {
     );
   }
 
+  /// Creates a copy of this [DailyGoalsModel] with the given fields replaced with new values.
   DailyGoalsModel copyWith({
     String? id,
     String? userId,

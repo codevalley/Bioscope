@@ -1,7 +1,12 @@
 import '../../domain/entities/user_profile.dart';
 import '../../domain/entities/goal_item.dart';
 
+/// Model class for user profiles, extending the [UserProfile] entity.
+///
+/// This class provides additional functionality for JSON serialization and deserialization,
+/// as well as conversion between the model and domain entity.
 class UserProfileModel extends UserProfile {
+  /// Creates a new [UserProfileModel] instance.
   UserProfileModel({
     required String id,
     required String name,
@@ -20,6 +25,7 @@ class UserProfileModel extends UserProfile {
           nutritionGoals: nutritionGoals,
         );
 
+  /// Creates a [UserProfileModel] instance from a JSON map.
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
       id: json['id'],
@@ -45,6 +51,7 @@ class UserProfileModel extends UserProfile {
     );
   }
 
+  /// Converts this [UserProfileModel] instance to a JSON map.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -70,8 +77,10 @@ class UserProfileModel extends UserProfile {
     };
   }
 
+  /// Converts this [UserProfileModel] to a [UserProfile] domain entity.
   UserProfile toDomain() => this;
 
+  /// Creates a [UserProfileModel] from a [UserProfile] domain entity.
   factory UserProfileModel.fromDomain(UserProfile userProfile) {
     return UserProfileModel(
       id: userProfile.id,

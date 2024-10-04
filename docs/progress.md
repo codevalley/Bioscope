@@ -27,9 +27,32 @@ Before we begin updating the inline documentation, let's establish our documenta
   - [x] Update inline documentation for user_profile_remote_ds.dart
   - [x] Update inline documentation for user_profile_sqlite_ds.dart
   - [x] Update inline documentation for user_profile_supabase_ds.dart
+- [x] Update inline documentation for files in the 'domain/entities' directory
+  - [x] Update inline documentation for daily_goals.dart
+  - [x] Update inline documentation for food_entry.dart
+  - [x] Update inline documentation for goal_item.dart
+  - [x] Update inline documentation for nutrition_info.dart
+  - [x] Update inline documentation for user_profile.dart
+- [x] Update inline documentation for files in the 'domain/repositories' directory
+  - [x] Update inline documentation for daily_goals_repository.dart
+  - [x] Update inline documentation for food_entry_repository.dart
+  - [x] Update inline documentation for user_profile_repository.dart
+- [x] Update inline documentation for files in the 'domain/services' directory
+  - [x] Update inline documentation for auth_service.dart
+- [x] Update inline documentation for files in the 'data/models' directory
+  - [x] Update inline documentation for daily_goals_model.dart
+  - [x] Update inline documentation for food_entry_model.dart
+  - [x] Update inline documentation for user_profile_model.dart
+- [x] Update inline documentation for files in the 'data/repositories' directory
+  - [x] Update inline documentation for daily_goals_repository_impl.dart
+  - [x] Update inline documentation for food_entry_repository_impl.dart
+  - [x] Update inline documentation for user_profile_repository_impl.dart
+- [x] Update inline documentation for files in the 'data/services' directory
+  - [x] Update inline documentation for nutrition_service.dart
+  - [x] Update inline documentation for supabase_auth_service.dart
 
 ### In Progress
-- [ ] Update inline documentation for files in the 'domain' directory
+- [ ] Update inline documentation for files in the 'domain/usecases' directory
 - [ ] Update inline documentation for files in the 'presentation' directory
 - [ ] Update inline documentation for files in the 'application' directory (if exists)
 - [ ] Update inline documentation for files in the 'utils' directory (if exists)
@@ -47,7 +70,7 @@ Before we begin updating the inline documentation, let's establish our documenta
 - Determine the appropriate level of detail for inline comments without over-documenting
 
 ## Next Steps
-1. Begin documenting files in the 'domain' directory
+1. Begin documenting files in the 'domain/usecases' directory
 2. Continue with the documentation process for other directories
 3. Review and update the main.dart file documentation
 4. Create DOCUMENTATION.md file

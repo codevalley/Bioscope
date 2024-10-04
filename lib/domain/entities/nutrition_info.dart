@@ -1,10 +1,15 @@
+/// Represents nutritional information for a food item.
 class NutritionInfo {
+  /// A summary of the nutritional information.
   final String summary;
+
+  /// A list of individual nutritional components.
   final List<NutritionComponent> nutrition;
 
+  /// Creates a new [NutritionInfo] instance.
   NutritionInfo({required this.summary, required this.nutrition});
 
-  // Add a getter for calories
+  /// Calculates the total calories from the nutrition components.
   int get calories {
     final caloriesComponent = nutrition.firstWhere(
       (component) => component.component.toLowerCase() == 'calories',
@@ -14,6 +19,7 @@ class NutritionInfo {
     return caloriesComponent.value.round();
   }
 
+  /// Creates a [NutritionInfo] instance from a JSON map.
   factory NutritionInfo.fromJson(Map<String, dynamic> json) {
     return NutritionInfo(
       summary: json['summary'] as String,
@@ -23,6 +29,7 @@ class NutritionInfo {
     );
   }
 
+  /// Converts this [NutritionInfo] instance to a JSON map.
   Map<String, dynamic> toJson() {
     return {
       'summary': summary,
@@ -30,6 +37,7 @@ class NutritionInfo {
     };
   }
 
+  /// Creates an empty [NutritionInfo] instance.
   factory NutritionInfo.empty() {
     return NutritionInfo(
       summary: '',
@@ -38,12 +46,21 @@ class NutritionInfo {
   }
 }
 
+/// Represents a single nutritional component (e.g., protein, carbohydrates).
 class NutritionComponent {
+  /// The name of the nutritional component.
   final String component;
+
+  /// The amount of this component.
   final double value;
+
+  /// The unit of measurement for this component.
   final String unit;
+
+  /// The confidence level of this nutritional information (0.0 to 1.0).
   final double confidence;
 
+  /// Creates a new [NutritionComponent] instance.
   NutritionComponent({
     required this.component,
     required this.value,
@@ -51,16 +68,17 @@ class NutritionComponent {
     required this.confidence,
   });
 
+  /// Creates a [NutritionComponent] instance from a JSON map.
   factory NutritionComponent.fromJson(Map<String, dynamic> json) {
     return NutritionComponent(
       component: json['component'] as String,
-      value: (json['value'] as num).toDouble(), // Convert num to double
+      value: (json['value'] as num).toDouble(),
       unit: json['unit'] as String,
-      confidence:
-          (json['confidence'] as num).toDouble(), // Convert num to double
+      confidence: (json['confidence'] as num).toDouble(),
     );
   }
 
+  /// Converts this [NutritionComponent] instance to a JSON map.
   Map<String, dynamic> toJson() {
     return {
       'component': component,

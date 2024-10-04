@@ -3,7 +3,12 @@ import '../../domain/entities/food_entry.dart';
 import '../../core/utils/logger.dart';
 import '../../domain/entities/nutrition_info.dart';
 
+/// Model class for food entries, extending the [FoodEntry] entity.
+///
+/// This class provides additional functionality for JSON serialization and deserialization,
+/// as well as conversion between the model and domain entity.
 class FoodEntryModel extends FoodEntry {
+  /// Creates a new [FoodEntryModel] instance.
   FoodEntryModel({
     required String id,
     required String name,
@@ -18,6 +23,7 @@ class FoodEntryModel extends FoodEntry {
           imagePath: imagePath,
         );
 
+  /// Creates a [FoodEntryModel] instance from a JSON map.
   factory FoodEntryModel.fromJson(Map<String, dynamic> json) {
     try {
       return FoodEntryModel(
@@ -35,6 +41,7 @@ class FoodEntryModel extends FoodEntry {
     }
   }
 
+  /// Converts this [FoodEntryModel] to a [FoodEntry] domain entity.
   FoodEntryModel toDomain() {
     return FoodEntryModel(
       id: id,
@@ -45,6 +52,7 @@ class FoodEntryModel extends FoodEntry {
     );
   }
 
+  /// Converts this [FoodEntryModel] instance to a JSON map.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -55,6 +63,7 @@ class FoodEntryModel extends FoodEntry {
     };
   }
 
+  /// Creates an empty [FoodEntryModel] instance.
   factory FoodEntryModel.empty() {
     return FoodEntryModel(
       id: '',
