@@ -50,6 +50,10 @@ Before we begin updating the inline documentation, let's establish our documenta
 - [x] Update inline documentation for files in the 'data/services' directory
   - [x] Update inline documentation for nutrition_service.dart
   - [x] Update inline documentation for supabase_auth_service.dart
+- [x] Update inline documentation for files in the 'config' directory
+  - [x] Update inline documentation for api_config.dart
+  - [x] Update inline documentation for supabase_config.dart
+  - [x] Update inline documentation for supbase_config.dart (deprecated)
 
 ### In Progress
 - [ ] Update inline documentation for files in the 'domain/usecases' directory
@@ -68,6 +72,7 @@ Before we begin updating the inline documentation, let's establish our documenta
 - Investigate potential performance issues with real-time updates on slower network connections
 - Ensure consistency in documentation style across all team members
 - Determine the appropriate level of detail for inline comments without over-documenting
+- Consider removing the deprecated supbase_config.dart file to avoid confusion
 
 ## Next Steps
 1. Begin documenting files in the 'domain/usecases' directory
@@ -76,3 +81,4 @@ Before we begin updating the inline documentation, let's establish our documenta
 4. Create DOCUMENTATION.md file
 5. Update README.md with documentation information
 6. Set up dartdoc for the project
+7. Decide on the fate of the deprecated supbase_config.dart file
