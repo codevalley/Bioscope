@@ -7,32 +7,41 @@ import 'package:bioscope/domain/repositories/user_profile_repository.dart';
 import 'package:bioscope/domain/entities/food_entry.dart';
 import 'package:bioscope/domain/entities/daily_goals.dart';
 
-// Events
+/// Base class for all food capture events.
 abstract class FoodCaptureEvent {}
 
+/// Event triggered when an image needs to be analyzed for nutritional content.
 class AnalyzeImage extends FoodCaptureEvent {
   final String? imagePath;
   final String context;
   AnalyzeImage(this.imagePath, this.context);
 }
 
-// States
+/// Base class for all food capture states.
 abstract class FoodCaptureState {}
 
+/// Initial state of the food capture process.
 class FoodCaptureInitial extends FoodCaptureState {}
 
+/// State indicating that image analysis is in progress.
 class FoodCaptureLoading extends FoodCaptureState {}
 
+/// State indicating successful image analysis with nutrition info.
 class FoodCaptureSuccess extends FoodCaptureState {
   final NutritionInfo nutritionInfo;
   FoodCaptureSuccess(this.nutritionInfo);
 }
 
+/// State indicating a failure in the image analysis process.
 class FoodCaptureFailure extends FoodCaptureState {
   final String error;
   FoodCaptureFailure(this.error);
 }
 
+/// BLoC for managing the food capture process.
+///
+/// This BLoC handles the analysis of food images and updating of daily goals
+/// based on the captured food entries.
 class FoodCaptureBloc extends Bloc<FoodCaptureEvent, FoodCaptureState> {
   final NutritionService _nutritionService;
   final IFoodEntryRepository _foodEntryRepository;
@@ -48,6 +57,7 @@ class FoodCaptureBloc extends Bloc<FoodCaptureEvent, FoodCaptureState> {
     on<AnalyzeImage>(_onAnalyzeImage);
   }
 
+  /// Handles the AnalyzeImage event by calling the nutrition service.
   Future<void> _onAnalyzeImage(
       AnalyzeImage event, Emitter<FoodCaptureState> emit) async {
     emit(FoodCaptureLoading());
@@ -60,11 +70,16 @@ class FoodCaptureBloc extends Bloc<FoodCaptureEvent, FoodCaptureState> {
     }
   }
 
+  /// Adds a new food entry and updates the daily goals accordingly.
   Future<void> addFoodEntryAndUpdateGoals(FoodEntry entry) async {
     await _foodEntryRepository.addFoodEntry(entry);
     await _updateDailyGoals(entry);
   }
 
+  /// Updates the daily goals based on a new food entry.
+  ///
+  /// This method retrieves the current daily goals, updates them with the
+  /// nutritional information from the new food entry, and saves the updated goals.
   Future<void> _updateDailyGoals(FoodEntry entry) async {
     final userProfile = await _userProfileRepository.getUserProfile();
     if (userProfile == null) return;
