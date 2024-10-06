@@ -1,19 +1,50 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/food_entry.dart';
+import '../../domain/entities/nutrition_info.dart';
 import '../screens/food_entry_detail_screen.dart';
-import 'food_entry_item.dart';
+import 'package:bioscope/presentation/widgets/authenticated_image.dart';
+import 'package:bioscope/core/utils/date_formatter.dart';
 
 class RecentHistory extends StatelessWidget {
   final List<FoodEntry> foodEntries;
 
   const RecentHistory({Key? key, required this.foodEntries}) : super(key: key);
 
-  String _getFoodEmoji(int calories) {
-    if (calories < 200) return '🥗';
-    if (calories < 400) return '🍽️';
-    if (calories < 600) return '🍔';
-    if (calories < 800) return '🍕';
-    return '🍰';
+  String _getNutritionInfo(FoodEntry entry) {
+    final nutritionToGoalMapping = {
+      'Calories': 'Calories',
+      'Total Fat': 'Fats',
+      'Total Carbohydrates': 'Carbs',
+      'Dietary Fiber': 'Fiber',
+      'Protein': 'Proteins',
+    };
+
+    final nutritionInfo = <String, String>{};
+
+    for (var component in entry.nutritionInfo.nutrition) {
+      final mappedKey = nutritionToGoalMapping[component.component];
+      if (mappedKey != null && component.value > 0) {
+        String value = component.value.toInt().toString();
+        String unit = component.unit;
+
+        switch (mappedKey) {
+          case 'Calories':
+            nutritionInfo['Calories'] = '🔥 $value $unit';
+            break;
+          case 'Carbs':
+            nutritionInfo['Carbs'] = '🍞 $value $unit';
+            break;
+          case 'Proteins':
+            nutritionInfo['Proteins'] = '🥜 $value $unit';
+            break;
+          case 'Fats':
+            nutritionInfo['Fats'] = '🥑 $value $unit';
+            break;
+        }
+      }
+    }
+
+    return nutritionInfo.values.join(' ');
   }
 
   @override
@@ -41,8 +72,7 @@ class RecentHistory extends StatelessWidget {
                 onTap: () => _showFoodEntryDetail(context, meal),
                 child: FoodEntryItem(
                   entry: meal,
-                  calorieText:
-                      '${_getFoodEmoji(meal.nutritionInfo.calories)} ${meal.nutritionInfo.calories} kcal',
+                  nutritionText: _getNutritionInfo(meal),
                 ),
               );
             },
@@ -79,6 +109,93 @@ class RecentHistory extends StatelessWidget {
                   color: Colors.grey[500],
                 ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class FoodEntryItem extends StatelessWidget {
+  final FoodEntry entry;
+  final String nutritionText;
+
+  const FoodEntryItem({
+    Key? key,
+    required this.entry,
+    required this.nutritionText,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(width: 1),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: entry.imagePath != null
+                    ? AuthenticatedImage(imagePath: entry.imagePath!)
+                    : const Icon(Icons.fastfood),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      nutritionText,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          DateFormatter.getRelativeTime(entry.date),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (entry.imagePath != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: AspectRatio(
+                aspectRatio: 3 / 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: AuthenticatedImage(
+                      imagePath: entry.imagePath!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
