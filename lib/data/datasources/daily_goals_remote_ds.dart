@@ -29,7 +29,8 @@ class DailyGoalsRemoteDs implements DailyGoalsDataSource {
   ///
   /// Returns a [Future] that completes with a list of [DailyGoalsModel].
   @override
-  Future<List<DailyGoalsModel>> getAll() async {
+  Future<List<DailyGoalsModel>> getAll(
+      {DateTime? startDate, DateTime? endDate}) async {
     final response = await httpClient.get(Uri.parse('$baseUrl/daily-goals'));
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);

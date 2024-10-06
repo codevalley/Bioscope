@@ -25,6 +25,9 @@ mixin _$DashboardState {
   List<FoodEntry> get foodEntries => throw _privateConstructorUsedError;
   DateTime get currentDate => throw _privateConstructorUsedError;
   bool get isDailyGoalsEmpty => throw _privateConstructorUsedError;
+  List<DateTime> get datesWithData => throw _privateConstructorUsedError;
+  bool get hasPreviousDay => throw _privateConstructorUsedError;
+  bool get hasNextDay => throw _privateConstructorUsedError;
 
   /// Create a copy of DashboardState
   /// with the given fields replaced by the non-null parameter values.
@@ -47,7 +50,10 @@ abstract class $DashboardStateCopyWith<$Res> {
       Map<String, GoalItem> dailyGoals,
       List<FoodEntry> foodEntries,
       DateTime currentDate,
-      bool isDailyGoalsEmpty});
+      bool isDailyGoalsEmpty,
+      List<DateTime> datesWithData,
+      bool hasPreviousDay,
+      bool hasNextDay});
 }
 
 /// @nodoc
@@ -73,6 +79,9 @@ class _$DashboardStateCopyWithImpl<$Res, $Val extends DashboardState>
     Object? foodEntries = null,
     Object? currentDate = null,
     Object? isDailyGoalsEmpty = null,
+    Object? datesWithData = null,
+    Object? hasPreviousDay = null,
+    Object? hasNextDay = null,
   }) {
     return _then(_value.copyWith(
       isLoading: null == isLoading
@@ -107,6 +116,18 @@ class _$DashboardStateCopyWithImpl<$Res, $Val extends DashboardState>
           ? _value.isDailyGoalsEmpty
           : isDailyGoalsEmpty // ignore: cast_nullable_to_non_nullable
               as bool,
+      datesWithData: null == datesWithData
+          ? _value.datesWithData
+          : datesWithData // ignore: cast_nullable_to_non_nullable
+              as List<DateTime>,
+      hasPreviousDay: null == hasPreviousDay
+          ? _value.hasPreviousDay
+          : hasPreviousDay // ignore: cast_nullable_to_non_nullable
+              as bool,
+      hasNextDay: null == hasNextDay
+          ? _value.hasNextDay
+          : hasNextDay // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -127,7 +148,10 @@ abstract class _$$DashboardStateImplCopyWith<$Res>
       Map<String, GoalItem> dailyGoals,
       List<FoodEntry> foodEntries,
       DateTime currentDate,
-      bool isDailyGoalsEmpty});
+      bool isDailyGoalsEmpty,
+      List<DateTime> datesWithData,
+      bool hasPreviousDay,
+      bool hasNextDay});
 }
 
 /// @nodoc
@@ -151,6 +175,9 @@ class __$$DashboardStateImplCopyWithImpl<$Res>
     Object? foodEntries = null,
     Object? currentDate = null,
     Object? isDailyGoalsEmpty = null,
+    Object? datesWithData = null,
+    Object? hasPreviousDay = null,
+    Object? hasNextDay = null,
   }) {
     return _then(_$DashboardStateImpl(
       isLoading: null == isLoading
@@ -185,6 +212,18 @@ class __$$DashboardStateImplCopyWithImpl<$Res>
           ? _value.isDailyGoalsEmpty
           : isDailyGoalsEmpty // ignore: cast_nullable_to_non_nullable
               as bool,
+      datesWithData: null == datesWithData
+          ? _value._datesWithData
+          : datesWithData // ignore: cast_nullable_to_non_nullable
+              as List<DateTime>,
+      hasPreviousDay: null == hasPreviousDay
+          ? _value.hasPreviousDay
+          : hasPreviousDay // ignore: cast_nullable_to_non_nullable
+              as bool,
+      hasNextDay: null == hasNextDay
+          ? _value.hasNextDay
+          : hasNextDay // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -200,10 +239,14 @@ class _$DashboardStateImpl implements _DashboardState {
       required final Map<String, GoalItem> dailyGoals,
       required final List<FoodEntry> foodEntries,
       required this.currentDate,
-      required this.isDailyGoalsEmpty})
+      required this.isDailyGoalsEmpty,
+      required final List<DateTime> datesWithData,
+      required this.hasPreviousDay,
+      required this.hasNextDay})
       : _nutritionGoals = nutritionGoals,
         _dailyGoals = dailyGoals,
-        _foodEntries = foodEntries;
+        _foodEntries = foodEntries,
+        _datesWithData = datesWithData;
 
   @override
   final bool isLoading;
@@ -239,10 +282,22 @@ class _$DashboardStateImpl implements _DashboardState {
   final DateTime currentDate;
   @override
   final bool isDailyGoalsEmpty;
+  final List<DateTime> _datesWithData;
+  @override
+  List<DateTime> get datesWithData {
+    if (_datesWithData is EqualUnmodifiableListView) return _datesWithData;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_datesWithData);
+  }
+
+  @override
+  final bool hasPreviousDay;
+  @override
+  final bool hasNextDay;
 
   @override
   String toString() {
-    return 'DashboardState(isLoading: $isLoading, greeting: $greeting, userName: $userName, nutritionGoals: $nutritionGoals, dailyGoals: $dailyGoals, foodEntries: $foodEntries, currentDate: $currentDate, isDailyGoalsEmpty: $isDailyGoalsEmpty)';
+    return 'DashboardState(isLoading: $isLoading, greeting: $greeting, userName: $userName, nutritionGoals: $nutritionGoals, dailyGoals: $dailyGoals, foodEntries: $foodEntries, currentDate: $currentDate, isDailyGoalsEmpty: $isDailyGoalsEmpty, datesWithData: $datesWithData, hasPreviousDay: $hasPreviousDay, hasNextDay: $hasNextDay)';
   }
 
   @override
@@ -265,7 +320,13 @@ class _$DashboardStateImpl implements _DashboardState {
             (identical(other.currentDate, currentDate) ||
                 other.currentDate == currentDate) &&
             (identical(other.isDailyGoalsEmpty, isDailyGoalsEmpty) ||
-                other.isDailyGoalsEmpty == isDailyGoalsEmpty));
+                other.isDailyGoalsEmpty == isDailyGoalsEmpty) &&
+            const DeepCollectionEquality()
+                .equals(other._datesWithData, _datesWithData) &&
+            (identical(other.hasPreviousDay, hasPreviousDay) ||
+                other.hasPreviousDay == hasPreviousDay) &&
+            (identical(other.hasNextDay, hasNextDay) ||
+                other.hasNextDay == hasNextDay));
   }
 
   @override
@@ -278,7 +339,10 @@ class _$DashboardStateImpl implements _DashboardState {
       const DeepCollectionEquality().hash(_dailyGoals),
       const DeepCollectionEquality().hash(_foodEntries),
       currentDate,
-      isDailyGoalsEmpty);
+      isDailyGoalsEmpty,
+      const DeepCollectionEquality().hash(_datesWithData),
+      hasPreviousDay,
+      hasNextDay);
 
   /// Create a copy of DashboardState
   /// with the given fields replaced by the non-null parameter values.
@@ -299,7 +363,10 @@ abstract class _DashboardState implements DashboardState {
       required final Map<String, GoalItem> dailyGoals,
       required final List<FoodEntry> foodEntries,
       required final DateTime currentDate,
-      required final bool isDailyGoalsEmpty}) = _$DashboardStateImpl;
+      required final bool isDailyGoalsEmpty,
+      required final List<DateTime> datesWithData,
+      required final bool hasPreviousDay,
+      required final bool hasNextDay}) = _$DashboardStateImpl;
 
   @override
   bool get isLoading;
@@ -317,6 +384,12 @@ abstract class _DashboardState implements DashboardState {
   DateTime get currentDate;
   @override
   bool get isDailyGoalsEmpty;
+  @override
+  List<DateTime> get datesWithData;
+  @override
+  bool get hasPreviousDay;
+  @override
+  bool get hasNextDay;
 
   /// Create a copy of DashboardState
   /// with the given fields replaced by the non-null parameter values.

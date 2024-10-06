@@ -32,7 +32,8 @@ class DailyGoalsSqliteDs implements DailyGoalsDataSource {
   ///
   /// Returns a [Future] that completes with a list of [DailyGoalsModel].
   @override
-  Future<List<DailyGoalsModel>> getAll() async {
+  Future<List<DailyGoalsModel>> getAll(
+      {DateTime? startDate, DateTime? endDate}) async {
     final List<Map<String, dynamic>> maps =
         await _database.query('daily_goal_logs');
     return List.generate(maps.length, (i) {

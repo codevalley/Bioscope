@@ -32,6 +32,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       final userProfile = await _userProfileRepository.getUserProfile();
       final foodEntries = await _foodEntryRepository.getEntriesByDate(dateOnly);
       final dailyGoals = await _dailyGoalsRepository.getDailyGoals(dateOnly);
+      final datesWithData =
+          await _dailyGoalsRepository.getDatesWithGoals(dateOnly, limit: 30);
 
       if (userProfile != null) {
         state = state.copyWith(
@@ -42,6 +44,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
           dailyGoals: dailyGoals?.goals ?? {},
           isDailyGoalsEmpty: dailyGoals == null,
           isLoading: false,
+          currentDate: dateOnly,
+          datesWithData: datesWithData,
+          hasPreviousDay:
+              datesWithData.where((date) => date.isBefore(dateOnly)).isNotEmpty,
+          hasNextDay: false,
         );
       }
     } catch (e) {
@@ -84,6 +91,51 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       onError: (error) {
         Logger.log("Error in daily goals stream: $error");
       },
+    );
+  }
+
+  Future<void> navigateToPreviousDay() async {
+    final currentIndex = state.datesWithData.indexOf(state.currentDate);
+    if (currentIndex < state.datesWithData.length - 1) {
+      final previousDate = state.datesWithData[currentIndex + 1];
+      await _loadDayData(previousDate);
+    } else {
+      // Load more past dates if available
+      final morePastDates = await _dailyGoalsRepository.getDatesWithGoals(
+          state.datesWithData.last,
+          limit: 30,
+          direction: 'backward');
+      if (morePastDates.isNotEmpty) {
+        state = state.copyWith(
+            datesWithData: [...state.datesWithData, ...morePastDates]);
+        await navigateToPreviousDay();
+      }
+    }
+  }
+
+  Future<void> navigateToNextDay() async {
+    final currentIndex = state.datesWithData.indexOf(state.currentDate);
+    if (currentIndex > 0) {
+      final nextDate = state.datesWithData[currentIndex - 1];
+      await _loadDayData(nextDate);
+    }
+  }
+
+  Future<void> _loadDayData(DateTime date) async {
+    state = state.copyWith(isLoading: true);
+
+    final foodEntries = await _foodEntryRepository.getEntriesByDate(date);
+    final dailyGoals = await _dailyGoalsRepository.getDailyGoals(date);
+
+    state = state.copyWith(
+      isLoading: false,
+      currentDate: date,
+      foodEntries: foodEntries,
+      dailyGoals: dailyGoals?.goals ?? {},
+      isDailyGoalsEmpty: dailyGoals == null,
+      hasPreviousDay:
+          state.datesWithData.indexOf(date) < state.datesWithData.length - 1,
+      hasNextDay: state.datesWithData.indexOf(date) > 0,
     );
   }
 

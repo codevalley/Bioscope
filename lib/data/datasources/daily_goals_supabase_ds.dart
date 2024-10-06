@@ -48,7 +48,7 @@ class DailyGoalsSupabaseDs implements DailyGoalsDataSource {
       query = query.lte('date', endDate.toIso8601String().split('T')[0]);
     }
 
-    final response = await query.order('date', ascending: false);
+    final response = await query.order('date', ascending: startDate == null);
     return (response as List)
         .map((item) => DailyGoalsModel.fromJson(item))
         .toList();

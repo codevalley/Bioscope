@@ -7,6 +7,7 @@ part 'dashboard_state.freezed.dart';
 /// State for the Dashboard feature
 /// if you update this file, you need to update the corresponding freezed file
 /// flutter pub run build_runner build --delete-conflicting-outputs
+
 @freezed
 class DashboardState with _$DashboardState {
   const factory DashboardState({
@@ -17,7 +18,10 @@ class DashboardState with _$DashboardState {
     required Map<String, GoalItem> dailyGoals,
     required List<FoodEntry> foodEntries,
     required DateTime currentDate,
-    required bool isDailyGoalsEmpty, // Add this line
+    required bool isDailyGoalsEmpty,
+    required List<DateTime> datesWithData,
+    required bool hasPreviousDay,
+    required bool hasNextDay,
   }) = _DashboardState;
 
   factory DashboardState.initial() => DashboardState(
@@ -29,5 +33,8 @@ class DashboardState with _$DashboardState {
         foodEntries: [],
         currentDate: DateTime.now(),
         isDailyGoalsEmpty: true,
+        datesWithData: [],
+        hasPreviousDay: false,
+        hasNextDay: false,
       );
 }

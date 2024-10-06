@@ -79,6 +79,19 @@ class DateFormatter {
     }
   }
 
+  /// Formats a date for short display.
+  ///
+  /// This method creates a string representation of the given [date],
+  /// including the day of the week and the date.
+  ///
+  /// Example: "Mon, Jan 15"
+  ///
+  /// [date] The date to format.
+  String formatShortDate(DateTime date) {
+    final formatter = DateFormat('E, MMM d');
+    return formatter.format(date);
+  }
+
   /// Formats a date for greeting messages.
   ///
   /// This method creates a string representation of the given [date],

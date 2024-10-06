@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'nutrition_indicator.dart';
 import '../../domain/entities/goal_item.dart';
-import 'package:intl/intl.dart';
 import '../providers/providers.dart';
+import '../../core/utils/date_formatter.dart';
 
 class DashboardTopSection extends ConsumerWidget {
   final String greeting;
@@ -12,6 +12,10 @@ class DashboardTopSection extends ConsumerWidget {
   final DateTime date;
   final double shrinkOffset;
   final double height;
+  final bool hasPreviousDay;
+  final bool hasNextDay;
+  final Function() onPreviousDay;
+  final Function() onNextDay;
 
   const DashboardTopSection({
     Key? key,
@@ -21,6 +25,10 @@ class DashboardTopSection extends ConsumerWidget {
     required this.date,
     required this.shrinkOffset,
     required this.height,
+    required this.hasPreviousDay,
+    required this.hasNextDay,
+    required this.onPreviousDay,
+    required this.onNextDay,
   }) : super(key: key);
 
   Color _getProgressColor(double progress, BuildContext context) {
@@ -34,9 +42,6 @@ class DashboardTopSection extends ConsumerWidget {
     final caloriesConsumed = caloriesGoal?.actual.toInt() ?? 0;
     final dailyCalorieGoal = caloriesGoal?.target.toInt() ?? 2000;
     final calorieProgress = caloriesConsumed / dailyCalorieGoal;
-
-    final dateFormatter = DateFormat('EEEE d');
-    final formattedDate = dateFormatter.format(date);
 
     // Calculate opacity based on shrinkOffset
     final double opacity = 1 - (shrinkOffset / (height - 50)).clamp(0.0, 1.0);
@@ -78,24 +83,47 @@ class DashboardTopSection extends ConsumerWidget {
                 Container(
                   color: const Color(0xFFFFF3E0),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.chevron_left, color: Colors.grey[600]),
+                      IconButton(
+                        icon: Icon(Icons.chevron_left,
+                            color: hasPreviousDay
+                                ? Colors.black
+                                : Colors.grey[400]),
+                        onPressed: hasPreviousDay ? onPreviousDay : null,
+                        padding:
+                            EdgeInsets.zero, // Remove padding from IconButton
+                        constraints:
+                            const BoxConstraints(), // Remove constraints
+                        iconSize: 24, // Explicitly set icon size
+                      ),
                       Expanded(
                         child: Text(
                           dashboardState.isDailyGoalsEmpty
-                              ? '$formattedDate - Start your food journey!'
-                              : 'Today, $formattedDate : $caloriesConsumed/$dailyCalorieGoal kcal',
+                              ? '${DateFormatter().formatShortDate(date)} - Start food journey!'
+                              : '${DateFormatter().formatShortDate(date)}: $caloriesConsumed/$dailyCalorieGoal kcal',
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                           textAlign: TextAlign.center,
+                          overflow: TextOverflow
+                              .ellipsis, // Add ellipsis for long text
                         ),
                       ),
-                      Icon(Icons.chevron_right, color: Colors.grey[600]),
+                      IconButton(
+                        icon: Icon(Icons.chevron_right,
+                            color:
+                                hasNextDay ? Colors.black : Colors.grey[400]),
+                        onPressed: hasNextDay ? onNextDay : null,
+                        padding:
+                            EdgeInsets.zero, // Remove padding from IconButton
+                        constraints:
+                            const BoxConstraints(), // Remove constraints
+                        iconSize: 24, // Explicitly set icon size
+                      ),
                     ],
                   ),
                 ),

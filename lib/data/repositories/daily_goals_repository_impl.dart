@@ -96,6 +96,31 @@ class DailyGoalsRepositoryImpl implements IDailyGoalsRepository {
     });
   }
 
+  /// Retrieves a list of dates that have daily goals data.
+  ///
+  /// [startDate] The date from which to start fetching data.
+  /// [limit] The maximum number of dates to retrieve.
+  /// [direction] The direction to fetch dates ('forward' or 'backward').
+  /// Returns a [Future] that completes with a list of [DateTime] objects.
+  @override
+  Future<List<DateTime>> getDatesWithGoals(DateTime startDate,
+      {int limit = 30, String direction = 'backward'}) async {
+    final allGoals = await _dataSource.getAll(
+      startDate: direction == 'backward' ? null : startDate,
+      endDate: direction == 'backward' ? startDate : null,
+    );
+
+    final dates = allGoals
+        .map((goal) => DateTime(goal.date.year, goal.date.month, goal.date.day))
+        .toSet()
+        .toList();
+
+    dates.sort(
+        (a, b) => direction == 'backward' ? b.compareTo(a) : a.compareTo(b));
+
+    return dates.take(limit).toList();
+  }
+
   /// Triggers a recalculation of daily goals for a specific date.
   ///
   /// This method currently just updates the existing goals. In a real-world scenario,

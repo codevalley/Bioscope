@@ -45,9 +45,16 @@ class DashboardScreen extends ConsumerWidget {
                   greeting: dashboardState.greeting,
                   name: dashboardState.userName,
                   dailyGoals: dashboardState.dailyGoals,
-                  date: DateTime.now(),
+                  date: dashboardState.currentDate,
                   shrinkOffset: shrinkOffset,
                   height: height,
+                  hasPreviousDay: dashboardState.hasPreviousDay,
+                  hasNextDay: dashboardState.hasNextDay,
+                  onPreviousDay: () => ref
+                      .read(dashboardProvider.notifier)
+                      .navigateToPreviousDay(),
+                  onNextDay: () =>
+                      ref.read(dashboardProvider.notifier).navigateToNextDay(),
                 ),
               ),
             ),

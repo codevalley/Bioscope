@@ -10,7 +10,8 @@ abstract class DailyGoalsDataSource extends DataSource<DailyGoalsModel> {
   /// Retrieves all daily goals.
   ///
   /// Returns a [Future] that completes with a list of [DailyGoalsModel].
-  Future<List<DailyGoalsModel>> getAll();
+  Future<List<DailyGoalsModel>> getAll(
+      {DateTime? startDate, DateTime? endDate});
 
   /// Provides a stream of all daily goals.
   ///

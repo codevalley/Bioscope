@@ -41,6 +41,15 @@ abstract class IDailyGoalsRepository {
   /// Returns a [Future] that completes with the [DailyGoals] if found, or null otherwise.
   Future<DailyGoals?> getGoalsByDate(DateTime date);
 
+  /// Retrieves a list of dates that have daily goals data.
+  ///
+  /// [startDate] The date from which to start fetching data.
+  /// [limit] The maximum number of dates to retrieve.
+  /// [direction] The direction to fetch dates ('forward' or 'backward').
+  /// Returns a [Future] that completes with a list of [DateTime] objects.
+  Future<List<DateTime>> getDatesWithGoals(DateTime startDate,
+      {int limit = 30, String direction = 'backward'});
+
   /// Triggers a recalculation of daily goals for a specific date.
   ///
   /// This method might be used to update goals based on new data or changed user preferences.
