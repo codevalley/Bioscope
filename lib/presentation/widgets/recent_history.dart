@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/food_entry.dart';
-import '../../domain/entities/nutrition_info.dart';
+
 import '../screens/food_entry_detail_screen.dart';
 import 'package:bioscope/presentation/widgets/authenticated_image.dart';
 import 'package:bioscope/core/utils/date_formatter.dart';

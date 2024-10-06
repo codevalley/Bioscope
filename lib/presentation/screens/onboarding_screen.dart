@@ -26,19 +26,18 @@ class OnboardingScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: onboardingState.when(
-            initial: () => _buildNameScreen(context, notifier),
-            inProgress: (currentPage, name, emailVerificationStatus, goals) {
-              switch (currentPage) {
-                case 0:
-                  return _buildNameScreen(
-                      context, notifier, name, emailVerificationStatus);
-                case 1:
-                  return _buildGoalsScreen(context, notifier, goals);
-                default:
-                  return const SizedBox.shrink();
+            initial: () => const Center(child: CircularProgressIndicator()),
+            inProgress:
+                (isNewUser, emailVerificationStatus, name, goals, isLoading) {
+              if (isNewUser) {
+                return _buildNewUserFlow(context, notifier,
+                    emailVerificationStatus, name, goals, isLoading);
+              } else {
+                return _buildExistingUserFlow(
+                    context, notifier, name, isLoading);
               }
             },
-            complete: () => _buildCompletionScreen(context, notifier, ref),
+            complete: () => _buildCompletionScreen(context),
             error: (message) => _buildErrorScreen(context, message, notifier),
           ),
         ),
@@ -46,8 +45,13 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNameScreen(BuildContext context, OnboardingNotifier notifier,
-      [String? name, EmailVerificationStatus? emailVerificationStatus]) {
+  Widget _buildNewUserFlow(
+      BuildContext context,
+      OnboardingNotifier notifier,
+      EmailVerificationStatus emailVerificationStatus,
+      String? name,
+      Map<String, double>? goals,
+      bool isLoading) {
     return ListView(
       children: [
         Text(
@@ -58,86 +62,111 @@ class OnboardingScreen extends ConsumerWidget {
               ),
         ),
         const SizedBox(height: 24),
-        _InputCard(
-          icon: Icons.person,
-          label: 'Your Name',
-          child: TextField(
-            onChanged: notifier.setName,
-            decoration: const InputDecoration(
-              hintText: 'Enter your name',
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        if (emailVerificationStatus != EmailVerificationStatus.verified)
-          TextButton(
-            onPressed: () =>
-                _showEmailVerificationBottomSheet(context, notifier),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.secondary,
-            ),
-            child: const Text('Sign in or recover your history (optional)'),
-          )
-        else
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.green, width: 1),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  notifier.verifiedEmail ?? 'Email verified',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Colors.green),
-                ),
-              ],
-            ),
-          ),
+        if (emailVerificationStatus == EmailVerificationStatus.notStarted ||
+            emailVerificationStatus == EmailVerificationStatus.failed)
+          _buildEmailVerificationSection(
+              context, notifier, emailVerificationStatus),
+        if (emailVerificationStatus == EmailVerificationStatus.verified ||
+            emailVerificationStatus == EmailVerificationStatus.skipped)
+          ..._buildNameAndGoalsSection(context, notifier, name, goals),
         const SizedBox(height: 24),
         CustomButton(
-          onPressed: () {
-            if (notifier.canMoveToNextPage()) {
-              notifier.nextPage();
-            }
-          },
-          child: const Text('Next'),
+          onPressed: isLoading ? null : () => notifier.completeOnboarding(),
+          child: isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : const Text('Complete'),
         ),
       ],
     );
   }
 
-  Widget _buildGoalsScreen(BuildContext context, OnboardingNotifier notifier,
-      Map<String, double>? goals) {
-    final goalTypes = ['Calories', 'Carbs', 'Proteins', 'Fats', 'Fiber'];
-    return ListView(
+  Widget _buildExistingUserFlow(BuildContext context,
+      OnboardingNotifier notifier, String? name, bool isLoading) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Welcome back, ${name ?? 'User'}!',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 24),
+          CustomButton(
+            onPressed: isLoading ? null : () => notifier.completeOnboarding(),
+            child: isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text('Continue to Dashboard'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmailVerificationSection(BuildContext context,
+      OnboardingNotifier notifier, EmailVerificationStatus status) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Set your nutrition goals',
-          style: Theme.of(context).textTheme.headlineLarge,
+          'Verify your email (optional)',
+          style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 24),
-        ...goalTypes.map((goal) =>
-            _buildGoalSlider(context, notifier, goal, goals?[goal] ?? 0.5)),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         CustomButton(
-          onPressed: () {
-            if (notifier.canMoveToNextPage()) {
-              notifier.completeOnboarding();
-            }
-          },
-          child: const Text('Complete'),
+          onPressed: () => _showEmailVerificationBottomSheet(context, notifier),
+          child: const Text('Verify Email'),
         ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () => notifier.skipEmailVerification(),
+          child: const Text('Skip'),
+        ),
+        if (status == EmailVerificationStatus.failed)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Email verification failed. Please try again.',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.red),
+            ),
+          ),
       ],
     );
+  }
+
+  List<Widget> _buildNameAndGoalsSection(BuildContext context,
+      OnboardingNotifier notifier, String? name, Map<String, double>? goals) {
+    return [
+      _InputCard(
+        icon: Icons.person,
+        label: 'Your Name',
+        child: TextField(
+          onChanged: notifier.setName,
+          decoration: const InputDecoration(
+            hintText: 'Enter your name',
+            border: InputBorder.none,
+          ),
+        ),
+      ),
+      const SizedBox(height: 24),
+      Text(
+        'Set your nutrition goals',
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
+      const SizedBox(height: 16),
+      ..._buildGoalSliders(context, notifier, goals),
+    ];
+  }
+
+  List<Widget> _buildGoalSliders(BuildContext context,
+      OnboardingNotifier notifier, Map<String, double>? goals) {
+    final goalTypes = ['Calories', 'Carbs', 'Proteins', 'Fats', 'Fiber'];
+    return goalTypes
+        .map((goal) =>
+            _buildGoalSlider(context, notifier, goal, goals?[goal] ?? 0.5))
+        .toList();
   }
 
   Widget _buildGoalSlider(BuildContext context, OnboardingNotifier notifier,
@@ -189,26 +218,27 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCompletionScreen(
-      BuildContext context, OnboardingNotifier notifier, WidgetRef ref) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'Onboarding complete!',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 24),
-        CustomButton(
-          onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const DashboardScreen()),
-              (route) => false,
-            );
-          },
-          child: const Text('Start your journey'),
-        ),
-      ],
+  Widget _buildCompletionScreen(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'Onboarding complete!',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+          CustomButton(
+            onPressed: () {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text('Start your journey'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -271,6 +301,7 @@ class EmailVerificationBottomSheetState
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
   bool _isEmailSent = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -317,8 +348,11 @@ class EmailVerificationBottomSheetState
             ),
           const SizedBox(height: 16),
           CustomButton(
-            onPressed: _isEmailSent ? _verifyOtp : _sendOtp,
-            child: Text(_isEmailSent ? 'Verify OTP' : 'Send OTP'),
+            onPressed:
+                _isLoading ? null : (_isEmailSent ? _verifyOtp : _sendOtp),
+            child: _isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : Text(_isEmailSent ? 'Verify OTP' : 'Send OTP'),
           ),
           const SizedBox(height: 16),
         ],
@@ -326,21 +360,25 @@ class EmailVerificationBottomSheetState
     );
   }
 
-  void _sendOtp() async {
+  Future<void> _sendOtp() async {
     final email = _emailController.text.trim();
     if (email.isNotEmpty) {
+      setState(() => _isLoading = true);
       await widget.notifier.startEmailVerification(email);
       setState(() {
+        _isLoading = false;
         _isEmailSent = true;
       });
     }
   }
 
-  void _verifyOtp() async {
+  Future<void> _verifyOtp() async {
     final email = _emailController.text.trim();
     final otp = _otpController.text.trim();
     if (email.isNotEmpty && otp.isNotEmpty) {
+      setState(() => _isLoading = true);
       await widget.notifier.verifyOtp(email, otp);
+      setState(() => _isLoading = false);
       if (mounted) {
         Navigator.of(context).pop();
       }
