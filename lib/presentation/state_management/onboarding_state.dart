@@ -20,6 +20,7 @@ class OnboardingState with _$OnboardingState {
 enum EmailVerificationStatus {
   notStarted,
   inProgress,
+  awaitingOtp,
   verified,
   skipped,
   failed

@@ -6,11 +6,26 @@ import 'dashboard_screen.dart';
 import '../providers/providers.dart';
 import '../state_management/onboarding_state.dart';
 
-class OnboardingScreen extends ConsumerWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  OnboardingScreenState createState() => OnboardingScreenState();
+}
+
+class OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final onboardingState = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -30,14 +45,23 @@ class OnboardingScreen extends ConsumerWidget {
             inProgress:
                 (isNewUser, emailVerificationStatus, name, goals, isLoading) {
               if (isNewUser) {
-                return _buildNewUserFlow(context, notifier,
-                    emailVerificationStatus, name, goals, isLoading);
+                if (emailVerificationStatus ==
+                        EmailVerificationStatus.notStarted ||
+                    emailVerificationStatus ==
+                        EmailVerificationStatus.awaitingOtp ||
+                    emailVerificationStatus == EmailVerificationStatus.failed) {
+                  return _buildWelcomeSection(
+                      context, notifier, emailVerificationStatus, isLoading);
+                } else {
+                  return _buildNameAndGoalsSection(
+                      context, notifier, name, goals, isLoading);
+                }
               } else {
                 return _buildExistingUserFlow(
                     context, notifier, name, isLoading);
               }
             },
-            complete: () => _buildCompletionScreen(context),
+            complete: () => _navigateToDashboard(context),
             error: (message) => _buildErrorScreen(context, message, notifier),
           ),
         ),
@@ -45,35 +69,106 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNewUserFlow(
+  Widget _buildWelcomeSection(BuildContext context, OnboardingNotifier notifier,
+      EmailVerificationStatus status, bool isLoading) {
+    final isEmailSent = status == EmailVerificationStatus.awaitingOtp;
+
+    return ListView(
+      children: [
+        const SizedBox(height: 48),
+        Text(
+          'Join Bioscope',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          isEmailSent
+              ? 'Enter the magic code sent to your email.'
+              : 'Link your email to setup a multi-device account or to login to an existing account.',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 24),
+        TextField(
+          controller: isEmailSent ? _otpController : _emailController,
+          decoration: InputDecoration(
+            hintText: isEmailSent ? 'Enter magic code' : 'Your personal email',
+            border: const OutlineInputBorder(),
+          ),
+          keyboardType:
+              isEmailSent ? TextInputType.number : TextInputType.emailAddress,
+        ),
+        const SizedBox(height: 16),
+        CustomButton(
+          onPressed: isLoading ? null : (isEmailSent ? _verifyOtp : _sendOtp),
+          child: isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : Text(isEmailSent ? 'Verify Magic Code' : 'Send Magic Code'),
+        ),
+        const SizedBox(height: 16),
+        CustomButton(
+          onPressed: () => notifier.skipEmailVerification(),
+          style: CustomButton.outlinedStyle,
+          child: const Text('Set up a local account'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNameAndGoalsSection(
       BuildContext context,
       OnboardingNotifier notifier,
-      EmailVerificationStatus emailVerificationStatus,
       String? name,
       Map<String, double>? goals,
       bool isLoading) {
     return ListView(
       children: [
         Text(
-          'Welcome to Bioscope',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+          'Set Up Your Profile',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 24),
-        if (emailVerificationStatus == EmailVerificationStatus.notStarted ||
-            emailVerificationStatus == EmailVerificationStatus.failed)
-          _buildEmailVerificationSection(
-              context, notifier, emailVerificationStatus),
-        if (emailVerificationStatus == EmailVerificationStatus.verified ||
-            emailVerificationStatus == EmailVerificationStatus.skipped)
-          ..._buildNameAndGoalsSection(context, notifier, name, goals),
+        _InputCard(
+          icon: Icons.person,
+          label: 'Your Name',
+          child: TextField(
+            onChanged: notifier.setName,
+            decoration: const InputDecoration(
+              hintText: 'Enter your name',
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Set your nutrition goals',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 16),
+        ..._buildGoalSliders(context, notifier, goals),
         const SizedBox(height: 24),
         CustomButton(
           onPressed: isLoading ? null : () => notifier.completeOnboarding(),
           child: isLoading
-              ? const CircularProgressIndicator(color: Colors.white)
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
               : const Text('Complete'),
         ),
       ],
@@ -94,70 +189,19 @@ class OnboardingScreen extends ConsumerWidget {
           CustomButton(
             onPressed: isLoading ? null : () => notifier.completeOnboarding(),
             child: isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
                 : const Text('Continue to Dashboard'),
           ),
         ],
       ),
     );
-  }
-
-  Widget _buildEmailVerificationSection(BuildContext context,
-      OnboardingNotifier notifier, EmailVerificationStatus status) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Verify your email (optional)',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 16),
-        CustomButton(
-          onPressed: () => _showEmailVerificationBottomSheet(context, notifier),
-          child: const Text('Verify Email'),
-        ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: () => notifier.skipEmailVerification(),
-          child: const Text('Skip'),
-        ),
-        if (status == EmailVerificationStatus.failed)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              'Email verification failed. Please try again.',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.red),
-            ),
-          ),
-      ],
-    );
-  }
-
-  List<Widget> _buildNameAndGoalsSection(BuildContext context,
-      OnboardingNotifier notifier, String? name, Map<String, double>? goals) {
-    return [
-      _InputCard(
-        icon: Icons.person,
-        label: 'Your Name',
-        child: TextField(
-          onChanged: notifier.setName,
-          decoration: const InputDecoration(
-            hintText: 'Enter your name',
-            border: InputBorder.none,
-          ),
-        ),
-      ),
-      const SizedBox(height: 24),
-      Text(
-        'Set your nutrition goals',
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
-      const SizedBox(height: 16),
-      ..._buildGoalSliders(context, notifier, goals),
-    ];
   }
 
   List<Widget> _buildGoalSliders(BuildContext context,
@@ -218,30 +262,6 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCompletionScreen(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Onboarding complete!',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-          CustomButton(
-            onPressed: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const DashboardScreen()),
-                (route) => false,
-              );
-            },
-            child: const Text('Start your journey'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildErrorScreen(
       BuildContext context, String message, OnboardingNotifier notifier) {
     return Center(
@@ -273,102 +293,19 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  void _showEmailVerificationBottomSheet(
-      BuildContext context, OnboardingNotifier notifier) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return EmailVerificationBottomSheet(notifier: notifier);
-      },
-    );
-  }
-}
-
-class EmailVerificationBottomSheet extends StatefulWidget {
-  final OnboardingNotifier notifier;
-
-  const EmailVerificationBottomSheet({Key? key, required this.notifier})
-      : super(key: key);
-
-  @override
-  EmailVerificationBottomSheetState createState() =>
-      EmailVerificationBottomSheetState();
-}
-
-class EmailVerificationBottomSheetState
-    extends State<EmailVerificationBottomSheet> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _otpController = TextEditingController();
-  bool _isEmailSent = false;
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _otpController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 24,
-        right: 24,
-        top: 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            _isEmailSent ? 'Enter OTP' : 'Enter your email',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          if (!_isEmailSent)
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                hintText: 'Email address',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            )
-          else
-            TextField(
-              controller: _otpController,
-              decoration: const InputDecoration(
-                hintText: 'Enter OTP',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          const SizedBox(height: 16),
-          CustomButton(
-            onPressed:
-                _isLoading ? null : (_isEmailSent ? _verifyOtp : _sendOtp),
-            child: _isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : Text(_isEmailSent ? 'Verify OTP' : 'Send OTP'),
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
+  Widget _navigateToDashboard(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      );
+    });
+    return const SizedBox.shrink();
   }
 
   Future<void> _sendOtp() async {
     final email = _emailController.text.trim();
     if (email.isNotEmpty) {
-      setState(() => _isLoading = true);
-      await widget.notifier.startEmailVerification(email);
-      setState(() {
-        _isLoading = false;
-        _isEmailSent = true;
-      });
+      await ref.read(onboardingProvider.notifier).startEmailVerification(email);
     }
   }
 
@@ -376,11 +313,12 @@ class EmailVerificationBottomSheetState
     final email = _emailController.text.trim();
     final otp = _otpController.text.trim();
     if (email.isNotEmpty && otp.isNotEmpty) {
-      setState(() => _isLoading = true);
-      await widget.notifier.verifyOtp(email, otp);
-      setState(() => _isLoading = false);
-      if (mounted) {
-        Navigator.of(context).pop();
+      final success =
+          await ref.read(onboardingProvider.notifier).verifyOtp(email, otp);
+      if (!success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid code. Please try again.')),
+        );
       }
     }
   }

@@ -1,4 +1,5 @@
 // onboarding_notifier.dart
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
@@ -74,18 +75,29 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         inProgress: (isNewUser, _, name, goals, __) =>
             OnboardingState.inProgress(
           isNewUser: isNewUser,
-          emailVerificationStatus: EmailVerificationStatus.inProgress,
+          emailVerificationStatus: EmailVerificationStatus.awaitingOtp,
           name: name,
           goals: goals,
+          isLoading: false,
         ),
         orElse: () => state,
       );
     } catch (e) {
-      state = OnboardingState.error(e.toString());
+      state = state.maybeWhen(
+        inProgress: (isNewUser, _, name, goals, __) =>
+            OnboardingState.inProgress(
+          isNewUser: isNewUser,
+          emailVerificationStatus: EmailVerificationStatus.failed,
+          name: name,
+          goals: goals,
+          isLoading: false,
+        ),
+        orElse: () => state,
+      );
     }
   }
 
-  Future<void> verifyOtp(String email, String otp) async {
+  Future<bool> verifyOtp(String email, String otp) async {
     state = state.maybeWhen(
       inProgress: (isNewUser, _, name, goals, __) => OnboardingState.inProgress(
         isNewUser: isNewUser,
@@ -106,7 +118,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
           final existingProfile = await _userProfileRepository.getUserProfile();
           if (existingProfile != null) {
             await _fetchDailyGoalsAndComplete(userId);
-            return;
+            return true;
           }
         }
         state = state.maybeWhen(
@@ -116,9 +128,11 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             emailVerificationStatus: EmailVerificationStatus.verified,
             name: name,
             goals: goals,
+            isLoading: false,
           ),
           orElse: () => state,
         );
+        return true;
       } else {
         state = state.maybeWhen(
           inProgress: (isNewUser, _, name, goals, __) =>
@@ -127,12 +141,25 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             emailVerificationStatus: EmailVerificationStatus.failed,
             name: name,
             goals: goals,
+            isLoading: false,
           ),
           orElse: () => state,
         );
+        return false;
       }
     } catch (e) {
-      state = OnboardingState.error(e.toString());
+      state = state.maybeWhen(
+        inProgress: (isNewUser, _, name, goals, __) =>
+            OnboardingState.inProgress(
+          isNewUser: isNewUser,
+          emailVerificationStatus: EmailVerificationStatus.failed,
+          name: name,
+          goals: goals,
+          isLoading: false,
+        ),
+        orElse: () => state,
+      );
+      return false;
     }
   }
 
@@ -150,9 +177,13 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
     try {
       await _authService.signInAnonymously();
+      final userId = await _authService.getCurrentUserId();
+      if (userId == null) {
+        throw Exception('Failed to get user ID after anonymous sign-in');
+      }
+
       state = state.maybeWhen(
-        inProgress: (isNewUser, _, name, goals, __) =>
-            OnboardingState.inProgress(
+        inProgress: (_, __, name, goals, ___) => OnboardingState.inProgress(
           isNewUser: true,
           emailVerificationStatus: EmailVerificationStatus.skipped,
           name: name,
@@ -231,6 +262,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
       await _userProfileRepository.saveUserProfile(userProfile);
       await _fetchDailyGoalsAndComplete(userId);
+      state = const OnboardingState.complete();
     } catch (e) {
       Logger.log('Error completing onboarding: $e');
       state = OnboardingState.error(e.toString());
@@ -257,8 +289,6 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
           await _dailyGoalsRepository.saveDailyGoals(newDailyGoals);
         }
       }
-
-      state = const OnboardingState.complete();
     } catch (e) {
       Logger.log('Error fetching daily goals and completing onboarding: $e');
       state = OnboardingState.error(e.toString());
