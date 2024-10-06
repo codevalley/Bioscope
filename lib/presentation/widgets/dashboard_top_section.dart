@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'nutrition_indicator.dart';
 import '../../domain/entities/goal_item.dart';
 import 'package:intl/intl.dart';
+import '../providers/providers.dart';
 
-class DashboardTopSection extends StatelessWidget {
+class DashboardTopSection extends ConsumerWidget {
   final String greeting;
   final String name;
   final Map<String, GoalItem> dailyGoals;
@@ -26,7 +28,8 @@ class DashboardTopSection extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboardState = ref.watch(dashboardProvider);
     final caloriesGoal = dailyGoals['Calories'];
     final caloriesConsumed = caloriesGoal?.actual.toInt() ?? 0;
     final dailyCalorieGoal = caloriesGoal?.target.toInt() ?? 2000;
@@ -58,41 +61,10 @@ class DashboardTopSection extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
-                  SizedBox(
-                    height: 100,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: dailyGoals.entries
-                              .where((entry) => entry.key != 'Calories')
-                              .map((entry) {
-                            final goalItem = entry.value;
-                            final progress = goalItem.actual / goalItem.target;
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 6),
-                              child: SizedBox(
-                                width: 66,
-                                height: 89,
-                                child: NutritionIndicator(
-                                  label: goalItem.name,
-                                  value:
-                                      '${goalItem.actual.toInt()}/${goalItem.target.toInt()}${goalItem.unit}',
-                                  progress: progress,
-                                  progressColor:
-                                      _getProgressColor(progress, context),
-                                  size: 56,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  ),
+                  if (dashboardState.isDailyGoalsEmpty)
+                    _buildZeroState(context)
+                  else
+                    _buildNutritionIndicators(context),
                 ],
               ),
             ),
@@ -113,7 +85,9 @@ class DashboardTopSection extends StatelessWidget {
                       Icon(Icons.chevron_left, color: Colors.grey[600]),
                       Expanded(
                         child: Text(
-                          'Today, $formattedDate : $caloriesConsumed/$dailyCalorieGoal kcal',
+                          dashboardState.isDailyGoalsEmpty
+                              ? '$formattedDate - Start your food journey!'
+                              : 'Today, $formattedDate : $caloriesConsumed/$dailyCalorieGoal kcal',
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -125,17 +99,68 @@ class DashboardTopSection extends StatelessWidget {
                     ],
                   ),
                 ),
-                LinearProgressIndicator(
-                  value: calorieProgress.clamp(0.0, 1.0),
-                  backgroundColor: Colors.grey[300],
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      _getProgressColor(calorieProgress, context)),
-                  minHeight: 2,
-                ),
+                if (!dashboardState.isDailyGoalsEmpty)
+                  LinearProgressIndicator(
+                    value: calorieProgress.clamp(0.0, 1.0),
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        _getProgressColor(calorieProgress, context)),
+                    minHeight: 2,
+                  ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildZeroState(BuildContext context) {
+    return Container(
+      height: 100,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Center(
+        child: Text(
+          'No meals logged yet. Start your day by adding your first meal!',
+          style: Theme.of(context).textTheme.bodyLarge,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNutritionIndicators(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: dailyGoals.entries
+                .where((entry) => entry.key != 'Calories')
+                .map((entry) {
+              final goalItem = entry.value;
+              final progress = goalItem.actual / goalItem.target;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: SizedBox(
+                  width: 66,
+                  height: 89,
+                  child: NutritionIndicator(
+                    label: goalItem.name,
+                    value:
+                        '${goalItem.actual.toInt()}/${goalItem.target.toInt()}${goalItem.unit}',
+                    progress: progress,
+                    progressColor: _getProgressColor(progress, context),
+                    size: 56,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

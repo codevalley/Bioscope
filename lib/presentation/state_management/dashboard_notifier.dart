@@ -40,6 +40,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
           nutritionGoals: userProfile.nutritionGoals,
           foodEntries: foodEntries,
           dailyGoals: dailyGoals?.goals ?? {},
+          isDailyGoalsEmpty: dailyGoals == null,
           isLoading: false,
         );
       }
