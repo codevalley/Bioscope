@@ -45,17 +45,15 @@ class OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             inProgress:
                 (isNewUser, emailVerificationStatus, name, goals, isLoading) {
               if (isNewUser) {
-                if (emailVerificationStatus ==
-                        EmailVerificationStatus.notStarted ||
-                    emailVerificationStatus ==
-                        EmailVerificationStatus.awaitingOtp ||
-                    emailVerificationStatus == EmailVerificationStatus.failed) {
-                  return _buildWelcomeSection(
-                      context, notifier, emailVerificationStatus, isLoading);
-                } else {
-                  return _buildNameAndGoalsSection(
-                      context, notifier, name, goals, isLoading);
-                }
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: emailVerificationStatus ==
+                          EmailVerificationStatus.verified
+                      ? _buildNameAndGoalsSection(
+                          context, notifier, name, goals, isLoading)
+                      : _buildWelcomeSection(context, notifier,
+                          emailVerificationStatus, isLoading),
+                );
               } else {
                 return _buildExistingUserFlow(
                     context, notifier, name, isLoading);
@@ -71,7 +69,7 @@ class OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget _buildWelcomeSection(BuildContext context, OnboardingNotifier notifier,
       EmailVerificationStatus status, bool isLoading) {
-    final isEmailSent = status == EmailVerificationStatus.awaitingOtp;
+    final isAwaitingOtp = status == EmailVerificationStatus.awaitingOtp;
 
     return ListView(
       children: [
@@ -84,24 +82,35 @@ class OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          isEmailSent
+          isAwaitingOtp
               ? 'Enter the magic code sent to your email.'
               : 'Link your email to setup a multi-device account or to login to an existing account.',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 24),
         TextField(
-          controller: isEmailSent ? _otpController : _emailController,
+          controller: _emailController,
           decoration: InputDecoration(
-            hintText: isEmailSent ? 'Enter magic code' : 'Your personal email',
+            hintText: 'Your personal email',
             border: const OutlineInputBorder(),
+            enabled: !isAwaitingOtp,
           ),
-          keyboardType:
-              isEmailSent ? TextInputType.number : TextInputType.emailAddress,
+          keyboardType: TextInputType.emailAddress,
         ),
+        if (isAwaitingOtp) ...[
+          const SizedBox(height: 16),
+          TextField(
+            controller: _otpController,
+            decoration: const InputDecoration(
+              hintText: 'Enter magic code',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: TextInputType.number,
+          ),
+        ],
         const SizedBox(height: 16),
         CustomButton(
-          onPressed: isLoading ? null : (isEmailSent ? _verifyOtp : _sendOtp),
+          onPressed: isLoading ? null : (isAwaitingOtp ? _verifyOtp : _sendOtp),
           child: isLoading
               ? const SizedBox(
                   width: 20,
@@ -111,9 +120,11 @@ class OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     strokeWidth: 2,
                   ),
                 )
-              : Text(isEmailSent ? 'Verify Magic Code' : 'Send Magic Code'),
+              : Text(isAwaitingOtp ? 'Verify Magic Code' : 'Send Magic Code'),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
+        const Divider(thickness: 1),
+        const SizedBox(height: 24),
         CustomButton(
           onPressed: () => notifier.skipEmailVerification(),
           style: CustomButton.outlinedStyle,
@@ -316,9 +327,12 @@ class OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final success =
           await ref.read(onboardingProvider.notifier).verifyOtp(email, otp);
       if (!success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid code. Please try again.')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid code. Please try again.')),
+          );
+        }
+        _otpController.clear();
       }
     }
   }

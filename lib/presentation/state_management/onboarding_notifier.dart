@@ -25,17 +25,23 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   }
 
   Future<void> _initOnboarding() async {
+    Logger.log("_initOnboarding: Starting initialization");
     state = const OnboardingState.inProgress(
       isNewUser: true,
       emailVerificationStatus: EmailVerificationStatus.notStarted,
       isLoading: true,
     );
+    Logger.log("_initOnboarding: Set initial state - ${state.toString()}");
 
     final userId = await _authService.getCurrentUserId();
+    Logger.log("_initOnboarding: Retrieved userId - $userId");
     final userProfile =
         userId != null ? await _userProfileRepository.getUserProfile() : null;
+    Logger.log(
+        "_initOnboarding: Retrieved userProfile - ${userProfile != null}");
 
     if (userProfile != null) {
+      Logger.log("_initOnboarding: Existing user found");
       state = OnboardingState.inProgress(
         isNewUser: false,
         emailVerificationStatus: EmailVerificationStatus.verified,
@@ -43,160 +49,157 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         goals: userProfile.nutritionGoals
             .map((key, value) => MapEntry(key, value.target)),
       );
+      Logger.log(
+          "_initOnboarding: Set state for existing user - ${state.toString()}");
       await _fetchDailyGoalsAndComplete(userId!);
     } else {
+      Logger.log("_initOnboarding: New user");
       state = const OnboardingState.inProgress(
         isNewUser: true,
         emailVerificationStatus: EmailVerificationStatus.notStarted,
+        isLoading: false,
       );
+      Logger.log(
+          "_initOnboarding: Set state for new user - ${state.toString()}");
     }
   }
 
   void startOnboarding() {
+    Logger.log("startOnboarding: Restarting onboarding process");
     state = const OnboardingState.initial();
     _initOnboarding();
   }
 
   Future<void> startEmailVerification(String email) async {
-    state = state.maybeWhen(
-      inProgress: (isNewUser, _, name, goals, __) => OnboardingState.inProgress(
-        isNewUser: isNewUser,
-        emailVerificationStatus: EmailVerificationStatus.inProgress,
-        name: name,
-        goals: goals,
-        isLoading: true,
-      ),
-      orElse: () => state,
+    Logger.log("startEmailVerification: Starting for email - $email");
+
+    // Set the state to inProgress immediately
+    state = const OnboardingState.inProgress(
+      isNewUser: true,
+      emailVerificationStatus: EmailVerificationStatus.inProgress,
+      isLoading: true,
     );
+    Logger.log(
+        "startEmailVerification: Set state to inProgress - ${state.toString()}");
 
     try {
       await _authService.signInWithOtp(email);
-      state = state.maybeWhen(
-        inProgress: (isNewUser, _, name, goals, __) =>
-            OnboardingState.inProgress(
-          isNewUser: isNewUser,
-          emailVerificationStatus: EmailVerificationStatus.awaitingOtp,
-          name: name,
-          goals: goals,
-          isLoading: false,
-        ),
-        orElse: () => state,
+      Logger.log("startEmailVerification: OTP sent successfully");
+
+      // Update the state to awaitingOtp only after successful OTP send
+      state = const OnboardingState.inProgress(
+        isNewUser: true,
+        emailVerificationStatus: EmailVerificationStatus.awaitingOtp,
+        isLoading: false,
       );
+      Logger.log(
+          "startEmailVerification: Updated state to awaitingOtp - ${state.toString()}");
     } catch (e) {
-      state = state.maybeWhen(
-        inProgress: (isNewUser, _, name, goals, __) =>
-            OnboardingState.inProgress(
-          isNewUser: isNewUser,
-          emailVerificationStatus: EmailVerificationStatus.failed,
-          name: name,
-          goals: goals,
-          isLoading: false,
-        ),
-        orElse: () => state,
+      Logger.log("startEmailVerification: Error sending OTP - $e");
+      state = const OnboardingState.inProgress(
+        isNewUser: true,
+        emailVerificationStatus: EmailVerificationStatus.failed,
+        isLoading: false,
       );
+      Logger.log(
+          "startEmailVerification: Updated state to failed - ${state.toString()}");
     }
   }
 
   Future<bool> verifyOtp(String email, String otp) async {
-    state = state.maybeWhen(
-      inProgress: (isNewUser, _, name, goals, __) => OnboardingState.inProgress(
-        isNewUser: isNewUser,
-        emailVerificationStatus: EmailVerificationStatus.inProgress,
-        name: name,
-        goals: goals,
-        isLoading: true,
-      ),
-      orElse: () => state,
+    Logger.log("verifyOtp: Starting verification for email - $email");
+    state = const OnboardingState.inProgress(
+      isNewUser: true,
+      emailVerificationStatus: EmailVerificationStatus.inProgress,
+      isLoading: true,
     );
+    Logger.log("verifyOtp: Set initial state - ${state.toString()}");
 
     try {
       final isVerified = await _authService.verifyOtp(email, otp);
+      Logger.log("verifyOtp: OTP verification result - $isVerified");
       if (isVerified) {
         verifiedEmail = email;
+        Logger.log("verifyOtp: Email verified - $email");
         final userId = await _authService.getCurrentUserId();
+        Logger.log("verifyOtp: Retrieved userId after verification - $userId");
         if (userId != null) {
           final existingProfile = await _userProfileRepository.getUserProfile();
+          Logger.log(
+              "verifyOtp: Existing profile found - ${existingProfile != null}");
           if (existingProfile != null) {
             await _fetchDailyGoalsAndComplete(userId);
             return true;
           }
         }
-        state = state.maybeWhen(
-          inProgress: (isNewUser, _, name, goals, __) =>
-              OnboardingState.inProgress(
-            isNewUser: isNewUser,
-            emailVerificationStatus: EmailVerificationStatus.verified,
-            name: name,
-            goals: goals,
-            isLoading: false,
-          ),
-          orElse: () => state,
+        state = const OnboardingState.inProgress(
+          isNewUser: true,
+          emailVerificationStatus: EmailVerificationStatus.verified,
+          isLoading: false,
         );
+        Logger.log(
+            "verifyOtp: Updated state after successful verification - ${state.toString()}");
         return true;
       } else {
-        state = state.maybeWhen(
-          inProgress: (isNewUser, _, name, goals, __) =>
-              OnboardingState.inProgress(
-            isNewUser: isNewUser,
-            emailVerificationStatus: EmailVerificationStatus.failed,
-            name: name,
-            goals: goals,
-            isLoading: false,
-          ),
-          orElse: () => state,
+        Logger.log("verifyOtp: OTP verification failed");
+        state = const OnboardingState.inProgress(
+          isNewUser: true,
+          emailVerificationStatus: EmailVerificationStatus.awaitingOtp,
+          isLoading: false,
         );
+        Logger.log(
+            "verifyOtp: Updated state after failed verification - ${state.toString()}");
         return false;
       }
     } catch (e) {
-      state = state.maybeWhen(
-        inProgress: (isNewUser, _, name, goals, __) =>
-            OnboardingState.inProgress(
-          isNewUser: isNewUser,
-          emailVerificationStatus: EmailVerificationStatus.failed,
-          name: name,
-          goals: goals,
-          isLoading: false,
-        ),
-        orElse: () => state,
+      Logger.log("verifyOtp: Error during verification - $e");
+      state = const OnboardingState.inProgress(
+        isNewUser: true,
+        emailVerificationStatus: EmailVerificationStatus.failed,
+        isLoading: false,
       );
+      Logger.log("verifyOtp: Updated state after error - ${state.toString()}");
       return false;
     }
   }
 
   Future<void> skipEmailVerification() async {
-    state = state.maybeWhen(
-      inProgress: (isNewUser, _, name, goals, __) => OnboardingState.inProgress(
-        isNewUser: isNewUser,
-        emailVerificationStatus: EmailVerificationStatus.skipped,
-        name: name,
-        goals: goals,
-        isLoading: true,
-      ),
-      orElse: () => state,
+    Logger.log("skipEmailVerification: Starting");
+    state = const OnboardingState.inProgress(
+      isNewUser: true,
+      emailVerificationStatus: EmailVerificationStatus.skipped,
+      isLoading: true,
     );
+    Logger.log(
+        "skipEmailVerification: Set initial state - ${state.toString()}");
 
     try {
       await _authService.signInAnonymously();
+      Logger.log("skipEmailVerification: Anonymous sign-in successful");
       final userId = await _authService.getCurrentUserId();
+      Logger.log(
+          "skipEmailVerification: Retrieved userId after anonymous sign-in - $userId");
       if (userId == null) {
         throw Exception('Failed to get user ID after anonymous sign-in');
       }
 
-      state = state.maybeWhen(
-        inProgress: (_, __, name, goals, ___) => OnboardingState.inProgress(
-          isNewUser: true,
-          emailVerificationStatus: EmailVerificationStatus.skipped,
-          name: name,
-          goals: goals,
-        ),
-        orElse: () => state,
+      state = const OnboardingState.inProgress(
+        isNewUser: true,
+        emailVerificationStatus: EmailVerificationStatus.skipped,
+        isLoading: false,
       );
+      Logger.log(
+          "skipEmailVerification: Updated state after anonymous sign-in - ${state.toString()}");
     } catch (e) {
+      Logger.log("skipEmailVerification: Error during anonymous sign-in - $e");
       state = OnboardingState.error(e.toString());
+      Logger.log(
+          "skipEmailVerification: Updated state after error - ${state.toString()}");
     }
   }
 
   void setName(String name) {
+    Logger.log("setName: Setting name - $name");
     state = state.maybeWhen(
       inProgress: (isNewUser, emailVerificationStatus, _, goals, __) =>
           OnboardingState.inProgress(
@@ -207,9 +210,11 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       ),
       orElse: () => state,
     );
+    Logger.log("setName: Updated state - ${state.toString()}");
   }
 
   void setGoal(String goalType, double value) {
+    Logger.log("setGoal: Setting goal - $goalType: $value");
     state = state.maybeWhen(
       inProgress: (isNewUser, emailVerificationStatus, name, goals, _) {
         final updatedGoals = Map<String, double>.from(goals ?? {});
@@ -223,9 +228,11 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       },
       orElse: () => state,
     );
+    Logger.log("setGoal: Updated state - ${state.toString()}");
   }
 
   Future<void> completeOnboarding() async {
+    Logger.log("completeOnboarding: Starting");
     state = state.maybeWhen(
       inProgress: (isNewUser, emailVerificationStatus, name, goals, _) =>
           OnboardingState.inProgress(
@@ -237,15 +244,18 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       ),
       orElse: () => state,
     );
+    Logger.log("completeOnboarding: Set initial state - ${state.toString()}");
 
     try {
       final userId = await _authService.getCurrentUserId();
+      Logger.log("completeOnboarding: Retrieved userId - $userId");
       if (userId == null) throw Exception('Failed to get user ID');
 
       final nutritionGoals = _createNutritionGoals(state.maybeWhen(
         inProgress: (_, __, ___, goals, ____) => goals,
         orElse: () => {},
       ));
+      Logger.log("completeOnboarding: Created nutrition goals");
 
       final userProfile = UserProfile(
         id: userId,
@@ -259,25 +269,33 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         gender: '',
         nutritionGoals: nutritionGoals,
       );
+      Logger.log("completeOnboarding: Created user profile");
 
       await _userProfileRepository.saveUserProfile(userProfile);
+      Logger.log("completeOnboarding: Saved user profile");
       await _fetchDailyGoalsAndComplete(userId);
-      state = const OnboardingState.complete();
     } catch (e) {
-      Logger.log('Error completing onboarding: $e');
+      Logger.log('completeOnboarding: Error completing onboarding - $e');
       state = OnboardingState.error(e.toString());
+      Logger.log(
+          "completeOnboarding: Updated state after error - ${state.toString()}");
     }
   }
 
   Future<void> _fetchDailyGoalsAndComplete(String userId) async {
+    Logger.log("_fetchDailyGoalsAndComplete: Starting for userId - $userId");
     try {
       final today = DateTime.now();
       final dailyGoals = await _dailyGoalsRepository.getDailyGoals(
         DateTime(today.year, today.month, today.day),
       );
+      Logger.log(
+          "_fetchDailyGoalsAndComplete: Retrieved daily goals - ${dailyGoals != null}");
 
       if (dailyGoals == null) {
         final userProfile = await _userProfileRepository.getUserProfile();
+        Logger.log(
+            "_fetchDailyGoalsAndComplete: Retrieved user profile - ${userProfile != null}");
         if (userProfile != null) {
           final newDailyGoals = DailyGoals(
             userId: userId,
@@ -287,15 +305,23 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
             ),
           );
           await _dailyGoalsRepository.saveDailyGoals(newDailyGoals);
+          Logger.log("_fetchDailyGoalsAndComplete: Saved new daily goals");
         }
       }
+      state = const OnboardingState.complete();
+      Logger.log(
+          "_fetchDailyGoalsAndComplete: Onboarding completed - ${state.toString()}");
     } catch (e) {
-      Logger.log('Error fetching daily goals and completing onboarding: $e');
+      Logger.log(
+          '_fetchDailyGoalsAndComplete: Error fetching daily goals and completing onboarding - $e');
       state = OnboardingState.error(e.toString());
+      Logger.log(
+          "_fetchDailyGoalsAndComplete: Updated state after error - ${state.toString()}");
     }
   }
 
   Map<String, GoalItem> _createNutritionGoals(Map<String, double>? goals) {
+    Logger.log("_createNutritionGoals: Creating nutrition goals");
     final defaultGoals = {
       'Calories': 2000.0,
       'Carbs': 250.0,
